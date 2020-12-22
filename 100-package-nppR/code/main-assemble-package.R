@@ -87,7 +87,7 @@ packages.suggest <- base::c(
     # "testthat"
     );
 
-files.R <- base::c("getChenLiWuEstimate.R", "nppCART.R");
+files.R <- base::c("getChenLiWuEstimate.R", "nppCART.R", "package-init.R");
 files.R <- base::file.path( code.directory , files.R );
 
 # files.R <- base::c(
