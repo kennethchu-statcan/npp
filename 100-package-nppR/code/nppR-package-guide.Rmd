@@ -1,0 +1,404 @@
+---
+title: "nppR Package Guide"
+author: "Jean-François Beaumont, Kenneth Chu and Janahan Dhushenthen"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+This vignette explains how to use the nppR package, and serves as a guide to new users. It documents the two functions that are contained in nppR: [nppCART](#nppcart) and [getChenLiWuEstimate](#getchenliwuestimate).  
+
+## Overview
+
+Probability sampling is a technique used to randomly select individuals from a population, where everyone’s probability of being selected is prescribed by the survey methodologists. Non-probability sampling is another way to obtain a sample, but relinquishes all control of who ends up in the sample; one common example is opt-in surveys, where individuals are self-selected.    
+
+Non-probability sampling is advantageous because it is less expensive than probability sampling and reduces the response burden on the people surveyed. However, due to self-selection, “naive” estimators based on the sample cannot be assumed to be unbiased, and cannot be safely generalized to the whole population in the same way as a probability sample. An unbiased estimator can only be constructed with knowledge of the self-selection propensities of units in a non-probability sample.    
+
+The nppR package provides tools to estimate the self-selection propensities and total population (i.e. sum of the response column) of a non-probability sample, using relevant auxiliary information (i.e. shared predictor columns) from a probability sample.    
+  
+## nppCART
+
+The nppCART function implements the **Tree-based Inverse Propensity Weighted estimator**, developed by Kenneth Chu and Jean-François Beaumont. It can be used to estimate the self-selection propensity of each unit in a non-probability sample and its total population. The estimates are calculated by performing recursive binary partitioning on a related probability sample, which shares relevant auxiliary variables with the non-probability sample. The nppCART function creates an R6 class, which contains a number of public methods that are available for the user.
+
+### Parameters
+
+The parameters are the inputs to the nppCART function, which instantiate the R6 class.  
+
+<br>
+
+**`predictors`**  
+
+This parameter corresponds to the auxiliary variables on which the partitioning is performed. The input must be a string or vector of strings that contain column names shared by both `np.data` and `p.data`. If no value is specified, predictors will be set to all the column names in `np.data`.  
+  
+**e.g.**     
+To demonstrate how to use the nppR package, we will first generate a simple population. Here, the predictor variables are "x1" and "x2".  
+
+```{r}
+    # Set population size
+    N <- 1000;
+
+    # Create population
+    DF.population <- data.frame(
+        ID = seq(1,N),
+        y = jitter(rep(10,N)),
+        x1 = jitter(rep(1,N)),
+        x2 = jitter(rep(1,N)),
+        propensity = jitter(rep(0.2,N))
+        );
+```
+
+<br>
+
+**NOTE:**  
+nppCART can handle numeric predictors and categorical predictors (ordered and unordered factors). There are two different ways to input a predictor that is an unordered factor:  
+
+1.    Enter one column for the predictor, which contains the different levels of the factor. During partitioning,
+      nppCART will try to find the best split by enumerating the set of all possible factor level combinations, and checking if the data is contained in each combination or not. This may be easier to input, but seems to produce estimates with greater bias and variance than the second option.  
+      
+```{r}
+    option1 <- data.frame(predictor = factor(c("a","b","c")), output = c(1,2,3));
+    print(option1);
+```
+
+2.    Model the column as a matrix (i.e. using `model.matrix()`), so that there is a predictor column for 
+      each factor level. Each row should contain a one-hot code that indicates which factor level it corresponds to (using 0's and 1's). Now nppCART will try to find the best split by checking if the data is less than or equal to the midpoint (0.5). This seems to produce better estimates than the first option.  
+
+```{r}
+    option2 <- model.matrix( ~ -1 + . , data = option1 );
+    print(option2);
+```
+
+<br>
+
+**`np.data`**  
+
+This parameter corresponds to the non-probability sample. The input must be a nonempty matrix-like data type (i.e. matrix, dataframe or tibble). A value must be specified here for instantiation to be successful.  
+  
+**e.g.**      
+We sample the previously generated population, using its self-selection propensities (under "propensity"), to create a non-probability sample.  
+
+```{r}
+    # Get non-probability sample
+    DF.non.probability <- DF.population;
+    DF.non.probability[,"self.select"] <- sapply(
+        X   = DF.non.probability[,"propensity"],
+        FUN = function(x) { sample( x = c(0,1), size = 1, prob = c(1-x,x) ) }
+        );
+    DF.non.probability <- DF.non.probability[1 == DF.non.probability[,"self.select"],
+                                             c("ID","y","x1","x2")];
+```
+
+<br>
+
+**`p.data`**  
+
+This parameter corresponds to the probability sample. The input must be a nonempty matrix-like data type (i.e. matrix, dataframe or tibble). A value must be specified here for instantiation to be successful.  
+
+**e.g.**    
+We randomly sample the previously generated population to create a probability sample.
+
+```{r}
+    # Set the probability of selection
+    prob.selection <- 0.1;
+
+    # Get probability sample
+    is.selected <- sample(
+        x       = c(TRUE,FALSE),
+        size    = nrow(DF.population),
+        replace = TRUE,
+        prob    = c(prob.selection, 1 - prob.selection)
+        );
+    DF.probability <- DF.population[is.selected,c("ID","x1","x2")];
+    DF.probability[,"weight"] <- 1 / prob.selection;       
+```
+
+<br>
+
+**`weight`**  
+
+This parameter corresponds to the column in the probability sample that contains the sampling weights. The input must be a string corresponding to a column name in `p.data`, such that there are only positive numbers in that column. A value must be specified here for instantiation to be successful.  
+
+**e.g.**   
+Our probability sample has a column for the sampling weights, called "weight".
+
+<br>
+
+**`min.cell.size`**  
+
+This parameter corresponds to the minimum number of rows remaining in the probability sample and non-probabilty sample to continue partitioning. The input must be a positive integer. If no value is specified, `min.cell.size` will be set to 10.  
+  
+**e.g.**     
+We will use the default value for simplicity.
+
+<br>
+
+**`min.impurity`**  
+
+This parameter corresponds to the minimum impurity calculated in each leaf node to continue partitioning. The input must be a positive number. If no value is specified, `min.impurity` will be set to 0.095.  
+  
+**e.g.**      
+We will use the default value for simplicity.
+
+<br>
+
+**`max.levels`**  
+
+This parameter corresponds to the maximum number of levels allowed by each factor in the predictor variables. The input must be a number that is greater than or equal to zero. If no value is specified, `max.levels` will be set to 10.  
+  
+**e.g.**     
+We are only using numeric predictors, so this value doesn't matter (we will just use the default).
+
+### Output
+
+The nppCART function returns an instance of the R6 class, which has been initialized with the parameters listed above.
+
+**e.g.**     
+We need to store the output of nppCART, so that we can use its public methods and get the calculated estimates.
+
+### Public Methods
+
+The public methods are functions in the R6 class that are accessible to the user.
+
+<br>
+
+**`initialize`**  
+
+This method is called when the R6 class is created (i.e. when nppCART is called). The arguments passed into nppCART are passed into `initialize`. This method contains input integrity checks to ensure that the arguments meet the required specifications. In addition, the method does some preprocessing of the input data.  
+
+**e.g.**   
+We load the nppR package, call the nppCART function, and bind the instance of the R6 class to a variable.  
+
+```{r}
+    # Load nppR package
+    library(nppR);
+
+    # nppCART: instantiate R6 class 
+	nppTree <- nppCART(
+        predictors = c("x1","x2"),
+        np.data    = DF.non.probability,
+        p.data     = DF.probability,
+        weight     = "weight"
+        );
+```
+
+<br>
+
+**`grow`**  
+
+This method is used to grow a classification tree through recursive binary partitioning of the predictors. It operates in the R6 class internally, and does not have parameters or a return value. This method should be called after the instantiation of the class.  
+
+**e.g.**  
+We can call public methods, using the variable that contains the instantiated R6 class. Here, we grow the classification tree.
+
+```{r}
+    # nppCART: grow classification tree
+    nppTree$grow();
+```
+
+<br>
+
+**`print`**  
+
+This method is used to print the classification tree in a readable format (each node is on a separate line and indented appropriately). There is one parameter, `FUN.format`, which is a function that customizes the output format. This method should be used after calling `grow`.  
+
+**e.g.**   
+We print out the classification tree, with the tree-calculated values rounded to three digits.
+
+```{r}
+    # nppCART: print classification tree
+    nppTree$print(
+        FUN.format = function(x) {return( round(x,digits=3) )} 
+        );
+```
+
+<br>
+
+**`get_npdata_with_propensity`**  
+
+This method returns a dataframe that contains the non-probability sample, with the tree-calculated values.  
+The tree-calculated values include:  
+- `nodeID`: unique identifier for each node  
+- `propensity`: self-selection propensity for each unit in the non-probability sample  
+- `np.count`: number of units in the non-probability sample, which belong to each node  
+- `p.weight`: sum of the units' weights in the probability sample, which belong to each node  
+- `impurity`: tree impurity of each node  
+There is one parameter, `nodes`, which is passed in a value internally by default, and should not be modified. This method should be used after calling `grow`.  
+
+**e.g.**    
+We store the tree-calculated values returned by `get_npdata_with_propensity`, and then use these values to calculate the population estimate and propensity correlation.
+
+```{r}
+    # nppCART: get tree-calculated values
+    DF.npdata_with_propensity <- nppTree$get_npdata_with_propensity();
+    colnames(DF.npdata_with_propensity) <- gsub(
+        x           = colnames(DF.npdata_with_propensity),
+        pattern     = "propensity",
+        replacement = "p_hat"
+        );
+    DF.npdata_with_propensity <- merge(
+        x  = DF.npdata_with_propensity,
+        y  = DF.population[,c("ID","propensity")],
+        by = "ID"
+        );
+    DF.npdata_with_propensity <- DF.npdata_with_propensity[order(DF.npdata_with_propensity[,"ID"]),];
+
+    # nppCART: calculate population estimate and propensity correlation
+    Y_total_hat_tree <- sum(
+        DF.npdata_with_propensity[,"y"] / DF.npdata_with_propensity[,"p_hat"]
+        );
+    cor_propensity_tree <- cor(
+        x = DF.npdata_with_propensity[,"p_hat"],
+        y = DF.npdata_with_propensity[,"propensity"]
+        );
+```
+
+<br>
+
+## getChenLiWuEstimate
+
+The getChenLiWuEstimate function implements the **Chen-Li-Wu Doubly Robust estimator**, developed by Yilin Chen, Pengfei Li and Changbao Wu. Like nppCART, this function can be used to estimate the total population of a non-probability sample, using relevant auxiliary information from a probability sample. However, it uses a different method (Doubly Robust estimator), and is provided in this package so that the user can compare results between the two algorithms.
+
+**Link to paper:** [Doubly Robust Inference with Non-probability Survey Samples](https://arxiv.org/pdf/1805.06432.pdf)
+
+### Parameters
+
+The parameters are the inputs to the getChenLiWuEstimate function, which are used to calculate the estimates.  
+
+<br>
+
+**`LIST.input`**  
+
+This parameter corresponds to the probability and non-probability samples. The input must be a list containing two matrix-like data types (i.e. matrix, dataframe or tibble), called `probability.sample` and `non.probability.sample`. A value must be specified here for the function call to be successful.  
+
+**e.g.**   
+We create a list containing the probability and non-probability samples that we created earlier.
+
+```{r}
+# Create LIST.samples
+    LIST.samples <- list(
+        probability.sample = DF.probability, 
+        non.probability.sample = DF.non.probability
+        );
+```
+
+<br>
+
+**`formula`**  
+
+This parameter corresponds to the specification of the response and predictor variables. The input must be an expression of the form `y ~ model`, where `y` represents the response variable and `model` represents the predictor variables (each predictor is separated by the `+` operator). The response variable must be in the non-probability sample, and the predictor variables must be contained in both the probability and non-probability samples. A value must be specified here for the function call to be successful.  
+  
+**e.g.**   
+We have "y" as our response variable, and "x1" and "x2" as our predictor variables, so our formula will be "y ~ x1 + x2".
+
+<br>  
+
+**NOTE:**  
+The getChenLiWuEstimate function can only handle numeric predictors (unlike nppCART, which can handle categorical data too).
+
+<br>
+
+**`weight`**  
+
+This parameter corresponds to the column in the probability sample that contains the sampling weights. The input must be a string corresponding to a column name in `probability.sample`, such that there are only positive numbers in that column. A value must be specified here for the function call to be successful.  
+
+**e.g.**   
+Our probability sample has a column for the sampling weights, called "weight".
+
+<br>
+
+**`population`**  
+
+This parameter corresponds to the total population that the probability and non-probability samples are taken from. The input must be a matrix-like data type (i.e. matrix, dataframe or tibble), which contains the response and predictor variables, unique identifiers (under 'ID'), and the true self-selection propensities (under 'propensity'). A value must be specified here for the function call to be successful.  
+
+**e.g.**    
+We generated this population at the beginning of this vignette. Here is a function call to getChenLiWuEstimate, containing all of our arguments.
+
+```{r}
+    # getChenLiWuEstimate: calculate population estimate, propensity correlation and response correlation
+    results.CLW <- getChenLiWuEstimate(
+        LIST.input = LIST.samples,
+        formula    = y ~ x1 + x2,
+        weight     = "weight",
+        population = DF.population
+        );
+```
+
+### Output
+
+The getChenLiWuEstimate function returns a list, which contains the calculated values.  
+
+<br>
+
+**`estimate`**  
+
+This value corresponds to the total population estimate, produced by getChenLiWuEstimate.  
+
+**e.g.**    
+Here, we extract the population estimate from the function output.
+```{r}
+    Y_total_hat_CLW    <- results.CLW[["estimate"]];
+```  
+
+<br>
+
+**`cor.propensity`**  
+
+This value corresponds to the propensity correlation, produced by getChenLiWuEstimate.  
+
+**e.g.**   
+Here, we extract the propensity correlation from the function output.
+```{r}
+    cor_propensity_CLW <- results.CLW[["cor.propensity"]];
+```  
+
+<br>
+
+**`cor.response`**  
+
+This value corresponds to the response correlation, produced by getChenLiWuEstimate. 
+
+**e.g.**  
+Here, we extract the response correlation from the function output.
+```{r}
+    cor_response_CLW   <- results.CLW[["cor.response"]];
+```  
+
+<br>
+
+**Finishing the example...**  
+
+To check the accuracy of our estimates, we estimate the total population using the true self-selection propensities, and then calculate the actual population.  
+
+```{r}
+    # Calculate population estimate using true propensities
+    DF.temp <- merge(
+        x  = LIST.samples[['non.probability.sample']][,c("ID","y")],
+        y  = DF.population[,c("ID","propensity")],
+        by = "ID"
+        );
+    Y_total_hat_propensity <- sum( DF.temp[,"y"] / DF.temp[,"propensity"] );
+
+    # Calculate actual total population
+    Y_total <- sum(DF.population[,"y"]);
+```
+
+Finally, we aggregate and print out the results of both algorithms.  
+
+```{r}
+    # Print results
+    DF.results <- c(
+        Y_total = Y_total,
+        Y_total_hat_propensity = Y_total_hat_propensity,
+        Y_total_hat_tree = Y_total_hat_tree,
+        Y_total_hat_CLW = Y_total_hat_CLW,
+        cor_propensity_tree = cor_propensity_tree,
+        cor_propensity_CLW = cor_propensity_CLW,
+        cor_response_CLW = cor_response_CLW
+        );
+    print(DF.results);
+```
+
+The results show similar estimates for the Tree-based Inverse Propensity Weighted estimator and the Chen-Li-Wu Doubly Robust estimator, which are both fairly accurate for this simple population. However, when the population is more complex (i.e. the predictor and response variables possess a non-linear relationship), the Tree-based Inverse Propensity Weighted estimator tends to perform much better.
