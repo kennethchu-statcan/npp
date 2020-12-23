@@ -1,3 +1,4 @@
+
 command.arguments <- commandArgs(trailingOnly = TRUE);
    code.directory <- normalizePath(command.arguments[1]);
  output.directory <- normalizePath(command.arguments[2]);
@@ -8,24 +9,29 @@ start.proc.time <- proc.time();
 setwd(output.directory);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-RLibStatCan <- "//fld6filer/meth/DataSciWrkGrp/software/R/library/3.5.3/library-StatCan";
-.libPaths( c(.libPaths(),RLibStatCan) );
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-library(R6);
-library(RColorBrewer);
-library(rpart);
-library(rpart.plot);
-library(survey);
-library(nppR);
+require(foreach);
+require(parallel);
+require(R6);
+require(RColorBrewer);
+require(rpart);
+require(rpart.plot);
+require(survey);
+require(nppR);
 
-source(paste0(code.directory,'/doOneSimulation.R'));
-source(paste0(code.directory,'/doSimulations.R'));
-source(paste0(code.directory,'/getCalibrationEstimate.R'));
-source(paste0(code.directory,'/getPopulation.R'));
-source(paste0(code.directory,'/getSamples.R'));
-source(paste0(code.directory,'/visualizePopulation.R'));
-source(paste0(code.directory,'/visualizePropensity.R'));
-source(paste0(code.directory,'/visualizeSimulations.R'));
+files.R <- c(
+    'doOneSimulation.R',
+    'doSimulations.R',
+    'getCalibrationEstimate.R',
+    'getPopulation.R',
+    'getSamples.R',
+    'visualizePopulation.R',
+    'visualizePropensity.R',
+    'visualizeSimulations.R'
+    );
+
+for ( file.R in files.R ) {
+    source(file.path(code.directory,file.R));
+    }
 
 ###################################################
 ###################################################
@@ -34,6 +40,12 @@ population.size <- 10000;
 alpha0          <- 0.25;
 n.iterations    <- 200;
 prob.selection  <- 0.1;
+
+n.cores <- ifelse(
+    test = grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE),
+    yes  = 4,
+    no   = parallel::detectCores()
+    );
 
 #population.size <- 1000;
 #n.iterations    <-    3;
@@ -60,9 +72,9 @@ for (population.flag in population.flags) {
     # - y is numeric
     # - only predictors are x1 and x2
     # - x1 and x2 are the same type (numeric, factors or ordered factors)
-    if ((is.factor(my.population[,"x1"]) & !is.ordered(my.population[,"x1"])) | (is.factor(my.population[,"x2"]) & !is.ordered(my.population[,"x1"])))  { 
+    if ((is.factor(my.population[,"x1"]) & !is.ordered(my.population[,"x1"])) | (is.factor(my.population[,"x2"]) & !is.ordered(my.population[,"x1"])))  {
         inputHasFactors <- TRUE
-    } else { 
+    } else {
         inputHasFactors <- FALSE
     }
 
@@ -112,11 +124,12 @@ for (population.flag in population.flags) {
 
     DF.results <- doSimulations(
         FILE.results    = FILE.results,
-        n.iterations    = n.iterations,
         DF.population   = my.population,
         prob.selection  = prob.selection,
         inputHasFactors = inputHasFactors,
-        inputIsNumeric  = inputIsNumeric
+        inputIsNumeric  = inputIsNumeric,
+        n.iterations    = n.iterations,
+        n.cores         = n.cores
         );
 
     visualizeSimulations(

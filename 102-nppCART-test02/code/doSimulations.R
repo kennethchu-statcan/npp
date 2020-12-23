@@ -1,11 +1,12 @@
 
 doSimulations <- function(
     FILE.results    = "results-simulations.csv",
-    n.iterations    = 10,
     DF.population   = NULL,
     prob.selection  = 0.1,
     inputHasFactors = TRUE,
-    inputIsNumeric  = FALSE
+    inputIsNumeric  = FALSE,
+    n.iterations    = 10,
+    n.cores         = 10
     ) {
 
     require(nppR);
@@ -46,7 +47,16 @@ doSimulations <- function(
     cor_response_CLW    <- NA;
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    for (i in seq(1,n.iterations)) {
+    n.cores <- base::max(n.cores,1);
+    n.cores <- base::min(n.cores,parallel::detectCores());
+    doParallel::registerDoParallel(cores = n.cores);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    # for (i in seq(1,n.iterations)) {
+    foreach::foreach (
+        i = seq(1,n.iterations)
+        # ,.export    = base::ls(name = base::environment())
+        ) %dopar% {
 
         cat(paste0("\n### iteration: ",i,"\n"));
 
@@ -66,7 +76,7 @@ doSimulations <- function(
                 p.data     = LIST.samples[['probability.sample']],
                 weight     = "weight"
                 );
-        } else { 
+        } else {
             nppTree <- nppR::nppCART(
                 predictors = c("x1","x2"),
                 np.data    = LIST.samples[['non.probability.sample']],
@@ -80,7 +90,7 @@ doSimulations <- function(
         #print( str(nppTree) );
 
         nppTree$print(
-            FUN.format = function(x) {return( round(x,digits=3) )} 
+            FUN.format = function(x) {return( round(x,digits=3) )}
             );
 
         DF.npdata_with_propensity <- nppTree$get_npdata_with_propensity();
@@ -180,4 +190,3 @@ doSimulations <- function(
     return(DF.results);
 
     }
-
