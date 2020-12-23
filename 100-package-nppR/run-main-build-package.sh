@@ -29,6 +29,6 @@ cd ${outputDIR}/build-no-vignettes
 R CMD check ${packageName}_*.tar.gz > stdout.R.check 2> stderr.R.check
 # R CMD check --as-cran ${packageName}_*.tar.gz > ${outputDIR}/stdout.R.check 2> ${outputDIR}/stderr.R.check
 
-# cd ${outputDIR}/build-vignettes
-# R CMD check ${packageName}_*.tar.gz > stdout.R.check 2> stderr.R.check
+cd ${outputDIR}/build-vignettes
+R CMD check ${packageName}_*.tar.gz > stdout.R.check 2> stderr.R.check
 # R CMD check --as-cran ${packageName}_*.tar.gz > ${outputDIR}/stdout.R.check 2> ${outputDIR}/stderr.R.check
