@@ -13,7 +13,7 @@ visualizeSimulations <- function(
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
     DF.input <- read.csv(file = FILE.input);
 
-    cat("\nstr(DF.output)\n");
+    cat("\nstr(DF.input)\n");
     print( str(DF.input)    );
 
     cat("\nsummary(DF.input)\n");
@@ -210,4 +210,3 @@ plotOneHistogram <- function(
     return( NULL );
 
     }
-
