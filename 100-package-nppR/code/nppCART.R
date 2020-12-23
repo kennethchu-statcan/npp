@@ -112,30 +112,27 @@
 #' }
 
 nppCART <- function(
-	predictors = base::colnames(np.data),
-	np.data,
-	p.data,
-	weight,
-	min.cell.size = 10,
-	min.impurity  = 0.095,
-	max.levels    = 10
-	) {
-
-	# base::require(R6);
-	# base::require(dplyr);
+    predictors = base::colnames(np.data),
+    np.data,
+    p.data,
+    weight,
+    min.cell.size = 10,
+    min.impurity  = 0.095,
+    max.levels    = 10
+    ) {
 
     return(
-    	R6_nppCART$new(
-    		predictors    = predictors,
-    		np.data       = np.data,
-    		p.data        = p.data,
-    		weight        = weight,
-    		min.cell.size = min.cell.size,
-    		min.impurity  = min.impurity,
-    		max.levels    = max.levels
-    		)
-    	);
-	}
+        R6_nppCART$new(
+            predictors    = predictors,
+            np.data       = np.data,
+            p.data        = p.data,
+            weight        = weight,
+            min.cell.size = min.cell.size,
+            min.impurity  = min.impurity,
+            max.levels    = max.levels
+            )
+        );
+    }
 
 R6_nppCART <- R6::R6Class(
     classname = "R6_nppCART",
@@ -161,49 +158,71 @@ R6_nppCART <- R6::R6Class(
 
         estimatedPopulationSize = NULL,
 
-        initialize = function(predictors = base::colnames(np.data), np.data, p.data, weight, min.cell.size = 10, min.impurity = 0.095, max.levels = 10) {
+        initialize = function(
+            predictors = base::colnames(np.data),
+            np.data,
+            p.data,
+            weight,
+            min.cell.size = 10,
+            min.impurity  = 0.095,
+            max.levels    = 10
+            ) {
 
             ############################################
             #          Input Integrity Checks          #
             ############################################
 
             # test np.data
-            base::stopifnot(    !base::is.null(np.data), # must not be NULL
-                                base::is.data.frame(np.data) | base::is.matrix(np.data) | tibble::is_tibble(np.data), # must be matrix-like data type
-                                base::nrow(np.data) > 0  ) # must not be empty
+            base::stopifnot(
+                !base::is.null(np.data), # must not be NULL
+                base::is.data.frame(np.data) | base::is.matrix(np.data) | tibble::is_tibble(np.data), # must be matrix-like data type
+                base::nrow(np.data) > 0 # must not be empty
+                );
 
             # test p.data
-            base::stopifnot(    !base::is.null(p.data), # must not be NULL
-                                base::is.data.frame(p.data) | base::is.matrix(p.data) | tibble::is_tibble(p.data), # must be matrix-like data type
-                                base::nrow(p.data) > 0  ) # must not be empty
+            base::stopifnot(
+                !base::is.null(p.data), # must not be NULL
+                base::is.data.frame(p.data) | base::is.matrix(p.data) | tibble::is_tibble(p.data), # must be matrix-like data type
+                base::nrow(p.data) > 0 # must not be empty
+                );
 
             # test predictors
-            base::stopifnot(    !base::is.null(predictors), # must not be NULL
-                                base::is.character(predictors), # must be a string or set of strings
-                                base::length(base::setdiff(predictors, base::colnames(np.data))) == 0, # must be contained in column names of np.data
-                                base::length(base::setdiff(predictors, base::colnames(p.data))) == 0  ) # must be contained in column names of p.data
+            base::stopifnot(
+                !base::is.null(predictors), # must not be NULL
+                base::is.character(predictors), # must be a string or set of strings
+                base::length(base::setdiff(predictors, base::colnames(np.data))) == 0, # must be contained in column names of np.data
+                base::length(base::setdiff(predictors, base::colnames(p.data))) == 0   # must be contained in column names of p.data
+                );
 
             # test weight
-            base::stopifnot(    !base::is.null(weight), # must not be NULL
-                                base::is.character(weight) & (base::length(weight) == 1), # must be a single string
-                                base::length(base::setdiff(weight, base::colnames(p.data))) == 0,  # must correspond to a column name of p.data
-                                base::is.numeric(p.data$weight), # corresponding column of p.data must contain only numeric data types
-                                base::all(p.data$weight > 0)  ) # all numbers in corresponding column must be positive
+            base::stopifnot(
+                !base::is.null(weight), # must not be NULL
+                base::is.character(weight) & (base::length(weight) == 1), # must be a single string
+                base::length(base::setdiff(weight, base::colnames(p.data))) == 0,  # must correspond to a column name of p.data
+                base::is.numeric(p.data[,weight]), # corresponding column of p.data must contain only numeric data types
+                base::all(p.data[,weight] > 0)  # all numbers in corresponding column must be positive
+                );
 
             # test min.cell.size
-            base::stopifnot(    !base::is.null(min.cell.size), # must not be NULL
-                                base::is.numeric(min.cell.size) & (base::length(min.cell.size) == 1), # must be single number
-                                (min.cell.size %% 1 == 0) & (min.cell.size > 0)  ) # must be a positive integer
+            base::stopifnot(
+                !base::is.null(min.cell.size), # must not be NULL
+                base::is.numeric(min.cell.size) & (base::length(min.cell.size) == 1), # must be single number
+                (min.cell.size %% 1 == 0) & (min.cell.size > 0) # must be a positive integer
+                );
 
             # test min.impurity
-            base::stopifnot(    !base::is.null(min.impurity), # must not be NULL
-                                base::is.numeric(min.impurity) & (base::length(min.impurity) == 1), # must be single number
-                                min.impurity > 0  ) # must be positive
+            base::stopifnot(
+                !base::is.null(min.impurity), # must not be NULL
+                base::is.numeric(min.impurity) & (base::length(min.impurity) == 1), # must be single number
+                min.impurity > 0 # must be positive
+                );
 
             # test max.levels
-            base::stopifnot(    !base::is.null(max.levels), # must not be NULL
-                                base::is.numeric(max.levels) & (base::length(max.levels) == 1), # must be single number
-                                (max.levels %% 1 == 0) & (max.levels >= 0)  ) # must be an integer greater than or equal to zero
+            base::stopifnot(
+                !base::is.null(max.levels), # must not be NULL
+                base::is.numeric(max.levels) & (base::length(max.levels) == 1), # must be single number
+                (max.levels %% 1 == 0) & (max.levels >= 0)  # must be an integer greater than or equal to zero
+                );
 
             self$predictors    <- predictors;
             self$np.data       <- np.data;
