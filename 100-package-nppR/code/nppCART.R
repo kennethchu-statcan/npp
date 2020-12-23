@@ -1,7 +1,7 @@
 #' Tree-based Inverse Propensity Weighted Estimator
 #'
 #' The nppCART function implements the Tree-based Inverse Propensity Weighted estimator, developed by Kenneth Chu and Jean-François Beaumont. It can be used to estimate the self-selection propensity of each member in a non-probability sample and the total population that the sample was taken from. The estimates are calculated by performing recursive binary partitioning on a related probability sample, which shares relevant auxillary variables with the non-probability sample. The nppCART function creates an R6 class, which contains a number of public methods that are available for the user.
-#' 
+#'
 #' @docType class
 #'
 #' @import R6
@@ -32,7 +32,7 @@
 #'     FUN = function(x) { sample( x = c(0,1), size = 1, prob = c(1-x,x) ) }
 #'     );
 #' DF.non.probability <- DF.non.probability[1 == DF.non.probability[,"self.select"], c("ID","y","x1","x2")];
-#'    
+#'
 #' # Set the probability of selection
 #' prob.selection <- 0.1;
 #'
@@ -44,9 +44,9 @@
 #'     prob    = c(prob.selection, 1 - prob.selection)
 #'     );
 #' DF.probability <- DF.population[is.selected,c("ID","x1","x2")];
-#' DF.probability[,"weight"] <- 1 / prob.selection;  
+#' DF.probability[,"weight"] <- 1 / prob.selection;
 #'
-#' # nppCART: initialize R6 class 
+#' # nppCART: initialize R6 class
 #' nppTree <- nppCART(
 #'     predictors = c("x1","x2"),
 #'     np.data    = DF.non.probability,
@@ -59,7 +59,7 @@
 #'
 #' # nppCART: print classification tree
 #' nppTree$print(
-#'     FUN.format = function(x) {return( round(x,digits=3) )} 
+#'     FUN.format = function(x) {return( round(x,digits=3) )}
 #'     );
 #'
 #' # nppCART: get tree-calculated values
@@ -83,7 +83,7 @@
 #' cor_propensity_tree <- cor(
 #'     x = DF.npdata_with_propensity[,"p_hat"],
 #'     y = DF.npdata_with_propensity[,"propensity"]
-#'     );  
+#'     );
 #'
 #' @param predictors This parameter corresponds to the auxillary variables on which the partitioning is performed. The input must be a string or vector of strings that contain column names shared by both np.data and p.data. If no value is specified, predictors will be set to all the column names in np.data.
 #' @param np.data This parameter corresponds to the non-probability sample. The input must be a nonempty matrix-like data type (i.e. matrix, dataframe or tibble). A value must be specified here for initialization to be successful.
@@ -100,7 +100,7 @@
 #' @field np.syntheticID This field contains synthetic unique identifiers for the data in the non-probability sample. It is used for internal calcuations.
 #' @field p.syntheticID This field contains synthetic unique identifiers for the data in the probability sample. It is used for internal calcuations.
 #' @field estimatedPopulationSize This field contains the sum of all weights in the probablity sample. It is used for internal calcuations.
-#' 
+#'
 #' @section Methods:
 #' \describe{
 #'  \item{\code{initialize(predictors, np.data, p.data, weight, min.cell.size, min.impurity)}}{This method is called when the R6 class is created (i.e. when nppCART is called). The arguments passed into nppCART are passed into initialize. This method contains input integrity checks to ensure that the arguments meet the required specifications. In addition, the method does some preprocessing of the input data.}
@@ -117,12 +117,12 @@ nppCART <- function(
 	p.data,
 	weight,
 	min.cell.size = 10,
-	min.impurity  = 0.095, 
+	min.impurity  = 0.095,
 	max.levels    = 10
 	) {
 
-	base::require(R6);
-	base::require(dplyr);
+	# base::require(R6);
+	# base::require(dplyr);
 
     return(
     	R6_nppCART$new(
@@ -137,7 +137,7 @@ nppCART <- function(
     	);
 	}
 
-R6_nppCART <- R6Class(
+R6_nppCART <- R6::R6Class(
     classname = "R6_nppCART",
 
     public = list(
@@ -162,39 +162,39 @@ R6_nppCART <- R6Class(
         estimatedPopulationSize = NULL,
 
         initialize = function(predictors = base::colnames(np.data), np.data, p.data, weight, min.cell.size = 10, min.impurity = 0.095, max.levels = 10) {
-            
+
             ############################################
-            #          Input Integrity Checks          # 
+            #          Input Integrity Checks          #
             ############################################
 
             # test np.data
             base::stopifnot(    !base::is.null(np.data), # must not be NULL
                                 base::is.data.frame(np.data) | base::is.matrix(np.data) | tibble::is_tibble(np.data), # must be matrix-like data type
                                 base::nrow(np.data) > 0  ) # must not be empty
-            
+
             # test p.data
             base::stopifnot(    !base::is.null(p.data), # must not be NULL
                                 base::is.data.frame(p.data) | base::is.matrix(p.data) | tibble::is_tibble(p.data), # must be matrix-like data type
                                 base::nrow(p.data) > 0  ) # must not be empty
-            
+
             # test predictors
             base::stopifnot(    !base::is.null(predictors), # must not be NULL
                                 base::is.character(predictors), # must be a string or set of strings
                                 base::length(base::setdiff(predictors, base::colnames(np.data))) == 0, # must be contained in column names of np.data
                                 base::length(base::setdiff(predictors, base::colnames(p.data))) == 0  ) # must be contained in column names of p.data
-            
+
             # test weight
             base::stopifnot(    !base::is.null(weight), # must not be NULL
                                 base::is.character(weight) & (base::length(weight) == 1), # must be a single string
                                 base::length(base::setdiff(weight, base::colnames(p.data))) == 0,  # must correspond to a column name of p.data
                                 base::is.numeric(p.data$weight), # corresponding column of p.data must contain only numeric data types
                                 base::all(p.data$weight > 0)  ) # all numbers in corresponding column must be positive
-            
+
             # test min.cell.size
             base::stopifnot(    !base::is.null(min.cell.size), # must not be NULL
                                 base::is.numeric(min.cell.size) & (base::length(min.cell.size) == 1), # must be single number
                                 (min.cell.size %% 1 == 0) & (min.cell.size > 0)  ) # must be a positive integer
-            
+
             # test min.impurity
             base::stopifnot(    !base::is.null(min.impurity), # must not be NULL
                                 base::is.numeric(min.impurity) & (base::length(min.impurity) == 1), # must be single number
@@ -422,7 +422,7 @@ R6_nppCART <- R6Class(
                         }
 
                     }
-                } 
+                }
             # private$order_nodes();
             # return( NULL );
             },
@@ -520,23 +520,23 @@ R6_nppCART <- R6Class(
             },
         stoppingCriterionSatisfied = function(np.rowIDs = NULL, p.rowIDs = NULL) {
 
-            if ( base::length(np.rowIDs) < self$min.cell.size ) { 
+            if ( base::length(np.rowIDs) < self$min.cell.size ) {
                 #print("base::length(np.rowIDs) < self$min.cell.size")
-                return(TRUE); 
+                return(TRUE);
             }
 
             estimatedCellPopulationSize <- base::sum(self$p.data[self$p.data[,self$p.syntheticID] %in%  p.rowIDs,self$weight]);
-            if ( estimatedCellPopulationSize < length(np.rowIDs) ) { 
+            if ( estimatedCellPopulationSize < length(np.rowIDs) ) {
                 #print("estimatedCellPopulationSize < length(np.rowIDs)")
-                return(TRUE); 
+                return(TRUE);
             }
 
             impurity = private$npp_impurity(np.rowIDs = np.rowIDs, p.rowIDs = p.rowIDs);
             if ( impurity < self$min.impurity ) {
-                #print("impurity < self$min.impurity") 
-                return(TRUE); 
+                #print("impurity < self$min.impurity")
+                return(TRUE);
             }
- 
+
             return( FALSE);
 
             },
@@ -800,7 +800,7 @@ R6_nppCART <- R6Class(
                     g1 <- private$npp_impurity(np.rowIDs = np.satisfied,    p.rowIDs =  p.satisfied   );
                     g2 <- private$npp_impurity(np.rowIDs = np.notSatisfied, p.rowIDs =  p.notSatisfied);
                     temp.impurity <- p1 * g1 + p2 * g2;
-                    if ( is.na(temp.impurity) ) { temp.impurity <- Inf; } 
+                    if ( is.na(temp.impurity) ) { temp.impurity <- Inf; }
                     return( temp.impurity );
 
                     }
@@ -810,14 +810,14 @@ R6_nppCART <- R6Class(
             #   -   uniqueVarValuePairs is empty (no available splits)
             #   -   all impurities are NA/NaN (no meaningful splits)
             #   -   minimum impurity is Inf (no meaningful splits)
-            if (    base::length(uniqueVarValuePairs) < 1 | 
-                    base::length(impurities[!base::is.na(impurities)]) == 0 | 
-                    Inf == base::min(base::unique(base::as.numeric(impurities[!base::is.na(impurities)])))  ) 
+            if (    base::length(uniqueVarValuePairs) < 1 |
+                    base::length(impurities[!base::is.na(impurities)]) == 0 |
+                    Inf == base::min(base::unique(base::as.numeric(impurities[!base::is.na(impurities)])))  )
                 { return(NULL); }
-            
+
             # returns split that corresponds to the minimum impurity (exluding NA values)
             output <- uniqueVarValuePairs[[ base::which.min(impurities[!base::is.na(impurities)]) ]];
-            
+
             check.np.satisfied <- self$np.data[self$np.data[,self$np.syntheticID] %in% np.currentRowIDs,self$np.syntheticID][
                         output$comparison(
                             self$np.data[self$np.data[,self$np.syntheticID] %in% np.currentRowIDs,output$varname],
@@ -839,7 +839,7 @@ R6_nppCART <- R6Class(
             # If length(input.colnames) == 1, then DF.output will be a vector.
             # In that case, cast DF.output into a data frame.
             DF.output <- base::as.data.frame(DF.output);
-            
+
             base::colnames(DF.output) <- input.colnames;
             nUniqueValues       <- base::apply(X = DF.output, MARGIN = 2, FUN = function(x) { return(base::length(base::unique(x))) } );
             DF.output           <- base::as.data.frame(DF.output[,nUniqueValues > 1]);
@@ -867,10 +867,10 @@ R6_nppCART <- R6Class(
         #  we only need to return 1 group, since we are checking if the factor belongs to the group or not)
         enumerate_set = function(set = NULL) {
 
-            combinationsA <- list()      
-            #combinationsB <- list()    
-            indexA <- 1                 
-            #indexB <- 1                
+            combinationsA <- list()
+            #combinationsB <- list()
+            indexA <- 1
+            #indexB <- 1
 
             # iterate from 1 to half the length of the set (rounded down if odd),
             # where i corresponds to the group size created by combn
@@ -879,7 +879,7 @@ R6_nppCART <- R6Class(
             for (i in base::seq(1, base::trunc(base::length(set) / 2))) {
 
                 # combn returns a dataframe containing all possible combinations;
-                # ncol corresponds to the number of possible combinations 
+                # ncol corresponds to the number of possible combinations
                 size <- base::ncol(utils::combn(set, i))
 
                 # special even case: checks if group size i is equal to half the length of the set
@@ -941,7 +941,7 @@ R6_nppCART <- R6Class(
         # Checks if x is contained in y: useful for checking if factor is in contained in split (combination of factors),
         # but also works for checking numerics and ordered factors (i.e. checking if x == y)
         is_equal_to = function(x,y) {
-            ret <- base::lapply(  X = x, 
+            ret <- base::lapply(  X = x,
                             FUN = function(x) {
                                 for(element in y) {
                                     if(element == x) {
@@ -949,10 +949,10 @@ R6_nppCART <- R6Class(
                                     }
                                 }
                                 return(FALSE)
-                                
+
                                 #print(any(ifelse(input == y, TRUE, FALSE)))
                                 #return(any(ifelse(input == y, TRUE, FALSE)))
-            
+
                                 #print(x %in% y)
                                 #return(x %in% y)
                             })
@@ -969,7 +969,7 @@ R6_nppCART <- R6Class(
         npp_impurity = function(np.rowIDs,p.rowIDs) {
             np.subset <- self$np.data[self$np.data[,self$np.syntheticID] %in% np.rowIDs,];
              p.subset <-  self$p.data[ self$p.data[, self$p.syntheticID] %in%  p.rowIDs,];
-            
+
             #print(self$min.cell.size)
             #print(base::sum(p.subset[,self$weight]))
             #print(1 < base::nrow(np.subset) / base::sum(p.subset[,self$weight]))
@@ -986,7 +986,7 @@ R6_nppCART <- R6Class(
             impurity <- 2 * p * (1 - p);
             return( impurity );
             },
-        splitCriterion = R6Class(
+        splitCriterion = R6::R6Class(
             classname  = "splitCriterion",
             public = list(
                 varname    = NULL,
@@ -999,7 +999,7 @@ R6_nppCART <- R6Class(
                     }
                 )
             ),
-        birthCriterion = R6Class(
+        birthCriterion = R6::R6Class(
             classname  = "birthCriterion",
             public = list(
                 varname    = NULL,
@@ -1020,7 +1020,7 @@ R6_nppCART <- R6Class(
                 }
             },
 
-        node = R6Class(
+        node = R6::R6Class(
             classname = "node",
 
             public = list(
