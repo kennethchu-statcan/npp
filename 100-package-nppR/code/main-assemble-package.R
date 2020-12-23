@@ -138,13 +138,13 @@ tests.R <- base::file.path( code.directory , tests.R );
 #         asis  = base::file.path( code.directory , 'vignette-rwFV-xgboost.html.asis' )
 #         )
 #     );
-#
-# list.vignettes.pdf <- list(
-#     'Schnaubelt2019' = list(
-#         file  = base::file.path( code.directory , 'Schnaubelt_FAU-2019_ML-validation-schemes-TS-data.pdf'      ),
-#         asis  = base::file.path( code.directory , 'Schnaubelt_FAU-2019_ML-validation-schemes-TS-data.pdf.asis' )
-#         )
-#     );
+
+list.vignettes.pdf <- list(
+    'BeaumontChu2019' = list(
+        file  = base::file.path( code.directory , 'Beaumont-Chu_SSC-2019_nppCART.pdf'      ),
+        asis  = base::file.path( code.directory , 'Beaumont-Chu_SSC-2019_nppCART.pdf.asis' )
+        )
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 # We will build the package twice.
@@ -249,29 +249,29 @@ build.package(
 #     );
 #
 # ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# if ( "windows" != base::.Platform[["OS.type"]] ) {
-#
-#     write.to.directory <- "build-vignettes";
-#
-#     package.path <- assemble.package(
-#         write.to.directory = write.to.directory,
-#         package.name       = package.name,
-#         copyright.holder   = "Kenneth Chu",
-#         description.fields = description.fields,
-#         packages.import    = packages.import,
-#         packages.suggest   = packages.suggest,
-#         files.R            = files.R,
-#         tests.R            = tests.R,
-#         list.vignettes.Rmd = list.vignettes.Rmd,
-#         list.vignettes.pdf = list.vignettes.pdf
-#         );
-#
-#     build.package(
-#         write.to.directory = write.to.directory,
-#         package.path       = package.path
-#         );
-#
-#     }
+if ( "windows" != base::.Platform[["OS.type"]] ) {
+
+    write.to.directory <- "build-vignettes";
+
+    package.path <- assemble.package(
+        write.to.directory = write.to.directory,
+        package.name       = package.name,
+        copyright.holder   = "Kenneth Chu",
+        description.fields = description.fields,
+        packages.import    = packages.import,
+        packages.suggest   = packages.suggest,
+        files.R            = files.R,
+        tests.R            = tests.R,
+      # list.vignettes.Rmd = list.vignettes.Rmd,
+        list.vignettes.pdf = list.vignettes.pdf
+        );
+
+    build.package(
+        write.to.directory = write.to.directory,
+        package.path       = package.path
+        );
+
+    }
 
 ###################################################
 ###################################################
