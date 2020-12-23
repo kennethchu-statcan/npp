@@ -39,8 +39,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "!base::is.null(np.data) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "!base::is.null(np.data) is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -97,8 +97,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "!base::is.null(p.data) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "!base::is.null(p.data) is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -155,8 +155,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "!base::is.null(predictors) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "!base::is.null(predictors) is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -173,8 +173,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::is.character(predictors) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::is.character(predictors) is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -191,8 +191,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::length(base::setdiff(predictors, base::colnames(np.data))) ==  .... is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::length(base::setdiff(predictors, base::colnames(np.data))) ==  .... is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -209,8 +209,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::length(base::setdiff(predictors, base::colnames(np.data))) ==  .... is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::length(base::setdiff(predictors, base::colnames(np.data))) ==  .... is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -227,8 +227,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::length(base::setdiff(predictors, base::colnames(p.data))) ==  .... is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::length(base::setdiff(predictors, base::colnames(p.data))) ==  .... is not TRUE",
 			fixed  = TRUE	)
 	}
 )
@@ -248,8 +248,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "!base::is.null(weight) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "!base::is.null(weight) is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -266,8 +266,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::is.character(weight) & (base::length(weight) == 1) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::is.character(weight) & (base::length(weight) == 1) is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -284,8 +284,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::is.character(weight) & (base::length(weight) == 1) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::is.character(weight) & (base::length(weight) == 1) is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -302,48 +302,70 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::length(base::setdiff(weight, base::colnames(p.data))) ==  .... is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::length(base::setdiff(weight, base::colnames(p.data))) ==  .... is not TRUE",
 			fixed  = TRUE
 			)
 	}
-)
-testthat::test_that (
-	'initialize nppCART, with input vector of strings p.data$weight, outputs an error',
-	{
-		np.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1)
-		p.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = "test")
-		predictors <- base::colnames(np.data)
-		weight <- "weight"
-		min.cell.size <- 10
-		min.impurity <- 0.095
-		max.levels <- 10
+);
 
-		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::is.numeric(p.data$weight) is not TRUE", 
-			fixed  = TRUE
-			)
-	}
-)
-testthat::test_that (
-	'initialize nppCART, with input vector of zeros p.data$weight, outputs an error',
-	{
-		np.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1)
-		p.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 0)
-		predictors <- base::colnames(np.data)
-		weight <- "weight"
-		min.cell.size <- 10
-		min.impurity <- 0.095
-		max.levels <- 10
+testthat::test_that(
+    desc = 'initialize nppCART, with input vector of strings p.data$weight, outputs an error',
+    code = {
 
-		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::all(p.data$weight > 0) is not TRUE", 
-			fixed = TRUE
-			)
-	}
-)
+        np.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")));
+        p.data         <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), my_weight = "test");
+        predictors     <- base::colnames(np.data);
+        weight         <- "my_weight";
+        min.cell.size  <- 10;
+        min.impurity   <-  0.095;
+        max.levels     <- 10;
+
+        testthat::expect_error(
+            object = nppCART(
+                np.data       = np.data,
+                p.data        = p.data,
+                weight        = weight,
+                predictors    = predictors,
+                min.cell.size = min.cell.size,
+                min.impurity  = min.impurity,
+                max.levels    = max.levels
+                ),
+            regexp = "base::is.numeric(p.data[, weight]) is not TRUE",
+            fixed  = TRUE
+            );
+
+        }
+    );
+
+testthat::test_that (
+    desc = 'initialize nppCART, with input vector of zeros p.data$weight, outputs an error',
+    code = {
+
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")));
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), my_weight = 0);
+        predictors    <- base::colnames(np.data);
+        weight        <- "my_weight"
+        min.cell.size <- 10;
+        min.impurity  <-  0.095;
+        max.levels    <- 10;
+
+        testthat::expect_error(
+            object = nppCART(
+                np.data       = np.data,
+                p.data        = p.data,
+                weight        = weight,
+                predictors    = predictors,
+                min.cell.size = min.cell.size,
+                min.impurity  = min.impurity,
+                max.levels    = max.levels
+                ),
+            regexp = "base::all(p.data[, weight] > 0) is not TRUE",
+            fixed  = TRUE
+            );
+
+        }
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
@@ -360,8 +382,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "!base::is.null(min.cell.size) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "!base::is.null(min.cell.size) is not TRUE",
 			fixed = TRUE
 			)
 	}
@@ -378,8 +400,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::is.numeric(min.cell.size) & (base::length(min.cell.size) ==  .... is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::is.numeric(min.cell.size) & (base::length(min.cell.size) ==  .... is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -396,8 +418,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::is.numeric(min.cell.size) & (base::length(min.cell.size) ==  .... is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::is.numeric(min.cell.size) & (base::length(min.cell.size) ==  .... is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -414,8 +436,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "(min.cell.size%%1 == 0) & (min.cell.size > 0) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "(min.cell.size%%1 == 0) & (min.cell.size > 0) is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -432,8 +454,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "(min.cell.size%%1 == 0) & (min.cell.size > 0) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "(min.cell.size%%1 == 0) & (min.cell.size > 0) is not TRUE",
 			fixed  = TRUE)
 	}
 )
@@ -453,8 +475,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "!base::is.null(min.impurity) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "!base::is.null(min.impurity) is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -471,8 +493,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::is.numeric(min.impurity) & (base::length(min.impurity) ==  .... is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::is.numeric(min.impurity) & (base::length(min.impurity) ==  .... is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -489,8 +511,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::is.numeric(min.impurity) & (base::length(min.impurity) ==  .... is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::is.numeric(min.impurity) & (base::length(min.impurity) ==  .... is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -507,8 +529,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "min.impurity > 0 is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "min.impurity > 0 is not TRUE",
 			fixed = TRUE
 			)
 	}
@@ -529,8 +551,8 @@ testthat::test_that (
 		max.levels <- NULL
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "!base::is.null(max.levels) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "!base::is.null(max.levels) is not TRUE",
 			fixed = TRUE
 			)
 	}
@@ -547,8 +569,8 @@ testthat::test_that (
 		max.levels <- "test"
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::is.numeric(max.levels) & (base::length(max.levels) == 1) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::is.numeric(max.levels) & (base::length(max.levels) == 1) is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -565,8 +587,8 @@ testthat::test_that (
 		max.levels <- base::c(1, 2, 3)
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::is.numeric(max.levels) & (base::length(max.levels) == 1) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::is.numeric(max.levels) & (base::length(max.levels) == 1) is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -583,8 +605,8 @@ testthat::test_that (
 		max.levels <- 3.14
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "(max.levels%%1 == 0) & (max.levels >= 0) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "(max.levels%%1 == 0) & (max.levels >= 0) is not TRUE",
 			fixed  = TRUE
 			)
 	}
@@ -601,8 +623,8 @@ testthat::test_that (
 		max.levels <- -1
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "(max.levels%%1 == 0) & (max.levels >= 0) is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "(max.levels%%1 == 0) & (max.levels >= 0) is not TRUE",
 			fixed  = TRUE)
 	}
 )
@@ -618,8 +640,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::max(base::unlist(base::lapply(X = self$np.data[, self$predictors_factor],  .... is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::max(base::unlist(base::lapply(X = self$np.data[, self$predictors_factor],  .... is not TRUE",
 			fixed  = TRUE)
 	}
 )
@@ -635,8 +657,8 @@ testthat::test_that (
 		max.levels <- 10
 
 		testthat::expect_error(
-			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), 
-			regexp = "base::max(base::unlist(base::lapply(X = self$p.data[, self$predictors_factor],  .... is not TRUE", 
+			object = nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels),
+			regexp = "base::max(base::unlist(base::lapply(X = self$p.data[, self$predictors_factor],  .... is not TRUE",
 			fixed  = TRUE)
 	}
 )
