@@ -40,12 +40,13 @@ population.size <- 10000;
 alpha0          <- 0.25;
 n.iterations    <- 200;
 prob.selection  <- 0.1;
+n.iterations    <- 200;
+n.cores         <- parallel::detectCores();
 
-n.cores <- ifelse(
-    test = grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE),
-    yes  = 4,
-    no   = parallel::detectCores()
-    );
+if ( grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE) ) {
+    n.iterations <- 200;
+    n.cores      <-   4;
+    }
 
 #population.size <- 1000;
 #n.iterations    <-    3;
