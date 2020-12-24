@@ -16,19 +16,6 @@ doSimulations <- function(
         x2            = sum(DF.population[,"x2"])
         );
 
-    DF.results <- data.frame(
-        index                   = seq(1,n.iterations),
-        Y_total                 = as.numeric(rep(NA,n.iterations)),
-        Y_total_hat_propensity  = as.numeric(rep(NA,n.iterations)),
-        Y_total_hat_tree        = as.numeric(rep(NA,n.iterations)),
-        Y_total_hat_calibration = as.numeric(rep(NA,n.iterations)),
-        Y_total_hat_naive       = as.numeric(rep(NA,n.iterations)),
-        Y_total_hat_CLW         = as.numeric(rep(NA,n.iterations)),
-        cor_propensity_tree     = as.numeric(rep(NA,n.iterations)),
-        cor_propensity_CLW      = as.numeric(rep(NA,n.iterations)),
-        cor_response_CLW        = as.numeric(rep(NA,n.iterations))
-        );
-
     Y_total <- sum(DF.population[,"y"]);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -131,26 +118,62 @@ doSimulations <- function(
         cor_response_CLW   <- results.CLW[["cor.response"]];
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        DF.results[i,] <- c(
-            i,
-            Y_total,
-            Y_total_hat_propensity,
-            Y_total_hat_tree,
-            Y_total_hat_calibration,
-            Y_total_hat_naive,
-            Y_total_hat_CLW,
-            cor_propensity_tree,
-            cor_propensity_CLW,
-            cor_response_CLW
+        DF.temp <- data.frame(
+            index                   = i,
+            Y_total                 = Y_total,
+            Y_total_hat_propensity  = Y_total_hat_propensity,
+            Y_total_hat_tree        = Y_total_hat_tree,
+            Y_total_hat_calibration = Y_total_hat_calibration,
+            Y_total_hat_naive       = Y_total_hat_naive,
+            Y_total_hat_CLW         = Y_total_hat_CLW,
+            cor_propensity_tree     = cor_propensity_tree,
+            cor_propensity_CLW      = cor_propensity_CLW,
+            cor_response_CLW        = cor_response_CLW
             );
 
+        FILE.temp <- paste0("tmp-",i,"-",FILE.results);
+
         write.csv(
-            x         = DF.results,
-            file      = FILE.results,
+            x         = DF.temp,
+            file      = FILE.temp,
             row.names = FALSE
             );
 
         }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.results <- data.frame(
+        index                   = seq(1,n.iterations),
+        Y_total                 = as.numeric(rep(NA,n.iterations)),
+        Y_total_hat_propensity  = as.numeric(rep(NA,n.iterations)),
+        Y_total_hat_tree        = as.numeric(rep(NA,n.iterations)),
+        Y_total_hat_calibration = as.numeric(rep(NA,n.iterations)),
+        Y_total_hat_naive       = as.numeric(rep(NA,n.iterations)),
+        Y_total_hat_CLW         = as.numeric(rep(NA,n.iterations)),
+        cor_propensity_tree     = as.numeric(rep(NA,n.iterations)),
+        cor_propensity_CLW      = as.numeric(rep(NA,n.iterations)),
+        cor_response_CLW        = as.numeric(rep(NA,n.iterations))
+        );
+
+    CSV.files <- list.files(
+        path    = getwd(),
+        pattern = paste0("tmp-[0-9].+",FILE.results)
+        );
+
+    for ( CSV.file in CSV.files ) {
+        DF.temp   <- read.csv(CSV.file);
+        row.index <- DF.temp[1,'index'];
+        DF.results[row.index,] <- DF.temp[1,];
+        }
+
+    base::unlink(x = CSV.files);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    write.csv(
+        x         = DF.results,
+        file      = FILE.results,
+        row.names = FALSE
+        );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     return(DF.results);
