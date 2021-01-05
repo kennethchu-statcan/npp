@@ -240,15 +240,27 @@ my.nppCART$print(
 
 ```{r}
 DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
+```
+
+```{r}
+knitr::kable(head(DF.npdata.estimated.propensity), align = "c")
+```
+
+```{r}
 colnames(DF.npdata.estimated.propensity) <- gsub(
     x           = colnames(DF.npdata.estimated.propensity),
-    pattern     = "propensity",
+    pattern     = "^propensity$",
     replacement = "estimated.propensity"
     );
 DF.npdata.estimated.propensity <- merge(
     x  = DF.npdata.estimated.propensity,
     y  = DF.population[,c("ID","propensity")],
     by = "ID"
+    );
+colnames(DF.npdata.estimated.propensity) <- gsub(
+    x           = colnames(DF.npdata.estimated.propensity),
+    pattern     = "^propensity$",
+    replacement = "true.propensity"
     );
 DF.npdata.estimated.propensity <- DF.npdata.estimated.propensity[order(DF.npdata.estimated.propensity[,"ID"]),];
 ```
