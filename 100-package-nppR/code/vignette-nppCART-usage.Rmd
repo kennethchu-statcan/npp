@@ -49,7 +49,6 @@ needed for Step 1 and Step 2 below:
 library(ggplot2);
 library(nppR);
 library(knitr);
-# require(e1071);
 ```
 The following code segment generates the two aforementioned data frames:
 ```{r}
@@ -121,10 +120,12 @@ for ( colname.numeric in c("x1.numeric","x2.numeric") ) {
 
     }
 ```
+
 We examine the structure of the data frame DF.training:
 ```{r}
 knitr::kable(head(DF.population), align = "c")
 ```
+
 ```{r, fig.height = 10, fig.width = 9.75}
 textsize.title <- 30;
 textsize.axis  <- 20;
@@ -136,10 +137,10 @@ my.ggplot <- my.ggplot + theme(
     axis.text.y      = element_text(size = textsize.axis,  face = "bold"),
     axis.title.x     = element_text(size = textsize.axis,  face = "bold"),
     axis.title.y     = element_text(size = textsize.axis,  face = "bold"),
-    panel.grid.major = element_line(colour = "gray", linetype = 2, size = 0.25),
-    panel.grid.minor = element_line(colour = "gray", linetype = 2, size = 0.25),
     legend.title     = element_text(size = textsize.axis,  face = "bold"),
     legend.text      = element_text(size = textsize.axis,  face = "bold"),
+    panel.grid.major = element_line(colour = "gray", linetype = 2, size = 0.25),
+    panel.grid.minor = element_line(colour = "gray", linetype = 2, size = 0.25),
     legend.position  = "bottom",
     legend.key.width = ggplot2::unit(0.75,"in")
     );
@@ -172,7 +173,7 @@ my.ggplot <- my.ggplot + geom_point(
     alpha   = 0.2
     );
 
-my.ggplot
+my.ggplot;
 ```
 
 ```{r}
@@ -199,7 +200,7 @@ DF.non.probability[,"self.selected"] <- sapply(
     X   = DF.non.probability[,"propensity"],
     FUN = function(x) { sample(x = c(FALSE,TRUE), size = 1, prob = c(1-x,x)) }
     );
-DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("ID","y","x1","x2")];
+DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("ID","y","x1","x2","x1.jitter","x2.jitter")];
 ```
 
 ```{r}
@@ -223,6 +224,72 @@ my.nppCART$grow();
 my.nppCART$print(
     FUN.format = function(x) {return( round(x,digits=3) )}
     );
+```
+
+```{r}
+DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
+colnames(DF.npdata.estimated.propensity) <- gsub(
+    x           = colnames(DF.npdata.estimated.propensity),
+    pattern     = "propensity",
+    replacement = "estimated.propensity"
+    );
+DF.npdata.estimated.propensity <- merge(
+    x  = DF.npdata.estimated.propensity,
+    y  = DF.population[,c("ID","propensity")],
+    by = "ID"
+    );
+DF.npdata.estimated.propensity <- DF.npdata.estimated.propensity[order(DF.npdata.estimated.propensity[,"ID"]),];
+```
+
+```{r}
+knitr::kable(head(DF.npdata.estimated.propensity), align = "c")
+```
+
+```{r, fig.height = 10, fig.width = 9.75}
+my.ggplot <- ggplot(data = NULL) + theme_bw();
+my.ggplot <- my.ggplot + theme(
+    title            = element_text(size = textsize.title, face = "bold"),
+    legend.title     = element_text(size = textsize.axis,  face = "bold"),
+    legend.text      = element_text(size = textsize.axis,  face = "bold"),
+    axis.text.x      = element_text(size = textsize.axis,  face = "bold", angle = 0, vjust = 0.5, hjust = 0.5),
+    axis.text.y      = element_text(size = textsize.axis,  face = "bold"),
+    axis.title.x     = element_text(size = textsize.axis,  face = "bold"),
+    axis.title.y     = element_text(size = textsize.axis,  face = "bold"),
+    panel.grid.major = element_line(colour = "gray", linetype = 2, size = 0.25),
+    panel.grid.minor = element_line(colour = "gray", linetype = 2, size = 0.25),
+    legend.position  = "bottom",
+    legend.key.width = ggplot2::unit(0.75,"in")
+    );
+
+my.ggplot <- my.ggplot + labs(
+    title    = NULL,
+    subtitle = "Non-probability sample",
+    colour   = "estimated propensity       "
+    );
+
+my.ggplot <- my.ggplot + geom_hline(yintercept = 0,colour="gray",size=0.75);
+my.ggplot <- my.ggplot + geom_vline(xintercept = 0,colour="gray",size=0.75);
+
+my.ggplot <- my.ggplot + scale_x_continuous(limits = c(0,3), breaks = c(0.5,1.5,2.5), labels = levels(DF.population[,'x1']));
+my.ggplot <- my.ggplot + scale_y_continuous(limits = c(0,3), breaks = c(0.5,1.5,2.5), labels = levels(DF.population[,'x2']));
+
+my.ggplot <- my.ggplot + xlab("x1 (jittered)");
+my.ggplot <- my.ggplot + ylab("x2 (jittered)");
+
+my.ggplot <- my.ggplot + scale_colour_gradient(
+    limits = c(0,1),
+    breaks = c(0,0.25,0.5,0.75,1),
+    low    = "black",
+    high   = "red"
+    );
+
+my.ggplot <- my.ggplot + geom_point(
+    data    = DF.npdata.estimated.propensity,
+    mapping = aes(x = x1.jitter, y = x2.jitter, colour = estimated.propensity),
+    alpha   = 0.2
+    );
+
+my.ggplot;
 ```
 
 Each row corresponds to a (reference year, parcel).
