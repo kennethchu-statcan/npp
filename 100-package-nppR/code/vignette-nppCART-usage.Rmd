@@ -13,8 +13,8 @@ knitr::opts_chunk$set(
     comment = "#>"
     )
 ```
-This vignette demonstrates how to use the R package **stcCropYield**
-to do the following:
+This vignette demonstrates how to use the R6 class **nppCART** implemented
+in the R package **nppR** to do the following:
 
 *  train the early-season parcel-level crop yield prediction model:
 
@@ -36,24 +36,19 @@ In what follows, we pretend that we are in the production cycle 2021.
 
 ### Step 0. Generate synthetic data sets.
 
-Obviously, in practice, there won't be a **Step 0** of synthetic data set
-generation.
-In this vignette, we generate in this step the two (synthetic) input data frames
-needed for Step 1 and Step 2 below:
-
-*  **DF.training**
-
-*  **DF.production**
-
+For reproducibility, we set globally the randomization seed:
 ```{r}
 base::set.seed(7654321);
 ```
 
+Next, we load the required R packages.
 ```{r}
 library(ggplot2);
 library(nppR);
 ```
-The following code segment generates the two aforementioned data frames:
+
+The following code segment generates data for the synthetic population
+in the form of a data frame:
 ```{r}
 population.size <- 10000;
 
@@ -62,9 +57,9 @@ temp.centres <- c(0.5,1.5,2.5);
 c1 <- sample(x = temp.centres, size = population.size, replace = TRUE);
 c2 <- sample(x = temp.centres, size = population.size, replace = TRUE);
 
-propensity <- rnorm(n = population.size, mean = 0.25, sd = 0.025);
+true.propensity <- rnorm(n = population.size, mean = 0.25, sd = 0.025);
 is.high.propensity <- (c2 - c1 == 1 | c2 - c1 == -1);
-propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 0.75, sd = 0.025);
+true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 0.75, sd = 0.025);
 
 sigma <- 0.20;
 x1 <- c1 + rnorm(n = population.size, mean = 0, sd = sigma);
@@ -77,11 +72,11 @@ epsilon <- rnorm(n = population.size, mean = 0, sd = 1.0)
 y <- y0 + epsilon^2;
 
 DF.population <- data.frame(
-    ID         = seq(1,population.size),
-    y          = y,
-    x1.numeric = x1,
-    x2.numeric = x2,
-    propensity = propensity
+    unit.ID         = seq(1,population.size),
+    y               = y,
+    x1.numeric      = x1,
+    x2.numeric      = x2,
+    true.propensity = true.propensity
     );
 
 for ( colname.numeric in c("x1.numeric","x2.numeric") ) {
@@ -124,10 +119,30 @@ for ( colname.numeric in c("x1.numeric","x2.numeric") ) {
     }
 ```
 
-We examine the structure of the data frame DF.training:
+The first few rows of **DF.population**:
 ```{r}
-knitr::kable(head(DF.population), align = "c")
+knitr::kable(head(DF.population), align = "c", row.names = FALSE);
 ```
+
+We remark that _y_ is intended to be the target variable, while
+_x~1~_ and _x~2~_ are the predictor variables.
+__nppCART__ requires only _x~1~_ and _x~2~_
+(and design weights, to be generated later when we select the auxiliary
+probability sample).
+The variables _x1.jitter_ and _x2.jitter_ are derived respectively from
+_x~1~_ and _x~2~_.
+_x1.jitter_ and _x2.jitter_ are not required by __nppCART__;
+they are generated here purely for visualization purposes (see plots below).
+
+We examine the structure and summary statistics
+of the data frame **DF.population**:
+```{r}
+str(DF.population);
+summary(DF.population);
+```
+
+The following plot illustrates the strong interaction between
+the true propensity and the predictor variables:
 
 ```{r, fig.height = 10, fig.width = 9.75}
 textsize.title <- 30;
@@ -180,12 +195,32 @@ my.ggplot <- my.ggplot + scale_colour_gradient(
 
 my.ggplot <- my.ggplot + geom_point(
     data    = DF.population,
-    mapping = aes(x = x1.jitter, y = x2.jitter, colour = propensity),
+    mapping = aes(x = x1.jitter, y = x2.jitter, colour = true.propensity),
     alpha   = 0.2
     );
 
 my.ggplot;
 ```
+
+We now form the non-probability sample,
+a Poisson sample according to unit-specific (true) propensities
+(true probabilities of self-selection).
+
+```{r}
+DF.non.probability <- DF.population;
+DF.non.probability[,"self.selected"] <- sapply(
+    X   = DF.non.probability[,"true.propensity"],
+    FUN = function(x) { sample(x = c(FALSE,TRUE), size = 1, prob = c(1-x,x)) }
+    );
+DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("unit.ID","y","x1","x2","x1.jitter","x2.jitter")];
+```
+
+```{r}
+knitr::kable(head(DF.non.probability), align = "c", row.names = FALSE);
+```
+
+Next, we select the auxiliary probability sample,
+which is an SRSWOR from the population, with unit selection probabiliy 0.1.
 
 ```{r}
 prob.selection <- 0.1;
@@ -197,25 +232,14 @@ is.selected <- sample(
     prob    = c(prob.selection, 1 - prob.selection)
     );
 
-DF.probability <- DF.population[is.selected,c("ID","x1","x2")];
+DF.probability <- DF.population[is.selected,c("unit.ID","x1","x2")];
 DF.probability[,"design.weight"] <- 1 / prob.selection;
 ```
 
-```{r}
-knitr::kable(head(DF.probability), align = "c")
-```
+The first few rows of the data from the probability sample:
 
 ```{r}
-DF.non.probability <- DF.population;
-DF.non.probability[,"self.selected"] <- sapply(
-    X   = DF.non.probability[,"propensity"],
-    FUN = function(x) { sample(x = c(FALSE,TRUE), size = 1, prob = c(1-x,x)) }
-    );
-DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("ID","y","x1","x2","x1.jitter","x2.jitter")];
-```
-
-```{r}
-knitr::kable(head(DF.non.probability), align = "c")
+knitr::kable(head(DF.probability), align = "c", row.names = FALSE);
 ```
 
 ```{r}
@@ -232,9 +256,7 @@ my.nppCART$grow();
 ```
 
 ```{r}
-my.nppCART$print(
-    FUN.format = function(x) {return( round(x,digits=3) )}
-    );
+my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
 ```
 
 ```{r}
@@ -242,7 +264,7 @@ DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
 ```
 
 ```{r}
-knitr::kable(head(DF.npdata.estimated.propensity), align = "c")
+knitr::kable(head(DF.npdata.estimated.propensity), align = "c", row.names = FALSE);
 ```
 
 ```{r}
@@ -253,24 +275,14 @@ colnames(DF.npdata.estimated.propensity) <- gsub(
     );
 DF.npdata.estimated.propensity <- merge(
     x  = DF.npdata.estimated.propensity,
-    y  = DF.population[,c("ID","propensity")],
-    by = "ID"
+    y  = DF.population[,c("unit.ID","true.propensity")],
+    by = "unit.ID"
     );
-colnames(DF.npdata.estimated.propensity) <- gsub(
-    x           = colnames(DF.npdata.estimated.propensity),
-    pattern     = "^propensity$",
-    replacement = "true.propensity"
-    );
-DF.npdata.estimated.propensity <- DF.npdata.estimated.propensity[order(DF.npdata.estimated.propensity[,"ID"]),];
+DF.npdata.estimated.propensity <- DF.npdata.estimated.propensity[order(DF.npdata.estimated.propensity[,"unit.ID"]),];
 ```
 
 ```{r}
-knitr::kable(head(DF.npdata.estimated.propensity), align = "c")
-```
-
-```{r}
-str(    DF.npdata.estimated.propensity);
-summary(DF.npdata.estimated.propensity);
+knitr::kable(head(DF.npdata.estimated.propensity), align = "c", row.names = FALSE);
 ```
 
 ```{r, fig.height = 10, fig.width = 9.75}
