@@ -13,26 +13,40 @@ knitr::opts_chunk$set(
     comment = "#>"
     )
 ```
-This vignette demonstrates how to use the R6 class **nppCART** implemented
-in the R package **nppR** to do the following:
 
-*  train the early-season parcel-level crop yield prediction model:
+This vignette demonstrates how to use the R6 class **nppCART**
+implemented in the R package **nppR**
+in order to estimate unit-level self-selection propensities
+for units in a non-probability sample,
+by incorporating information from a compatible auxiliary probability sample.
 
-   *  based on historical yield, NDVI and weather measurement data
-   *  uses the function **stcCropYield::rollingWindowForwardValidation(.)**
-   *  normally takes place during the early months of the reference year,
-      when the preceding year's insurance (crop yield and harvested area)
-      data have become avavilable
-   *  saves the trained model to file.
+The __nppCART__ method is non-parametric and is designed
+to handle scenarios possibly with strong non-linearities or interactions
+among the variables involved.
 
-*  generate parcel-level crop yield predictions using a trained model
-   previously saved to file.
+The __nppCART__ methodology was presented
+at the 2019 Annual Meeting (in Calgary)
+of the Statistical Society of Canada:
 
-   *  based on NDVI and weather data -- up to end of July --
-      of the current growing season
-   *  uses the function **stcCropYield::crop.yield.predict(.)**
+*  __Chu K., Beaumont J-F. (2019).__
+   The use of classification trees to reduce selection bias for a non-probability sample with help from a probability sample
 
-In what follows, we pretend that we are in the production cycle 2021.
+The proceedings can be downloaded from: https://ssc.ca/en/2019-annual-meeting-calgary
+
+The article is also included as a vignette in the __nppR__ package.
+
+Outline of this vignette:
+
+*  Section 1: create data for a synthetic population,
+
+*  Section 2: take a non-probability sample from the synthetic population
+   (self-selection propensities unknown in practice), and
+   separately, take a probability sample from the synthetic population
+   (with known design selection probabilities),
+
+*  Section 3: estimate the self-selection propensities for the units in the non-probability sample using __nppCART__.
+
+*  Appendix A: assess the efficacy of __nppCART__ with respect to the synthetic data set.
 
 ### Section 1. Generate the synthetic population data frame.
 
@@ -315,16 +329,15 @@ Here are the first few rows of the data frame returned by
 knitr::kable(head(DF.npdata.estimated.propensity), align = "c", row.names = FALSE);
 ```
 
-Note that the data frame (here, assigned to __DF.npdata.estimated.propensity__)
-returned by __nppCART$get_npdata_with_propensity( )__ is in fact the original
-input data frame __DF.non.probability__
+Note that the returned data frame __DF.npdata.estimated.propensity__
+is in fact the original input data frame __DF.non.probability__
 (passed in to __nppCART__ via the input parameter __np.data__)
 with a few additional columns augmented at the right.
 Please refer to help pages of the package for full details.
 
 In particular, the desired unit-specific
 (more precisely, specific to terminal nodes of the fully grown tree)
-estimated propensities are under the __propensity__ column.
+estimated self-selection propensities are under the __propensity__ column.
 
 ### Appendix A. Assessment of results on the synthetic data sets above.
 
