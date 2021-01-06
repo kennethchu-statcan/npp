@@ -34,9 +34,9 @@ in the R package **nppR** to do the following:
 
 In what follows, we pretend that we are in the production cycle 2021.
 
-### Step 0. Generate synthetic data sets.
+### Section 1. Generate the synthetic population data frame.
 
-For reproducibility, we set globally the randomization seed:
+For reproducibility, we start by setting globally the randomization seed:
 ```{r}
 base::set.seed(7654321);
 ```
@@ -48,7 +48,8 @@ library(nppR);
 ```
 
 The following code segment generates data for the synthetic population
-in the form of a data frame:
+and store the data in the data frame __DF.population__:
+
 ```{r}
 population.size <- 10000;
 
@@ -130,13 +131,14 @@ _x~1~_ and _x~2~_ are the predictor variables.
 __nppCART__ requires only _x~1~_ and _x~2~_
 (and design weights, to be generated later when we select the auxiliary
 probability sample).
-The variables _x1.jitter_ and _x2.jitter_ are derived respectively from
+The columns __x1.jitter__ and __x2.jitter__ are derived respectively from
 _x~1~_ and _x~2~_.
-_x1.jitter_ and _x2.jitter_ are not required by __nppCART__;
+The columns __x1.jitter__ and __x2.jitter__ are not required by __nppCART__;
 they are generated here purely for visualization purposes (see plots below).
 
 We examine the structure and summary statistics
-of the data frame **DF.population**:
+of the data frame __DF.population__:
+
 ```{r}
 str(DF.population);
 summary(DF.population);
@@ -204,9 +206,18 @@ my.ggplot;
 ```
 
 Note that the predictor variables we will use below are
-the ordinal (categorical) variables _x~1~_ and _x~2~_.
+the ordinal (in particular, categorical) variables _x~1~_ and _x~2~_.
 In the above plot, we used however jittered numericized versions
 of these two variables instead for easy visualization.
+
+We remark that the colour gradient in the above plot indicates
+the true (though synthetic) values of the self-selection propensities
+in this example.
+We will assess the efficacy of __nppCART__, by generating the counterpart
+of the above plot for the _estimated_ propensity values produced by
+__nppCART__; see Appendix A.
+
+### Section 2. Generate data frames for the non-probability and probability samples.
 
 We now form the non-probability sample,
 a Poisson sample according to unit-specific (true) propensities
@@ -248,6 +259,16 @@ The first few rows of the data from the probability sample:
 knitr::kable(head(DF.probability), align = "c", row.names = FALSE);
 ```
 
+### Section 3. Compute estimated propensities via __nppCART__.
+
+Now that we have the two input data sets ready
+(i.e., the data frames __DF.non.probability__ and __DF.probability__),
+we are ready to use __nppCART__ to estimate the self-selection propensities
+for the units in the non-probability sample, using the auxiliary information
+fournished by the probability sample.
+
+We instantiate an __nppCART__ object, with the two input data sets as follows:
+
 ```{r}
 my.nppCART <- nppR::nppCART(
     np.data    = DF.non.probability,
@@ -257,21 +278,56 @@ my.nppCART <- nppR::nppCART(
     );
 ```
 
+We call the __nppCART$grow( )__ method to grow the classification tree
+according to the algorithm __nppCART__.
+
 ```{r}
 my.nppCART$grow();
 ```
+
+Once the tree growing is complete, we can examine the fully grown tree
+with the __nppCART$print( )__ method:
 
 ```{r}
 my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
 ```
 
+We next extract the estimated propensities, as a data frame,
+using the __nppCART$get_npdata_with_propensity( )__ method:
+
 ```{r}
 DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
 ```
 
+Here are the first few rows of the data frame returned by
+ __nppCART$get_npdata_with_propensity( )__:
+
 ```{r}
 knitr::kable(head(DF.npdata.estimated.propensity), align = "c", row.names = FALSE);
 ```
+
+Note that the data frame (here, assigned to _DF.npdata.estimated.propensity_)
+returned by __nppCART$get_npdata_with_propensity( )__ is in fact the original
+input data frame _DF.non.probability_
+(passed in to __nppCART__ via the input parameter _np.data_)
+with a few additional columns augmented at the right.
+
+
+### Appendix A. Assessment of results on the synthetic data sets above.
+
+Here, we make direct comparison between the __nppCART__ estimated self-selection
+propensities against their respective (true but synthetic) values.
+Obviously, this type of accuracy assessment is generally not possible
+in practice, since the true values of the self-selection propensities
+are either unknown, or if they were known somehow, then there would be
+no need to estimate them.
+
+First, we attach the true propensity values to the output data frame
+__DF.npdata.estimated.propensity__
+of
+__nppCART$get_npdata_with_propensity( )__,
+renaming the column __propensity__ to __estimated.propensity__
+for clarity:
 
 ```{r}
 colnames(DF.npdata.estimated.propensity) <- gsub(
@@ -287,9 +343,15 @@ DF.npdata.estimated.propensity <- merge(
 DF.npdata.estimated.propensity <- DF.npdata.estimated.propensity[order(DF.npdata.estimated.propensity[,"unit.ID"]),];
 ```
 
+Here are the first few rows of the resulting data frame:
+
 ```{r}
 knitr::kable(head(DF.npdata.estimated.propensity), align = "c", row.names = FALSE);
 ```
+
+Next, we generate the estimated propensity plot, as promised in Section 1;
+this plot is the counterpart to the one in Section 1
+for the __nppCART__-estimated propensities:
 
 ```{r, fig.height = 10, fig.width = 9.75}
 my.ggplot <- ggplot(data = NULL) + theme_bw();
@@ -345,6 +407,15 @@ my.ggplot <- my.ggplot + geom_point(
 
 my.ggplot;
 ```
+
+Compare the plot immediately above with its counterpart in Section 1, and
+note that __nppCART__ is able to re-construct approximately
+the interaction patterns between self-selection propensity
+and (_x~1~_, _x~2~_).
+
+Lastly, we compare directly the true and __nppCART__-estimated values
+of the self-selection propensities for units in the non-probability samples
+via a __hexbin__ plot (alternative to the scatter plot for large data sets):
 
 ```{r, fig.height = 10, fig.width = 9.75}
 my.ggplot <- ggplot(data = NULL) + theme_bw();
