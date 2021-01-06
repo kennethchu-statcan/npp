@@ -120,6 +120,7 @@ for ( colname.numeric in c("x1.numeric","x2.numeric") ) {
 ```
 
 The first few rows of **DF.population**:
+
 ```{r}
 knitr::kable(head(DF.population), align = "c", row.names = FALSE);
 ```
@@ -142,7 +143,7 @@ summary(DF.population);
 ```
 
 The following plot illustrates the strong interaction between
-the true propensity and the predictor variables:
+the true propensity and the predictor variables _x~1~_ and _x~2~_:
 
 ```{r, fig.height = 10, fig.width = 9.75}
 textsize.title <- 30;
@@ -202,6 +203,11 @@ my.ggplot <- my.ggplot + geom_point(
 my.ggplot;
 ```
 
+Note that the predictor variables we will use below are
+the ordinal (categorical) variables _x~1~_ and _x~2~_.
+In the above plot, we used however jittered numericized versions
+of these two variables instead for easy visualization.
+
 We now form the non-probability sample,
 a Poisson sample according to unit-specific (true) propensities
 (true probabilities of self-selection).
@@ -220,7 +226,7 @@ knitr::kable(head(DF.non.probability), align = "c", row.names = FALSE);
 ```
 
 Next, we select the auxiliary probability sample,
-which is an SRSWOR from the population, with unit selection probabiliy 0.1.
+which is an SRSWOR from the population, with unit selection probability 0.1.
 
 ```{r}
 prob.selection <- 0.1;
