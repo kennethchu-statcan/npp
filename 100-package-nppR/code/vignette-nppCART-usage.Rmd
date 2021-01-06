@@ -132,12 +132,11 @@ __nppCART__ requires only _x~1~_ and _x~2~_
 (and design weights, to be generated later when we select the auxiliary
 probability sample).
 The columns __x1.jitter__ and __x2.jitter__ are derived respectively from
-_x~1~_ and _x~2~_.
-The columns __x1.jitter__ and __x2.jitter__ are not required by __nppCART__;
-they are generated here purely for visualization purposes (see plots below).
+_x~1~_ and _x~2~_, purely for visualization purposes (see plots below);
+in particular, the columns __x1.jitter__ and __x2.jitter__ are not required,
+and will be ignored, by __nppCART__.
 
-We examine the structure and summary statistics
-of the data frame __DF.population__:
+Here are the structure and summary statistics of __DF.population__:
 
 ```{r}
 str(DF.population);
@@ -145,7 +144,8 @@ summary(DF.population);
 ```
 
 The following plot illustrates the strong interaction between
-the true propensity and the predictor variables _x~1~_ and _x~2~_:
+the true propensity and the predictor variables _x~1~_ and _x~2~_
+in __DF.population__:
 
 ```{r, fig.height = 10, fig.width = 9.75}
 textsize.title <- 30;
@@ -210,7 +210,7 @@ the ordinal (in particular, categorical) variables _x~1~_ and _x~2~_.
 In the above plot, we used however jittered numericized versions
 of these two variables instead for easy visualization.
 
-We remark that the colour gradient in the above plot indicates
+Note also that the colour gradient in the above plot indicates
 the true (though synthetic) values of the self-selection propensities
 in this example.
 We will assess the efficacy of __nppCART__, by generating the counterpart
@@ -220,8 +220,11 @@ __nppCART__; see Appendix A.
 ### Section 2. Generate data frames for the non-probability and probability samples.
 
 We now form the non-probability sample,
-a Poisson sample according to unit-specific (true) propensities
-(true probabilities of self-selection).
+a Poisson sample from the synthetic population each of whose units is selected
+-- independently from all other units --
+according to its own unit-specific (true) self-selection propensity.
+We store data for the non-probability sample in the data frame
+__DF.non.probability__.
 
 ```{r}
 DF.non.probability <- DF.population;
@@ -232,12 +235,17 @@ DF.non.probability[,"self.selected"] <- sapply(
 DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("unit.ID","y","x1","x2","x1.jitter","x2.jitter")];
 ```
 
+The first few rows of __DF.non.probability__:
+
 ```{r}
 knitr::kable(head(DF.non.probability), align = "c", row.names = FALSE);
 ```
 
 Next, we select the auxiliary probability sample,
-which is an SRSWOR from the population, with unit selection probability 0.1.
+which is an SRSWOR from the synthetic population,
+with design selection probability 0.1.
+We store data for the auxiliary probability sample in the data frame
+__DF.probability__.
 
 ```{r}
 prob.selection <- 0.1;
@@ -253,7 +261,7 @@ DF.probability <- DF.population[is.selected,c("unit.ID","x1","x2")];
 DF.probability[,"design.weight"] <- 1 / prob.selection;
 ```
 
-The first few rows of the data from the probability sample:
+The first few rows of __DF.probability__:
 
 ```{r}
 knitr::kable(head(DF.probability), align = "c", row.names = FALSE);
@@ -267,7 +275,8 @@ we are ready to use __nppCART__ to estimate the self-selection propensities
 for the units in the non-probability sample, using the auxiliary information
 fournished by the probability sample.
 
-We instantiate an __nppCART__ object, with the two input data sets as follows:
+We start by instantiating an __nppCART__ object,
+with the two input data sets as follows:
 
 ```{r}
 my.nppCART <- nppR::nppCART(
@@ -278,7 +287,7 @@ my.nppCART <- nppR::nppCART(
     );
 ```
 
-We call the __nppCART$grow( )__ method to grow the classification tree
+Next, we call the __nppCART$grow( )__ method to grow the classification tree
 according to the algorithm __nppCART__.
 
 ```{r}
@@ -306,16 +315,20 @@ Here are the first few rows of the data frame returned by
 knitr::kable(head(DF.npdata.estimated.propensity), align = "c", row.names = FALSE);
 ```
 
-Note that the data frame (here, assigned to _DF.npdata.estimated.propensity_)
+Note that the data frame (here, assigned to __DF.npdata.estimated.propensity__)
 returned by __nppCART$get_npdata_with_propensity( )__ is in fact the original
-input data frame _DF.non.probability_
-(passed in to __nppCART__ via the input parameter _np.data_)
+input data frame __DF.non.probability__
+(passed in to __nppCART__ via the input parameter __np.data__)
 with a few additional columns augmented at the right.
+Please refer to help pages of the package for full details.
 
+In particular, the desired unit-specific
+(more precisely, specific to terminal nodes of the fully grown tree)
+estimated propensities are under the __propensity__ column.
 
 ### Appendix A. Assessment of results on the synthetic data sets above.
 
-Here, we make direct comparison between the __nppCART__ estimated self-selection
+We make direct comparison between the __nppCART__-estimated self-selection
 propensities against their respective (true but synthetic) values.
 Obviously, this type of accuracy assessment is generally not possible
 in practice, since the true values of the self-selection propensities
