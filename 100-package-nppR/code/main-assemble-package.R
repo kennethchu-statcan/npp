@@ -46,7 +46,7 @@ base::Encoding(string.authors) <- "UTF-8";
 
 description.fields <- base::list(
     Title           = "Inference on non-probability sample data via integrating probabilty sample data",
-    Version         = "1.2.001",
+    Version         = "1.2.002",
     `Authors@R`     = string.authors,
     Description     = "This package provides a collection of tools for making inference based on non-probability sample data by integrating auxiliary probability sample data.",
     Language        = "fr",
