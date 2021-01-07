@@ -18,25 +18,14 @@ doOneSimulation <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    if(inputHasFactors) {
-        nppTree <- nppR::nppCART(
-            np.data    = LIST.samples[['non.probability.sample']],
-            p.data     = LIST.samples[['probability.sample']],
-            predictors = colnames(LIST.samples[['non.probability.sample']][,!colnames(LIST.samples[['non.probability.sample']]) %in% c("ID","x1.numeric","x1.jitter","x2.numeric","x2.jitter","y")]),
-            weight     = "weight"
-            );
-    } else {
-        nppTree <- nppR::nppCART(
-            np.data    = LIST.samples[['non.probability.sample']],
-            p.data     = LIST.samples[['probability.sample']],
-            predictors = c("x1","x2"),
-            weight     = "weight"
-            );
-        }
+    nppTree <- nppR::nppCART(
+        np.data    = LIST.samples[['non.probability.sample']],
+        p.data     = LIST.samples[['probability.sample']],
+        predictors = c("x1","x2"),
+        weight     = "weight"
+        );
 
     nppTree$grow();
-
-    #print( str(nppTree) );
 
     nppTree$print(
         FUN.format = function(x) {return( round(x,digits=3) )}

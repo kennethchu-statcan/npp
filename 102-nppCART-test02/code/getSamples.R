@@ -22,10 +22,6 @@ getSamples <- function(
 
     DF.probability[,"weight"] <- 1 / prob.selection;
 
-    if(inputHasFactors) {
-        DF.probability <- as.data.frame(model.matrix( ~ -1 + . , data = as.data.frame(DF.probability) ));
-        }
-
     # ~~~~~~~~~~ #
     DF.non.probability <- DF.population;
     DF.non.probability[,"is.self.selected"] <- sapply(
@@ -37,10 +33,6 @@ getSamples <- function(
         DF.non.probability <- DF.non.probability[DF.non.probability[,"is.self.selected"],c("ID","y","x1","x2")]
     } else {
         DF.non.probability <- DF.non.probability[DF.non.probability[,"is.self.selected"],c("ID","y","x1","x1.numeric","x1.jitter","x2","x2.numeric","x2.jitter")]
-        }
-
-    if( inputHasFactors ) {
-        DF.non.probability <- as.data.frame(model.matrix( ~ -1 + . , data = as.data.frame(DF.non.probability) ))
         }
 
     # ~~~~~~~~~~ #
