@@ -77,13 +77,13 @@ for (population.flag in population.flags) {
         inputHasFactors <- TRUE
     } else {
         inputHasFactors <- FALSE
-    }
+        }
 
     if(is.numeric(my.population[,"x1"]) | is.numeric(my.population[,"x2"])) {
         inputIsNumeric <- TRUE
     } else {
         inputIsNumeric <- FALSE
-    }
+        }
 
     cat("\nstr(my.population):\n");
     print( str(my.population)   );

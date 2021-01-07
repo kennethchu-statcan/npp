@@ -1,3 +1,4 @@
+
 visualizePropensity <- function(
     population.flag = NULL,
     DF.input        = NULL,
@@ -8,15 +9,6 @@ visualizePropensity <- function(
     ) {
 
     require(ggplot2);
-
-    #DF.output <- data.frame(
-    #    ID = seq(1,N),
-    #    y  = y,
-    #    x1 = x1,
-    #    x2 = x2,
-    #    w  = w,
-    #    propensity = propensity
-    #    );
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
     FILE.output <- paste0('np-propensity-scatter-',population.flag,'.png');
@@ -58,7 +50,7 @@ visualizePropensity <- function(
                                                                 return(x1.levels[y])
                                                             }
                                                         }))
-                                                }, 
+                                                },
                                                 limits=c(0,length(x1.levels)+1),
                                                 breaks=seq(0,length(x1.levels)+1,1));
         my.ggplot <- my.ggplot + scale_y_continuous(labels = function(x) {
@@ -70,7 +62,7 @@ visualizePropensity <- function(
                                                                 return(x2.levels[y])
                                                             }
                                                         }))
-                                                }, 
+                                                },
                                                 limits=c(0,length(x2.levels)+1),
                                                 breaks=seq(0,length(x2.levels)+1,1));
 
@@ -149,7 +141,7 @@ visualizePropensity <- function(
 
     my.ggplot <- my.ggplot + geom_point(
         data    = DF.input,
-        mapping = aes(x = propensity, y = p_hat),
+        mapping = aes(x = true.propensity, y = p_hat),
         alpha   = 0.2
         );
 

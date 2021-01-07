@@ -1,3 +1,4 @@
+
 visualizePopulation <- function(
     population.flag = NULL,
     population      = NULL,
@@ -28,16 +29,11 @@ visualizePopulation <- function(
         subtitle = paste0("Population ",population.flag)
         );
 
-    #my.ggplot <- my.ggplot + geom_hline(yintercept = 0,colour="gray",size=0.75);
-    #my.ggplot <- my.ggplot + geom_vline(xintercept = 0,colour="gray",size=0.75);
-    #my.ggplot <- my.ggplot + scale_x_continuous(limits=c(-0.2,10.2),breaks=seq(0,10,2));
-    #my.ggplot <- my.ggplot + scale_y_continuous(limits=c(-0.2,10.2),breaks=seq(0,10,2));
-
     my.ggplot <- my.ggplot + scale_x_continuous(limits=c(-0.05,1.05),breaks=seq(0,1,0.2));
 
     my.ggplot <- my.ggplot + geom_density(
         data    = population,
-        mapping = aes(x = propensity)
+        mapping = aes(x = true.propensity)
         );
 
     ggsave(
@@ -75,35 +71,63 @@ visualizePopulation <- function(
 
     my.ggplot <- my.ggplot + geom_hline(yintercept = 0,colour="gray",size=0.75);
     my.ggplot <- my.ggplot + geom_vline(xintercept = 0,colour="gray",size=0.75);
-    
-    if (!inputIsNumeric) {
+
+    if ( inputIsNumeric ) {
+
+        my.ggplot <- my.ggplot + scale_x_continuous(limits = c(0,3), breaks = seq(0,3,0.5));
+        my.ggplot <- my.ggplot + scale_y_continuous(limits = c(0,3), breaks = seq(0,3,0.5));
+
+        my.ggplot <- my.ggplot + scale_colour_gradient(
+            limits = c(0,1),
+            breaks = c(0,0.25,0.5,0.75,1),
+            low    = "black",
+            high   = "red"
+            );
+
+        my.ggplot <- my.ggplot + geom_point(
+            data    = population,
+            mapping = aes(x = x1, y = x2, colour = true.propensity),
+            alpha   = 0.2
+            );
+
+    } else {
+
         x1.levels <- levels(population$x1)
         x2.levels <- levels(population$x2)
 
-        my.ggplot <- my.ggplot + scale_x_continuous(labels = function(x) {
-                                                    return(
-                                                        lapply(X = x, FUN = function(y) {
-                                                            if(y == 0 | y == length(x1.levels)+1) {
-                                                                return("")
-                                                            } else {
-                                                                return(x1.levels[y])
-                                                            }
-                                                        }))
-                                                }, 
-                                                limits=c(0,length(x1.levels)+1),
-                                                breaks=seq(0,length(x1.levels)+1,1));
-        my.ggplot <- my.ggplot + scale_y_continuous(labels = function(x) {
-                                                        return(
-                                                            lapply(X = x, FUN = function(y) {
-                                                                if(y == 0 | y == length(x2.levels)+1) {
-                                                                    return("")
-                                                                } else {
-                                                                    return(x2.levels[y])
-                                                                }
-                                                            }))
-                                                    }, 
-                                                    limits=c(0,length(x2.levels)+1),
-                                                    breaks=seq(0,length(x2.levels)+1,1));
+        my.ggplot <- my.ggplot + scale_x_continuous(
+            labels = function(x) {
+                return(lapply(
+                    X   = x,
+                    FUN = function(y) {
+                        if(y == 0 | y == length(x1.levels)+1) {
+                            return("")
+                        } else {
+                            return(x1.levels[y])
+                            }
+                        }
+                    ))
+                },
+            limits = c(  0,length(x1.levels)+1),
+            breaks = seq(0,length(x1.levels)+1,1)
+            );
+
+        my.ggplot <- my.ggplot + scale_y_continuous(
+            labels = function(x) {
+                return(lapply(
+                    X   = x,
+                    FUN = function(y) {
+                        if(y == 0 | y == length(x2.levels)+1) {
+                            return("")
+                        } else {
+                            return(x2.levels[y])
+                            }
+                        }
+                    ))
+                },
+            limits = c(  0,length(x2.levels)+1),
+            breaks = seq(0,length(x2.levels)+1,1)
+            );
 
         my.ggplot <- my.ggplot + scale_colour_gradient(
             limits = c(0,1),
@@ -114,31 +138,16 @@ visualizePopulation <- function(
 
         my.ggplot <- my.ggplot + geom_point(
             data    = population,
-            mapping = aes(x = x1.jitter, y = x2.jitter, colour = propensity),
+            mapping = aes(x = x1.jitter, y = x2.jitter, colour = true.propensity),
             alpha   = 0.2
             );
-    } else {
-        my.ggplot <- my.ggplot + scale_x_continuous(limits=c(0,3),breaks=seq(0,3,0.5));
-        my.ggplot <- my.ggplot + scale_y_continuous(limits=c(0,3),breaks=seq(0,3,0.5));
 
-        my.ggplot <- my.ggplot + scale_colour_gradient(
-            limits = c(0,1),
-            breaks = c(0,0.25,0.5,0.75,1),
-            low    = "black",
-            high   = "red"
-            );
-
-        my.ggplot <- my.ggplot + geom_point(
-            data    = population,
-            mapping = aes(x = x1, y = x2, colour = propensity),
-            alpha   = 0.2
-            );
-    }
+        }
 
     if ( population.flag %in% c("01","02") ) {
         my.ggplot <- my.ggplot + geom_abline(
             slope     = 1,
-           intercept = 0,
+            intercept = 0,
             colour    = "gray",
             size      = 0.75
             );

@@ -58,16 +58,16 @@ doSimulations <- function(
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         if(inputHasFactors) {
             nppTree <- nppR::nppCART(
-                predictors = colnames(LIST.samples[['non.probability.sample']][,!colnames(LIST.samples[['non.probability.sample']]) %in% c("ID","x1.numeric","x1.jitter","x2.numeric","x2.jitter","y")]),
                 np.data    = LIST.samples[['non.probability.sample']],
                 p.data     = LIST.samples[['probability.sample']],
+                predictors = colnames(LIST.samples[['non.probability.sample']][,!colnames(LIST.samples[['non.probability.sample']]) %in% c("ID","x1.numeric","x1.jitter","x2.numeric","x2.jitter","y")]),
                 weight     = "weight"
                 );
         } else {
             nppTree <- nppR::nppCART(
-                predictors = c("x1","x2"),
                 np.data    = LIST.samples[['non.probability.sample']],
                 p.data     = LIST.samples[['probability.sample']],
+                predictors = c("x1","x2"),
                 weight     = "weight"
                 );
             }
@@ -88,7 +88,7 @@ doSimulations <- function(
             );
         DF.npdata_with_propensity <- merge(
             x  = DF.npdata_with_propensity,
-            y  = DF.population[,c("ID","propensity")],
+            y  = DF.population[,c("ID","true.propensity")],
             by = "ID"
             );
         DF.npdata_with_propensity <- DF.npdata_with_propensity[order(DF.npdata_with_propensity[,"ID"]),];
@@ -99,17 +99,17 @@ doSimulations <- function(
 
         cor_propensity_tree <- cor(
             x = DF.npdata_with_propensity[,"p_hat"],
-            y = DF.npdata_with_propensity[,"propensity"]
+            y = DF.npdata_with_propensity[,"true.propensity"]
             );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         DF.temp <- merge(
             x  = LIST.samples[['non.probability.sample']][,c("ID","y")],
-            y  = DF.population[,c("ID","propensity")],
+            y  = DF.population[,c("ID","true.propensity")],
             by = "ID"
             );
 
-        Y_total_hat_propensity <- sum( DF.temp[,"y"] / DF.temp[,"propensity"] );
+        Y_total_hat_propensity <- sum( DF.temp[,"y"] / DF.temp[,"true.propensity"] );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         if (inputIsNumeric) {
