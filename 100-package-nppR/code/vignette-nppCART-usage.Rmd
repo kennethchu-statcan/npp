@@ -1,0 +1,489 @@
+---
+title: "nppCART -- usage"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{nppCART-usage}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+    )
+```
+
+This vignette demonstrates how to use the R6 class **nppCART**
+implemented in the R package **nppR**
+in order to estimate unit-level self-selection propensities
+for units in a non-probability sample,
+by incorporating information from a compatible auxiliary probability sample.
+
+The __nppCART__ method is non-parametric and is designed
+to handle scenarios possibly with strong non-linearities or interactions
+among the variables involved.
+
+The __nppCART__ methodology was presented
+at the 2019 Annual Meeting (in Calgary)
+of the Statistical Society of Canada:
+
+*  __Chu K., Beaumont J-F. (2019).__
+   The use of classification trees to reduce selection bias for a non-probability sample with help from a probability sample
+
+The proceedings can be downloaded from: https://ssc.ca/en/2019-annual-meeting-calgary
+
+The article is also included as a vignette in the __nppR__ package.
+
+Outline of this vignette:
+
+*  Section 1: create data for a synthetic population,
+
+*  Section 2: take a non-probability sample from the synthetic population
+   (self-selection propensities unknown in practice), and
+   separately, take a probability sample from the synthetic population
+   (with known design selection probabilities),
+
+*  Section 3: estimate the self-selection propensities for the units in the non-probability sample using __nppCART__.
+
+*  Appendix A: assess the efficacy of __nppCART__ with respect to the synthetic data set.
+
+### Section 1. Generate the synthetic population data frame.
+
+For reproducibility, we start by setting globally the randomization seed:
+```{r}
+base::set.seed(7654321);
+```
+
+Next, we load the required R packages.
+```{r}
+library(ggplot2);
+library(nppR);
+```
+
+The following code segment generates data for the synthetic population
+and store the data in the data frame __DF.population__:
+
+```{r}
+population.size <- 10000;
+
+temp.centres <- c(0.5,1.5,2.5);
+
+c1 <- sample(x = temp.centres, size = population.size, replace = TRUE);
+c2 <- sample(x = temp.centres, size = population.size, replace = TRUE);
+
+true.propensity <- rnorm(n = population.size, mean = 0.25, sd = 0.025);
+is.high.propensity <- (c2 - c1 == 1 | c2 - c1 == -1);
+true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 0.75, sd = 0.025);
+
+sigma <- 0.20;
+x1 <- c1 + rnorm(n = population.size, mean = 0, sd = sigma);
+x2 <- c2 + rnorm(n = population.size, mean = 0, sd = sigma);
+
+y0 <- rep(x = 30, times = population.size);
+y0[is.high.propensity] <- 110;
+
+epsilon <- rnorm(n = population.size, mean = 0, sd = 1.0)
+y <- y0 + epsilon^2;
+
+DF.population <- data.frame(
+    unit.ID         = seq(1,population.size),
+    y               = y,
+    x1.numeric      = x1,
+    x2.numeric      = x2,
+    true.propensity = true.propensity
+    );
+
+for ( colname.numeric in c("x1.numeric","x2.numeric") ) {
+
+    temp.quantiles <- quantile(
+        x     = DF.population[,colname.numeric],
+        probs = c(1,2,3)/3
+        );
+
+    is.small  <- ifelse(DF.population[,colname.numeric] <  temp.quantiles[1],TRUE,FALSE);
+    is.medium <- ifelse(DF.population[,colname.numeric] >= temp.quantiles[1] & DF.population[,colname.numeric] < temp.quantiles[2],TRUE,FALSE);
+    is.large  <- ifelse(DF.population[,colname.numeric] >= temp.quantiles[2],TRUE,FALSE);
+
+    colname.factor <- gsub(x = colname.numeric, pattern = "\\.numeric", replacement = "");
+    DF.population[,colname.factor] <- character(nrow(DF.population));
+
+    if ( "x1.numeric" == colname.numeric ) {
+        DF.population[is.small, colname.factor] <- "small";
+        DF.population[is.medium,colname.factor] <- "medium";
+        DF.population[is.large, colname.factor] <- "large";
+        temp.levels <- c("small","medium","large");
+    } else {
+        DF.population[is.small, colname.factor] <- "petit";
+        DF.population[is.medium,colname.factor] <- "moyen";
+        DF.population[is.large, colname.factor] <- "grand";
+        temp.levels <- c("petit","moyen","grand");
+        }
+
+    DF.population[,colname.factor] <- factor(
+        x       = DF.population[,colname.factor],
+        levels  = temp.levels,
+        ordered = TRUE
+        );
+
+    colname.jitter <- gsub(x = colname.numeric, pattern = "numeric", replacement = "jitter");
+    DF.population[,colname.jitter] <- (-0.5) + as.numeric(DF.population[,colname.factor]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+
+    DF.population <- DF.population[,setdiff(colnames(DF.population),colname.numeric)];
+
+    }
+```
+
+The first few rows of **DF.population**:
+
+```{r}
+knitr::kable(head(DF.population), align = "c", row.names = FALSE);
+```
+
+We remark that _y_ is intended to be the target variable, while
+_x~1~_ and _x~2~_ are the predictor variables.
+__nppCART__ requires only _x~1~_ and _x~2~_
+(and design weights, to be generated later when we select the auxiliary
+probability sample).
+The columns __x1.jitter__ and __x2.jitter__ are derived respectively from
+_x~1~_ and _x~2~_, purely for visualization purposes (see plots below);
+in particular, the columns __x1.jitter__ and __x2.jitter__ are not required,
+and will be ignored, by __nppCART__.
+
+Here are the structure and summary statistics of __DF.population__:
+
+```{r}
+str(DF.population);
+summary(DF.population);
+```
+
+The following plot illustrates the strong interaction between
+the true propensity and the predictor variables _x~1~_ and _x~2~_
+in __DF.population__:
+
+```{r, fig.height = 10, fig.width = 9.75}
+textsize.title <- 30;
+textsize.axis  <- 20;
+
+my.ggplot <- ggplot(data = NULL) + theme_bw();
+my.ggplot <- my.ggplot + theme(
+    title            = element_text(size = textsize.title, face = "bold"),
+    axis.text.x      = element_text(size = textsize.axis,  face = "bold", angle = 0, vjust = 0.5, hjust = 0.5),
+    axis.text.y      = element_text(size = textsize.axis,  face = "bold"),
+    axis.title.x     = element_text(size = textsize.axis,  face = "bold"),
+    axis.title.y     = element_text(size = textsize.axis,  face = "bold"),
+    legend.title     = element_text(size = textsize.axis,  face = "bold"),
+    legend.text      = element_text(size = textsize.axis,  face = "bold"),
+    panel.grid.major = element_line(colour = "gray", linetype = 2, size = 0.25),
+    panel.grid.minor = element_line(colour = "gray", linetype = 2, size = 0.25),
+    legend.position  = "bottom",
+    legend.key.width = ggplot2::unit(0.75,"in")
+    );
+
+my.ggplot <- my.ggplot + labs(
+    title    = NULL,
+    subtitle = "Population",
+    colour   = "true propensity       "
+    );
+
+my.ggplot <- my.ggplot + geom_hline(yintercept = 0, colour = "gray", size = 0.75);
+my.ggplot <- my.ggplot + geom_vline(xintercept = 0, colour = "gray", size = 0.75);
+
+my.ggplot <- my.ggplot + scale_x_continuous(
+    limits = c(0,3),
+    breaks = c(0.5,1.5,2.5),
+    labels = levels(DF.population[,'x1'])
+    );
+my.ggplot <- my.ggplot + scale_y_continuous(
+    limits = c(0,3),
+    breaks = c(0.5,1.5,2.5),
+    labels = levels(DF.population[,'x2'])
+    );
+
+my.ggplot <- my.ggplot + xlab("x1 (jittered)");
+my.ggplot <- my.ggplot + ylab("x2 (jittered)");
+
+my.ggplot <- my.ggplot + scale_colour_gradient(
+    limits = c(0,1),
+    breaks = c(0,0.25,0.5,0.75,1),
+    low    = "black",
+    high   = "red"
+    );
+
+my.ggplot <- my.ggplot + geom_point(
+    data    = DF.population,
+    mapping = aes(x = x1.jitter, y = x2.jitter, colour = true.propensity),
+    alpha   = 0.2
+    );
+
+my.ggplot;
+```
+
+Note that the predictor variables we will use below are
+the ordinal (in particular, categorical) variables _x~1~_ and _x~2~_.
+In the above plot, we used however jittered numericized versions
+of these two variables instead for easy visualization.
+
+Note also that the colour gradient in the above plot indicates
+the true (though synthetic) values of the self-selection propensities
+in this example.
+We will assess the efficacy of __nppCART__, by generating the counterpart
+of the above plot for the _estimated_ propensity values produced by
+__nppCART__; see Appendix A.
+
+### Section 2. Generate data frames for the non-probability and probability samples.
+
+We now form the non-probability sample,
+a Poisson sample from the synthetic population each of whose units is selected
+-- independently from all other units --
+according to its own unit-specific (true) self-selection propensity.
+We store data for the non-probability sample in the data frame
+__DF.non.probability__.
+
+```{r}
+DF.non.probability <- DF.population;
+DF.non.probability[,"self.selected"] <- sapply(
+    X   = DF.non.probability[,"true.propensity"],
+    FUN = function(x) { sample(x = c(FALSE,TRUE), size = 1, prob = c(1-x,x)) }
+    );
+DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("unit.ID","y","x1","x2","x1.jitter","x2.jitter")];
+```
+
+The first few rows of __DF.non.probability__:
+
+```{r}
+knitr::kable(head(DF.non.probability), align = "c", row.names = FALSE);
+```
+
+Next, we select the auxiliary probability sample,
+which is an SRSWOR from the synthetic population,
+with design selection probability 0.1.
+We store data for the auxiliary probability sample in the data frame
+__DF.probability__.
+
+```{r}
+prob.selection <- 0.1;
+
+is.selected <- sample(
+    x       = c(TRUE,FALSE),
+    size    = nrow(DF.population),
+    replace = TRUE,
+    prob    = c(prob.selection, 1 - prob.selection)
+    );
+
+DF.probability <- DF.population[is.selected,c("unit.ID","x1","x2")];
+DF.probability[,"design.weight"] <- 1 / prob.selection;
+```
+
+The first few rows of __DF.probability__:
+
+```{r}
+knitr::kable(head(DF.probability), align = "c", row.names = FALSE);
+```
+
+### Section 3. Compute estimated propensities via __nppCART__.
+
+Now that we have the two input data sets ready
+(i.e., the data frames __DF.non.probability__ and __DF.probability__),
+we are ready to use __nppCART__ to estimate the self-selection propensities
+for the units in the non-probability sample, using the auxiliary information
+fournished by the probability sample.
+
+We start by instantiating an __nppCART__ object,
+with the two input data sets as follows:
+
+```{r}
+my.nppCART <- nppR::nppCART(
+    np.data    = DF.non.probability,
+    p.data     = DF.probability,
+    predictors = c("x1","x2"),
+    weight     = "design.weight"
+    );
+```
+
+Next, we call the __nppCART$grow( )__ method to grow the classification tree
+according to the algorithm __nppCART__.
+
+```{r}
+my.nppCART$grow();
+```
+
+Once the tree growing is complete, we can examine the fully grown tree
+with the __nppCART$print( )__ method:
+
+```{r}
+my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
+```
+
+We next extract the estimated propensities, as a data frame,
+using the __nppCART$get_npdata_with_propensity( )__ method:
+
+```{r}
+DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
+```
+
+Here are the first few rows of the data frame returned by
+ __nppCART$get_npdata_with_propensity( )__:
+
+```{r}
+knitr::kable(head(DF.npdata.estimated.propensity), align = "c", row.names = FALSE);
+```
+
+Note that the returned data frame __DF.npdata.estimated.propensity__
+is in fact the original input data frame __DF.non.probability__
+(passed in to __nppCART__ via the input parameter __np.data__)
+with a few additional columns augmented at the right.
+Please refer to help pages of the package for full details.
+
+In particular, the desired unit-specific
+(more precisely, specific to terminal nodes of the fully grown tree)
+estimated self-selection propensities are under the __propensity__ column.
+
+### Appendix A. Assessment of results on the synthetic data sets above.
+
+We make direct comparison between the __nppCART__-estimated self-selection
+propensities against their respective (true but synthetic) values.
+Obviously, this type of accuracy assessment is generally not possible
+in practice, since the true values of the self-selection propensities
+are either unknown, or if they were known somehow, then there would be
+no need to estimate them.
+
+First, we attach the true propensity values to the output data frame
+__DF.npdata.estimated.propensity__
+of
+__nppCART$get_npdata_with_propensity( )__,
+renaming the column __propensity__ to __estimated.propensity__
+for clarity:
+
+```{r}
+colnames(DF.npdata.estimated.propensity) <- gsub(
+    x           = colnames(DF.npdata.estimated.propensity),
+    pattern     = "^propensity$",
+    replacement = "estimated.propensity"
+    );
+DF.npdata.estimated.propensity <- merge(
+    x  = DF.npdata.estimated.propensity,
+    y  = DF.population[,c("unit.ID","true.propensity")],
+    by = "unit.ID"
+    );
+DF.npdata.estimated.propensity <- DF.npdata.estimated.propensity[order(DF.npdata.estimated.propensity[,"unit.ID"]),];
+```
+
+Here are the first few rows of the resulting data frame:
+
+```{r}
+knitr::kable(head(DF.npdata.estimated.propensity), align = "c", row.names = FALSE);
+```
+
+Next, we generate the estimated propensity plot, as promised in Section 1;
+this plot is the counterpart to the one in Section 1
+for the __nppCART__-estimated propensities:
+
+```{r, fig.height = 10, fig.width = 9.75}
+my.ggplot <- ggplot(data = NULL) + theme_bw();
+my.ggplot <- my.ggplot + theme(
+    title            = element_text(size = textsize.title, face = "bold"),
+    axis.text.x      = element_text(size = textsize.axis,  face = "bold", angle = 0, vjust = 0.5, hjust = 0.5),
+    axis.text.y      = element_text(size = textsize.axis,  face = "bold"),
+    axis.title.x     = element_text(size = textsize.axis,  face = "bold"),
+    axis.title.y     = element_text(size = textsize.axis,  face = "bold"),
+    legend.title     = element_text(size = textsize.axis,  face = "bold"),
+    legend.text      = element_text(size = textsize.axis,  face = "bold"),
+    panel.grid.major = element_line(colour = "gray", linetype = 2, size = 0.25),
+    panel.grid.minor = element_line(colour = "gray", linetype = 2, size = 0.25),
+    legend.position  = "bottom",
+    legend.key.width = ggplot2::unit(0.75,"in")
+    );
+
+my.ggplot <- my.ggplot + labs(
+    title    = NULL,
+    subtitle = "Non-probability sample",
+    colour   = "estimated propensity       "
+    );
+
+my.ggplot <- my.ggplot + geom_hline(yintercept = 0,colour="gray",size=0.75);
+my.ggplot <- my.ggplot + geom_vline(xintercept = 0,colour="gray",size=0.75);
+
+my.ggplot <- my.ggplot + scale_x_continuous(
+    limits = c(0,3),
+    breaks = c(0.5,1.5,2.5),
+    labels = levels(DF.population[,'x1'])
+    );
+my.ggplot <- my.ggplot + scale_y_continuous(
+    limits = c(0,3),
+    breaks = c(0.5,1.5,2.5),
+    labels = levels(DF.population[,'x2'])
+    );
+
+my.ggplot <- my.ggplot + xlab("x1 (jittered)");
+my.ggplot <- my.ggplot + ylab("x2 (jittered)");
+
+my.ggplot <- my.ggplot + scale_colour_gradient(
+    limits = c(0,1),
+    breaks = c(0,0.25,0.5,0.75,1),
+    low    = "black",
+    high   = "red"
+    );
+
+my.ggplot <- my.ggplot + geom_point(
+    data    = DF.npdata.estimated.propensity,
+    mapping = aes(x = x1.jitter, y = x2.jitter, colour = estimated.propensity),
+    alpha   = 0.2
+    );
+
+my.ggplot;
+```
+
+Compare the plot immediately above with its counterpart in Section 1, and
+note that __nppCART__ is able to re-construct approximately
+the interaction patterns between self-selection propensity
+and (_x~1~_, _x~2~_).
+
+Lastly, we compare directly the true and __nppCART__-estimated values
+of the self-selection propensities for units in the non-probability samples
+via a __hexbin__ plot (alternative to the scatter plot for large data sets):
+
+```{r, fig.height = 10, fig.width = 9.75}
+my.ggplot <- ggplot(data = NULL) + theme_bw();
+my.ggplot <- my.ggplot + theme(
+    title            = element_text(size = textsize.title, face = "bold"),
+    axis.text.x      = element_text(size = textsize.axis,  face = "bold"),
+    axis.text.y      = element_text(size = textsize.axis,  face = "bold"),
+    axis.title.x     = element_text(size = textsize.axis,  face = "bold"),
+    axis.title.y     = element_text(size = textsize.axis,  face = "bold"),
+    legend.title     = element_text(size = textsize.axis,  face = "bold"),
+    legend.text      = element_text(size = textsize.axis,  face = "bold"),
+    panel.grid.major = element_line(colour="gray", linetype=2, size=0.25),
+    panel.grid.minor = element_line(colour="gray", linetype=2, size=0.25),
+    legend.position  = "bottom",
+    legend.key.width = ggplot2::unit(1.0,"in")
+    );
+
+my.ggplot <- my.ggplot + labs(
+    title    = NULL,
+    subtitle = "Non-probability sample"
+    );
+
+my.ggplot <- my.ggplot + xlab("true propensity");
+my.ggplot <- my.ggplot + ylab("estimated propensity");
+
+my.ggplot <- my.ggplot + geom_hline(yintercept = 0, colour = "gray", size = 0.75);
+my.ggplot <- my.ggplot + geom_vline(xintercept = 0, colour = "gray", size = 0.75);
+my.ggplot <- my.ggplot + scale_x_continuous(limits = c(0,1), breaks = seq(0,1,0.2));
+my.ggplot <- my.ggplot + scale_y_continuous(limits = c(0,1), breaks = seq(0,1,0.2));
+
+my.ggplot <- my.ggplot + scale_fill_gradient(
+    limits = 260 * c(  0,1),
+    breaks = 260 * seq(0,1,0.25),
+    low    = "lightgrey",
+    high   = "red"
+    );
+
+my.ggplot <- my.ggplot + geom_hex(
+    data     = DF.npdata.estimated.propensity,
+    mapping  = aes(x = true.propensity, y = estimated.propensity),
+    binwidth = c(0.02,0.02)
+    );
+
+my.ggplot;
+```

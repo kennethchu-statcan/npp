@@ -46,7 +46,7 @@ base::Encoding(string.authors) <- "UTF-8";
 
 description.fields <- base::list(
     Title           = "Inference on non-probability sample data via integrating probabilty sample data",
-    Version         = "1.1.003",
+    Version         = "1.2.001",
     `Authors@R`     = string.authors,
     Description     = "This package provides a collection of tools for making inference based on non-probability sample data by integrating auxiliary probability sample data.",
     Language        = "fr",
@@ -87,34 +87,12 @@ packages.suggest <- base::c(
     # "testthat"
     );
 
-files.R <- base::c("getChenLiWuEstimate.R", "nppCART.R", "package-init.R");
+files.R <- base::c(
+    "getChenLiWuEstimate.R",
+    "nppCART.R",
+    "package-init.R"
+    );
 files.R <- base::file.path( code.directory , files.R );
-
-# files.R <- base::c(
-#     "crop-yield-predict.R",
-#     "crop-yield-train-model.R",
-#     "get-learner-metadata.R",
-#     "get-mock-production-errors.R",
-#     "get-performance-metrics.R",
-#     "getData-synthetic.R",
-#     "getLearner.R",
-#     "initializePlot.R",
-#     "input-validity-checks-learner-metadata.R",
-#     "input-validity-checks-parameters.R",
-#     "input-validity-checks-predict.R",
-#     "input-validity-checks-variables.R",
-#     "input-validity-checks-window-compatibility.R",
-#     "learner-abstract.R",
-#     "learner-byGroup.R",
-#     "learner-multiphase.R",
-#     "learner-xgboost.R",
-#     "package-init.R",
-#     "preprocessor.R",
-#     "rollingWindowForwardValidation.R",
-#     "validation-single-year.R",
-#     "weighted-statistics.R"
-#     );
-# files.R <- base::file.path( code.directory , files.R );
 
 tests.R <- base::c("test-inputIntegrity.R");
 tests.R <- base::file.path( code.directory , tests.R );
@@ -124,20 +102,12 @@ tests.R <- base::file.path( code.directory , tests.R );
 #     );
 # tests.R <- base::file.path( code.directory , tests.R );
 
-# list.vignettes.Rmd <- list(
-#     'rwFV-protocol' = list(
-#         file  = base::file.path( code.directory , 'vignette-rwFV-protocol.Rmd'       ),
-#         asis  = base::file.path( code.directory , 'vignette-rwFV-protocol.html.asis' )
-#         ),
-#     'rwFV-demo-production' = list(
-#         file  = base::file.path( code.directory , 'vignette-rwFV-demo-production.Rmd'       ),
-#         asis  = base::file.path( code.directory , 'vignette-rwFV-demo-production.html.asis' )
-#         ),
-#     'rwFV-xgboost' = list(
-#         file  = base::file.path( code.directory , 'vignette-rwFV-xgboost.Rmd'      ),
-#         asis  = base::file.path( code.directory , 'vignette-rwFV-xgboost.html.asis' )
-#         )
-#     );
+list.vignettes.Rmd <- list(
+    'vignette-nppCART-usage' = list(
+        file  = base::file.path( code.directory , 'vignette-nppCART-usage.Rmd'       ),
+        asis  = base::file.path( code.directory , 'vignette-nppCART-usage.html.asis' )
+        )
+    );
 
 list.vignettes.pdf <- list(
     'BeaumontChu2019' = list(
@@ -262,7 +232,7 @@ if ( "windows" != base::.Platform[["OS.type"]] ) {
         packages.suggest   = packages.suggest,
         files.R            = files.R,
         tests.R            = tests.R,
-      # list.vignettes.Rmd = list.vignettes.Rmd,
+        list.vignettes.Rmd = list.vignettes.Rmd,
         list.vignettes.pdf = list.vignettes.pdf
         );
 

@@ -6,84 +6,115 @@
 #'
 #' @import R6
 #' @import dplyr
-#' @export
 #'
 #' @return The nppCART function returns an instance of a R6 class, which has been initialized with the inputted parameters.
 #'
 #' @format \code{\link{R6Class}} object
 #'
 #' @examples
-#' # Set population size
-#' N <- 1000;
+#' ### Generate data frame for synthetic population
+#' population.size <- 10000;
 #'
-#' # Create population
+#' temp.centres <- c(0.5,1.5,2.5);
+#' c1 <- sample(x = temp.centres, size = population.size, replace = TRUE);
+#' c2 <- sample(x = temp.centres, size = population.size, replace = TRUE);
+#'
+#' true.propensity <- rnorm(n = population.size, mean = 0.25, sd = 0.025);
+#' is.high.propensity <- (c2 - c1 == 1 | c2 - c1 == -1);
+#' true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 0.75, sd = 0.025);
+#'
+#' sigma <- 0.20;
+#' x1 <- c1 + rnorm(n = population.size, mean = 0, sd = sigma);
+#' x2 <- c2 + rnorm(n = population.size, mean = 0, sd = sigma);
+#'
+#' y0 <- rep(x = 30, times = population.size);
+#' y0[is.high.propensity] <- 110;
+#'
+#' epsilon <- rnorm(n = population.size, mean = 0, sd = 1.0)
+#' y <- y0 + epsilon^2;
+#'
 #' DF.population <- data.frame(
-#'     ID = seq(1,N),
-#'     y = jitter(rep(10,N)),
-#'     x1 = jitter(rep(1,N)),
-#'     x2 = jitter(rep(1,N)),
-#'     propensity = jitter(rep(0.2,N))
+#'     unit.ID         = seq(1,population.size),
+#'     y               = y,
+#'     x1.numeric      = x1,
+#'     x2.numeric      = x2,
+#'     true.propensity = true.propensity
 #'     );
 #'
-#' # Get non-probability sample
+#' for ( colname.numeric in c("x1.numeric","x2.numeric") ) {
+#'
+#'     temp.quantiles <- quantile(
+#'         x     = DF.population[,colname.numeric],
+#'         probs = c(1,2,3)/3
+#'         );
+#'
+#'     is.small  <- ifelse(DF.population[,colname.numeric] <  temp.quantiles[1],TRUE,FALSE);
+#'     is.medium <- ifelse(DF.population[,colname.numeric] >= temp.quantiles[1] & DF.population[,colname.numeric] < temp.quantiles[2],TRUE,FALSE);
+#'     is.large  <- ifelse(DF.population[,colname.numeric] >= temp.quantiles[2],TRUE,FALSE);
+#'
+#'     colname.factor <- gsub(x = colname.numeric, pattern = "\\.numeric", replacement = "");
+#'     DF.population[,colname.factor] <- character(nrow(DF.population));
+#'
+#'     if ( "x1.numeric" == colname.numeric ) {
+#'         DF.population[is.small, colname.factor] <- "small";
+#'         DF.population[is.medium,colname.factor] <- "medium";
+#'         DF.population[is.large, colname.factor] <- "large";
+#'         temp.levels <- c("small","medium","large");
+#'     } else {
+#'         DF.population[is.small, colname.factor] <- "petit";
+#'         DF.population[is.medium,colname.factor] <- "moyen";
+#'         DF.population[is.large, colname.factor] <- "grand";
+#'         temp.levels <- c("petit","moyen","grand");
+#'         }
+#'
+#'     DF.population[,colname.factor] <- factor(
+#'         x       = DF.population[,colname.factor],
+#'         levels  = temp.levels,
+#'         ordered = TRUE
+#'         );
+#'
+#'     colname.jitter <- gsub(x = colname.numeric, pattern = "numeric", replacement = "jitter");
+#'     DF.population[,colname.jitter] <- (-0.5) + as.numeric(DF.population[,colname.factor]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+#'
+#'     DF.population <- DF.population[,setdiff(colnames(DF.population),colname.numeric)];
+#'
+#'     }
+#'
+#' ### Generate data frame for non-probability sample
 #' DF.non.probability <- DF.population;
-#' DF.non.probability[,"self.select"] <- sapply(
-#'     X   = DF.non.probability[,"propensity"],
-#'     FUN = function(x) { sample( x = c(0,1), size = 1, prob = c(1-x,x) ) }
+#' DF.non.probability[,"self.selected"] <- sapply(
+#'     X   = DF.non.probability[,"true.propensity"],
+#'     FUN = function(x) { sample(x = c(FALSE,TRUE), size = 1, prob = c(1-x,x)) }
 #'     );
-#' DF.non.probability <- DF.non.probability[1 == DF.non.probability[,"self.select"], c("ID","y","x1","x2")];
+#' DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("unit.ID","y","x1","x2","x1.jitter","x2.jitter")];
 #'
-#' # Set the probability of selection
+#' ### Generate data frame for probability sample
 #' prob.selection <- 0.1;
-#'
-#' # Get probability sample
 #' is.selected <- sample(
 #'     x       = c(TRUE,FALSE),
 #'     size    = nrow(DF.population),
 #'     replace = TRUE,
 #'     prob    = c(prob.selection, 1 - prob.selection)
 #'     );
-#' DF.probability <- DF.population[is.selected,c("ID","x1","x2")];
-#' DF.probability[,"weight"] <- 1 / prob.selection;
+#' DF.probability <- DF.population[is.selected,c("unit.ID","x1","x2")];
+#' DF.probability[,"design.weight"] <- 1 / prob.selection;
 #'
-#' # nppCART: initialize R6 class
-#' nppTree <- nppCART(
-#'     predictors = c("x1","x2"),
+#' ### Instantiate nppCART object
+#' my.nppCART <- nppR::nppCART(
 #'     np.data    = DF.non.probability,
 #'     p.data     = DF.probability,
-#'     weight     = "weight"
+#'     predictors = c("x1","x2"),
+#'     weight     = "design.weight"
 #'     );
 #'
-#' # nppCART: grow classification tree
-#' nppTree$grow();
+#' ### Grow the classification tree
+#' my.nppCART$grow();
 #'
-#' # nppCART: print classification tree
-#' nppTree$print(
-#'     FUN.format = function(x) {return( round(x,digits=3) )}
-#'     );
+#' ### Inspect the fully grown tree
+#' # my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
 #'
-#' # nppCART: get tree-calculated values
-#' DF.npdata_with_propensity <- nppTree$get_npdata_with_propensity();
-#' colnames(DF.npdata_with_propensity) <- gsub(
-#'     x           = colnames(DF.npdata_with_propensity),
-#'     pattern     = "propensity",
-#'     replacement = "p_hat"
-#'     );
-#' DF.npdata_with_propensity <- merge(
-#'     x  = DF.npdata_with_propensity,
-#'     y  = DF.population[,c("ID","propensity")],
-#'     by = "ID"
-#'     );
-#' DF.npdata_with_propensity <- DF.npdata_with_propensity[order(DF.npdata_with_propensity[,"ID"]),];
-#'
-#' # nppCART: calculate population estimate and propensity correlation
-#' Y_total_hat_tree <- sum(
-#'     DF.npdata_with_propensity[,"y"] / DF.npdata_with_propensity[,"p_hat"]
-#'     );
-#' cor_propensity_tree <- cor(
-#'     x = DF.npdata_with_propensity[,"p_hat"],
-#'     y = DF.npdata_with_propensity[,"propensity"]
-#'     );
+#' ### Extract the nppCART-estimated propensities
+#' DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
 #'
 #' @param predictors This parameter corresponds to the auxillary variables on which the partitioning is performed. The input must be a string or vector of strings that contain column names shared by both np.data and p.data. If no value is specified, predictors will be set to all the column names in np.data.
 #' @param np.data This parameter corresponds to the non-probability sample. The input must be a nonempty matrix-like data type (i.e. matrix, dataframe or tibble). A value must be specified here for initialization to be successful.
@@ -110,6 +141,8 @@
 #'  \item{\code{print()}}{This method is used to print the classification tree in a readable format (each node is on a separate line and indented appropriately). There is one parameter, FUN.format, which is a function that customizes the output format. This method should be used after calling grow.}
 #'  \item{\code{get_pruning_sequence(nodes)}}{This method is obsolete and should not be used.}
 #' }
+#'
+#' @export
 
 nppCART <- function(
     predictors = base::colnames(np.data),
