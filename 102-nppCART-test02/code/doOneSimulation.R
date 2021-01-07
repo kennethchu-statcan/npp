@@ -20,26 +20,26 @@ doOneSimulation <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     if(inputHasFactors) {
         nppTree <- nppR::nppCART(
-            predictors = colnames(LIST.samples[['non.probability.sample']][,!colnames(LIST.samples[['non.probability.sample']]) %in% c("ID","x1.numeric","x1.jitter","x2.numeric","x2.jitter","y")]),
             np.data    = LIST.samples[['non.probability.sample']],
             p.data     = LIST.samples[['probability.sample']],
+            predictors = colnames(LIST.samples[['non.probability.sample']][,!colnames(LIST.samples[['non.probability.sample']]) %in% c("ID","x1.numeric","x1.jitter","x2.numeric","x2.jitter","y")]),
             weight     = "weight"
             );
-    } else { 
+    } else {
         nppTree <- nppR::nppCART(
-            predictors = c("x1","x2"),
             np.data    = LIST.samples[['non.probability.sample']],
             p.data     = LIST.samples[['probability.sample']],
+            predictors = c("x1","x2"),
             weight     = "weight"
             );
         }
-    
+
     nppTree$grow();
 
     #print( str(nppTree) );
 
     nppTree$print(
-        FUN.format = function(x) {return( round(x,digits=3) )} 
+        FUN.format = function(x) {return( round(x,digits=3) )}
         );
 
     DF.npdata_with_propensity <- nppTree$get_npdata_with_propensity();
@@ -50,7 +50,7 @@ doOneSimulation <- function(
         );
     DF.npdata_with_propensity <- merge(
         x  = DF.npdata_with_propensity,
-        y  = DF.population[,c("ID","propensity")],
+        y  = DF.population[,c("ID","true.propensity")],
         by = "ID"
         );
     DF.npdata_with_propensity <- DF.npdata_with_propensity[order(DF.npdata_with_propensity[,"ID"]),];
@@ -61,7 +61,7 @@ doOneSimulation <- function(
 
     cor_propensity_tree <- cor(
         x = DF.npdata_with_propensity[,"p_hat"],
-        y = DF.npdata_with_propensity[,"propensity"]
+        y = DF.npdata_with_propensity[,"true.propensity"]
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -76,4 +76,3 @@ doOneSimulation <- function(
     return( NULL );
 
     }
-
