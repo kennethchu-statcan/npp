@@ -38,19 +38,14 @@ for ( file.R in files.R ) {
 my.seed         <- 7654321; #1234567;
 population.size <- 10000;
 alpha0          <- 0.25;
-n.iterations    <- 200;
 prob.selection  <- 0.1;
-n.iterations    <- 200;
+n.iterations    <- 2000;
 n.cores         <- parallel::detectCores();
 
 if ( grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE) ) {
-    n.iterations <- 200;
-    n.cores      <-   4;
+    n.iterations <- 1000;
+    n.cores      <-    4;
     }
-
-#population.size <- 1000;
-#n.iterations    <-    3;
-#n.iterations    <-  100;
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 population.flags <- c("01","02","03");
