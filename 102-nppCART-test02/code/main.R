@@ -39,7 +39,7 @@ my.seed         <- 7654321; #1234567;
 population.size <- 10000;
 alpha0          <- 0.25;
 prob.selection  <- 0.1;
-n.iterations    <- 2000;
+n.iterations    <- 1000;
 n.cores         <- parallel::detectCores();
 
 if ( grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE) ) {
