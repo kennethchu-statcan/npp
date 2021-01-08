@@ -1,89 +1,130 @@
+
 testthat::context('Testing with all valid inputs')
 testthat::test_that (
-	'initialize nppCART, with all possible inputs, does not output an error',
-	{
-		np.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1)
-		p.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1)
-		predictors <- base::colnames(np.data)
-		weight <- "weight"
-		min.cell.size <- 10
-		min.impurity <- 0.095
-		max.levels <- 10
+    desc = 'initialize nppCART, with all possible inputs, does not output an error',
+    code = {
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        predictors    <- base::colnames(np.data);
+        weight        <- "weight";
+        min.cell.size <- 10;
+        min.impurity  <- 0.095;
+        max.levels    <- 10;
+        testthat::expect_error(
+            object = nppCART(
+                np.data       = np.data,
+                p.data        = p.data,
+                predictors    = predictors,
+                weight        = weight,
+                min.cell.size = min.cell.size,
+                min.impurity  = min.impurity,
+                max.levels    = max.levels
+                ),
+            regexp = NA
+            );
+        }
+    );
 
-		testthat::expect_error(nppCART(predictors, np.data, p.data, weight, min.cell.size, min.impurity, max.levels), NA)
-	}
-)
 testthat::test_that (
-	'initialize nppCART, with all required inputs, does not output an error',
-	{
-		np.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1)
-		p.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1)
-		weight <- "weight"
-
-		testthat::expect_error(nppCART(np.data = np.data, p.data = p.data, weight = weight), NA)
-	}
-)
+    desc = 'initialize nppCART, with all required inputs, does not output an error',
+    code = {
+        np.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        p.data  <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        weight  <- "weight";
+        testthat::expect_error(
+            object = nppCART(
+                np.data = np.data,
+                p.data  = p.data,
+                weight  = weight
+                ),
+            regexp = NA
+            );
+        }
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 testthat::context('Testing the np.data parameter for errors')
-testthat::test_that (
-	'initialize nppCART, with input NULL np.data, outputs an error',
-	{
-		np.data <- NULL
-		p.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1)
-		predictors <- base::colnames(np.data)
-		weight <- "weight"
-		min.cell.size <- 10
-		min.impurity <- 0.095
-		max.levels <- 10
+testthat::test_that(
+    desc = 'initialize nppCART, with input NULL np.data, outputs an error',
+    code = {
+        np.data <- NULL;
+        p.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        predictors <- base::colnames(np.data);
+        weight <- "weight";
+        min.cell.size <- 10;
+        min.impurity <- 0.095;
+        max.levels <- 10;
+        testthat::expect_error(
+            object = nppCART(
+                np.data       = np.data,
+                p.data        = p.data,
+                predictors    = predictors,
+                weight        = weight,
+                min.cell.size = min.cell.size,
+                min.impurity  = min.impurity,
+                max.levels    = max.levels
+                ),
+            regexp = "!base::is.null(np.data) is not TRUE",
+            fixed  = TRUE
+            );
+        }
+    );
 
-		testthat::expect_error(
-			object = nppCART(predictors = predictors, np.data = np.data, p.data = p.data, weight = weight, min.cell.size = min.cell.size, min.impurity = min.impurity, max.levels = max.levels),
-			regexp = "!base::is.null(np.data) is not TRUE",
-			fixed  = TRUE
-			)
-	}
-)
-testthat::test_that (
-	'initialize nppCART, with input numeric np.data, outputs an error',
-	{
-		np.data <- 10
-		p.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1)
-		predictors <- base::colnames(np.data)
-		weight <- "weight"
-		min.cell.size <- 10
-		min.impurity <- 0.095
-		max.levels <- 10
+testthat::test_that(
+    desc = 'initialize nppCART, with input numeric np.data, outputs an error',
+    code = {
+        np.data       <- 10;
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        predictors    <- base::colnames(np.data);
+        weight        <- "weight";
+        min.cell.size <- 10;
+        min.impurity  <- 0.095;
+        max.levels    <- 10;
+        testthat::expect_error(
+            object = nppCART(
+                np.data       = np.data,
+                p.data        = p.data,
+                predictors    = predictors,
+                weight        = weight,
+                min.cell.size = min.cell.size,
+                min.impurity  = min.impurity,
+                max.levels    = max.levels
+                ),
+            regexp = 'base::is.data.frame(np.data) | base::is.matrix(np.data) | tibble::is_tibble(np.data) is not TRUE',
+            fixed  = TRUE
+            );
+        }
+    );
 
-		testthat::expect_error(
-			object = nppCART(predictors = predictors, np.data = np.data, p.data = p.data, weight = weight, min.cell.size = min.cell.size, min.impurity = min.impurity, max.levels = max.levels),
-			regexp = 'base::is.data.frame(np.data) | base::is.matrix(np.data) | tibble::is_tibble(np.data) is not TRUE',
-			fixed  = TRUE
-			)
-	}
-)
-testthat::test_that (
-	'initialize nppCART, with input empty data frame np.data, outputs an error',
-	{
-		np.data <- base::data.frame()
-		p.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1)
-		predictors <- base::colnames(np.data)
-		weight <- "weight"
-		min.cell.size <- 10
-		min.impurity <- 0.095
-		max.levels <- 10
-
-		testthat::expect_error(
-			object = nppCART(predictors = predictors, np.data = np.data, p.data = p.data, weight = weight, min.cell.size = min.cell.size, min.impurity = min.impurity, max.levels = max.levels),
-			regexp = 'base::nrow(np.data) > 0 is not TRUE',
-			fixed  = TRUE
-			)
-	}
-)
+testthat::test_that(
+    desc = 'initialize nppCART, with input empty data frame np.data, outputs an error',
+    code = {
+        np.data       <- base::data.frame();
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        predictors    <- base::colnames(np.data);
+        weight        <- "weight";
+        min.cell.size <- 10;
+        min.impurity  <- 0.095;
+        max.levels    <- 10;
+        testthat::expect_error(
+            object = nppCART(
+                np.data       = np.data,
+                p.data        = p.data,
+                predictors    = predictors,
+                weight        = weight,
+                min.cell.size = min.cell.size,
+                min.impurity  = min.impurity,
+                max.levels    = max.levels
+                ),
+            regexp = 'base::nrow(np.data) > 0 is not TRUE',
+            fixed  = TRUE
+            );
+        }
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 testthat::context('Testing the p.data parameter for errors')
-testthat::test_that (
+testthat::test_that(
     desc = 'initialize nppCART, with input NULL p.data, outputs an error',
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
@@ -109,7 +150,7 @@ testthat::test_that (
         }
     );
 
-testthat::test_that (
+testthat::test_that(
     desc = 'initialize nppCART, with input numeric p.data, outputs an error',
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
@@ -135,7 +176,7 @@ testthat::test_that (
         }
     );
 
-testthat::test_that (
+testthat::test_that(
     desc = 'initialize nppCART, with input empty data frame p.data, outputs an error',
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
