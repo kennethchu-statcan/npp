@@ -121,7 +121,7 @@
 #' my.nppCART$grow();
 #'
 #' ### Inspect the fully grown tree
-#' # my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
+#' my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
 #'
 #' ### Extract the nppCART-estimated propensities
 #' DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
