@@ -3,8 +3,8 @@ testthat::context('Testing with all valid inputs')
 testthat::test_that (
     desc = 'initialize nppCART, with all possible inputs, does not output an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -28,8 +28,8 @@ testthat::test_that (
 testthat::test_that (
     desc = 'initialize nppCART, with all required inputs, does not output an error',
     code = {
-        np.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data  <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data  <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight  <- "weight";
         testthat::expect_error(
             object = nppCART(
@@ -127,7 +127,7 @@ testthat::context('Testing the p.data parameter for errors')
 testthat::test_that(
     desc = 'initialize nppCART, with input NULL p.data, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
         p.data        <- NULL;
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
@@ -153,7 +153,7 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input numeric p.data, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
         p.data        <- 10;
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
@@ -179,7 +179,7 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input empty data frame p.data, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
         p.data        <- base::data.frame();
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
@@ -207,8 +207,8 @@ testthat::context('Testing the predictors parameter for errors')
 testthat::test_that(
     desc = 'initialize nppCART, with input NULL predictors, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- NULL;
         min.cell.size <- 10;
@@ -233,8 +233,8 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input numeric predictors, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- 10;
         min.cell.size <- 10;
@@ -259,8 +259,8 @@ testthat::test_that(
 testthat::test_that (
     desc = 'initialize nppCART, with input empty string predictors, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- "";
         min.cell.size <- 10;
@@ -285,8 +285,8 @@ testthat::test_that (
 testthat::test_that (
     desc = 'initialize nppCART, with input predictors not in colnames(np.data), outputs an error',
     code = {
-        np.data       <- base::data.frame(oof = 1:4, rab = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(oof = 1:4, rab = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- base::c("foo", "bar");
         min.cell.size <- 10;
@@ -311,8 +311,8 @@ testthat::test_that (
 testthat::test_that (
     desc = 'initialize nppCART, with input predictors not in colnames(p.data), outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(oof = 1:4, rab = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(oof = 1:4, rab = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- base::c("foo", "bar");
         min.cell.size <- 10;
@@ -339,8 +339,8 @@ testthat::context('Testing the weight parameter for errors')
 testthat::test_that (
     desc = 'initialize nppCART, with input NULL weight, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- NULL;
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -365,8 +365,8 @@ testthat::test_that (
 testthat::test_that(
     desc = 'initialize nppCART, with input numeric weight, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- 10;
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -391,8 +391,8 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input vector weight, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- base::c("weight1", "weight2");
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -417,8 +417,8 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input weight not in colnames(p.data), outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "test";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -443,7 +443,7 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input vector of strings p.data$weight, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")));
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target    = 5:8   );
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), my_weight = "test");
         weight        <- "my_weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
@@ -469,8 +469,8 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input vector of zeros p.data$weight, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")));
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), my_weight = 0);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target    = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), my_weight = 0  );
         weight        <- "my_weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -497,8 +497,8 @@ testthat::context('Testing the min.cell.size parameter for errors')
 testthat::test_that(
     desc = 'initialize nppCART, with input NULL min.cell.size, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- NULL;
@@ -523,8 +523,8 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input string min.cell.size, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- "test";
@@ -549,8 +549,8 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input vector min.cell.size, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- base::colnames(np.data);
         min.cell.size <- base::c(1, 2, 3);
@@ -575,8 +575,8 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input decimal min.cell.size, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 3.14;
@@ -601,8 +601,8 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input zero min.cell.size, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 0;
@@ -629,8 +629,8 @@ testthat::context('Testing the min.impurity parameter for errors')
 testthat::test_that(
     desc = 'initialize nppCART, with input NULL min.impurity, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -655,8 +655,8 @@ testthat::test_that(
 testthat::test_that (
     desc = 'initialize nppCART, with input string min.impurity, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -681,8 +681,8 @@ testthat::test_that (
 testthat::test_that(
     desc = 'initialize nppCART, with input vector min.impurity, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -707,8 +707,8 @@ testthat::test_that(
 testthat::test_that (
     desc = 'initialize nppCART, with input zero min.impurity, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -735,8 +735,8 @@ testthat::context('Testing the max.levels parameter for errors');
 testthat::test_that(
     desc = 'initialize nppCART, with input NULL max.levels, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -761,8 +761,8 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input string max.levels, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -787,8 +787,8 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input vector max.levels, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -813,8 +813,8 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input decimal max.levels, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -839,8 +839,8 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input negative max.levels, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
@@ -865,7 +865,7 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input np.data containing a factor exceeding max.levels, outputs an error',
     code = {
-		    np.data       <- base::data.frame(foo = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), bar = base::factor(base::c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O")), weight = 1);
+		    np.data       <- base::data.frame(foo = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), bar = base::factor(base::c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O")), target = 1);
         p.data        <- base::data.frame(foo = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), bar = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), weight = 1);
         weight        <- "weight";
         predictors    <- setdiff(base::colnames(p.data),weight);
@@ -891,7 +891,7 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input p.data containing a factor exceeding max.levels, outputs an error',
     code = {
-        np.data       <- base::data.frame(foo = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), bar = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), weight = 1);
+        np.data       <- base::data.frame(foo = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), bar = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), target = 1);
 		    p.data        <- base::data.frame(foo = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), bar = base::factor(base::c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O")), weight = 1);
 		    weight        <- "weight";
 		    predictors    <- setdiff(base::colnames(p.data),weight);
