@@ -242,9 +242,7 @@ R6_nppCART <- R6::R6Class(
                 !base::is.null(predictors), # must not be NULL
                 base::is.character(predictors), # must be a string or set of strings
                 base::length(base::setdiff(predictors, base::colnames(np.data))) == 0, # must be contained in column names of np.data
-                base::length(base::setdiff(predictors, base::colnames(p.data))) == 0   # must be contained in column names of p.data
-                # base::all(predictors %in% base::colnames(np.data)), # must be subset of column names of np.data
-                # base::all(predictors %in% base::colnames( p.data))  # must be subset of column names of  p.data
+                base::length(base::setdiff(predictors, base::colnames( p.data))) == 0  # must be contained in column names of  p.data
                 );
 
             # test min.cell.size
