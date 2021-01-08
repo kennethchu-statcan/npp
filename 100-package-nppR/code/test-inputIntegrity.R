@@ -552,7 +552,7 @@ testthat::test_that(
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), target = 5:8);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1  );
         weight        <- "weight";
-        predictors    <- base::colnames(np.data);
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- base::c(1, 2, 3);
         min.impurity  <- 0.095;
         max.levels    <- 10;
