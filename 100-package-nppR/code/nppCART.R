@@ -1,17 +1,28 @@
 #' Tree-based Inverse Propensity Weighted Estimator
 #'
-#' The nppCART function implements the Tree-based Inverse Propensity Weighted estimator, developed by Kenneth Chu and Jean-François Beaumont. It can be used to estimate the self-selection propensity of each member in a non-probability sample and the total population that the sample was taken from. The estimates are calculated by performing recursive binary partitioning on a related probability sample, which shares relevant auxillary variables with the non-probability sample. The nppCART function creates an R6 class, which contains a number of public methods that are available for the user.
+#' The nppCART function implements the Tree-based Inverse Propensity Weighted
+#' estimator, developed by Kenneth Chu and Jean-François Beaumont.
+#' It can be used to estimate the self-selection propensity of each unit
+#' in a non-probability sample and the total population that the sample was
+#' taken from.
+#' The estimates are calculated by performing recursive binary partitioning
+#' on a related probability sample, which shares relevant auxillary variables
+#' with the non-probability sample. The nppCART function creates an R6 class,
+#' which contains a number of public methods that are available for the user.
 #'
 #' @docType class
 #'
 #' @import R6
 #' @import dplyr
 #'
-#' @return The nppCART function returns an instance of a R6 class, which has been initialized with the inputted parameters.
+#' @return The nppCART function returns an instance of a R6 class instantiated with the input parameters.
 #'
 #' @format \code{\link{R6Class}} object
 #'
 #' @examples
+#' ### See the vignette 'vignette-nppCART-usage' for more details,
+#' ### by executing the following command at the R console: vignette("vignette-nppCART-usage")
+#'
 #' ### Generate data frame for synthetic population
 #' population.size <- 10000;
 #'
