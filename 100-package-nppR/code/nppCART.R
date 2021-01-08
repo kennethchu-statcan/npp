@@ -1,11 +1,10 @@
 #' nppCART
 #'
-#' The nppCART function implements the nppCART algorithm,
-#' which is intended for estimating the self-selection propensity of each unit
+#' The nppCART algorithm, developed by Kenneth Chu and Jean-François Beaumont,
+#' is intended for estimating the self-selection propensity of each unit
 #' in a non-probability sample, via a variant of the CART algorithm,
 #' by incorporating auxiliary information from an appropriate and compatible
 #' probability sample.
-#' The nppCART algorithm was developed by Kenneth Chu and Jean-François Beaumont.
 #' For more information about the algorithm and underlying methodology,
 #' please consult the vignette 'nppCART-article'
 #' by executing the command: \code{vignette("nppCART-article")}.
@@ -20,7 +19,7 @@
 #' @format \code{\link{R6Class}} object
 #'
 #' @examples
-#' # See the vignette 'vignette-nppCART-usage' for more details, by executing the command: vignette("nppCART-usage")
+#' # See the vignette 'nppCART-usage' for more details, by executing the command: vignette("nppCART-usage")
 #'
 #' ### Generate data frame for synthetic population
 #' population.size <- 10000;
