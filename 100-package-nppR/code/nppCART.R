@@ -228,14 +228,6 @@ R6_nppCART <- R6::R6Class(
                 base::nrow(p.data) > 0 # must not be empty
                 );
 
-            # test predictors
-            base::stopifnot(
-                !base::is.null(predictors), # must not be NULL
-                base::is.character(predictors), # must be a string or set of strings
-                base::length(base::setdiff(predictors, base::colnames(np.data))) == 0, # must be contained in column names of np.data
-                base::length(base::setdiff(predictors, base::colnames(p.data))) == 0   # must be contained in column names of p.data
-                );
-
             # test weight
             base::stopifnot(
                 !base::is.null(weight), # must not be NULL
@@ -243,6 +235,16 @@ R6_nppCART <- R6::R6Class(
                 base::length(base::setdiff(weight, base::colnames(p.data))) == 0,  # must correspond to a column name of p.data
                 base::is.numeric(p.data[,weight]), # corresponding column of p.data must contain only numeric data types
                 base::all(p.data[,weight] > 0)  # all numbers in corresponding column must be positive
+                );
+
+            # test predictors
+            base::stopifnot(
+                !base::is.null(predictors), # must not be NULL
+                base::is.character(predictors), # must be a string or set of strings
+                base::length(base::setdiff(predictors, base::colnames(np.data))) == 0, # must be contained in column names of np.data
+                base::length(base::setdiff(predictors, base::colnames(p.data))) == 0   # must be contained in column names of p.data
+                # base::all(predictors %in% base::colnames(np.data)), # must be subset of column names of np.data
+                # base::all(predictors %in% base::colnames( p.data))  # must be subset of column names of  p.data
                 );
 
             # test min.cell.size
