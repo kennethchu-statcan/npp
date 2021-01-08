@@ -5,8 +5,8 @@ testthat::test_that (
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -14,8 +14,8 @@ testthat::test_that (
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -47,19 +47,19 @@ testthat::context('Testing the np.data parameter for errors')
 testthat::test_that(
     desc = 'initialize nppCART, with input NULL np.data, outputs an error',
     code = {
-        np.data <- NULL;
-        p.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors <- base::colnames(np.data);
-        weight <- "weight";
+        np.data       <- NULL;
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
-        min.impurity <- 0.095;
-        max.levels <- 10;
+        min.impurity  <- 0.095;
+        max.levels    <- 10;
         testthat::expect_error(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -75,8 +75,8 @@ testthat::test_that(
     code = {
         np.data       <- 10;
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -84,8 +84,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -101,8 +101,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame();
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -110,8 +110,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -129,8 +129,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- NULL;
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -138,8 +138,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -155,8 +155,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- 10;
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -164,8 +164,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -181,8 +181,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame();
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -190,8 +190,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -209,8 +209,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- NULL;
         weight        <- "weight";
+        predictors    <- NULL;
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -218,8 +218,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -235,8 +235,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- 10;
         weight        <- "weight";
+        predictors    <- 10;
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -244,8 +244,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -261,8 +261,8 @@ testthat::test_that (
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- "";
         weight        <- "weight";
+        predictors    <- "";
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -270,8 +270,8 @@ testthat::test_that (
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -287,8 +287,8 @@ testthat::test_that (
     code = {
         np.data       <- base::data.frame(oof = 1:4, rab = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::c("foo", "bar");
         weight        <- "weight";
+        predictors    <- base::c("foo", "bar");
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -296,8 +296,8 @@ testthat::test_that (
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -313,8 +313,8 @@ testthat::test_that (
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(oof = 1:4, rab = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::c("foo", "bar");
         weight        <- "weight";
+        predictors    <- base::c("foo", "bar");
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -322,8 +322,8 @@ testthat::test_that (
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -341,8 +341,8 @@ testthat::test_that (
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- NULL;
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -350,8 +350,8 @@ testthat::test_that (
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -367,8 +367,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- 10;
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -376,8 +376,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -393,8 +393,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- base::c("weight1", "weight2");
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -402,8 +402,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -419,8 +419,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "test";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -428,8 +428,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -443,13 +443,13 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input vector of strings p.data$weight, outputs an error',
     code = {
-        np.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")));
-        p.data         <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), my_weight = "test");
-        predictors     <- base::colnames(np.data);
-        weight         <- "my_weight";
-        min.cell.size  <- 10;
-        min.impurity   <-  0.095;
-        max.levels     <- 10;
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")));
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), my_weight = "test");
+        weight        <- "my_weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
+        min.cell.size <- 10;
+        min.impurity  <-  0.095;
+        max.levels    <- 10;
         testthat::expect_error(
             object = nppCART(
                 np.data       = np.data,
@@ -471,8 +471,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")));
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), my_weight = 0);
-        predictors    <- base::colnames(np.data);
-        weight        <- "my_weight"
+        weight        <- "my_weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <-  0.095;
         max.levels    <- 10;
@@ -499,8 +499,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- NULL;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -508,8 +508,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -525,8 +525,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- "test";
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -534,8 +534,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -549,19 +549,19 @@ testthat::test_that(
 testthat::test_that(
     desc = 'initialize nppCART, with input vector min.cell.size, outputs an error',
     code = {
-        np.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        p.data <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors <- base::colnames(np.data);
-        weight <- "weight";
+        np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
+        weight        <- "weight";
+        predictors    <- base::colnames(np.data);
         min.cell.size <- base::c(1, 2, 3);
-        min.impurity <- 0.095;
-        max.levels <- 10;
+        min.impurity  <- 0.095;
+        max.levels    <- 10;
         testthat::expect_error(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -577,8 +577,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 3.14;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -586,8 +586,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -603,8 +603,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 0;
         min.impurity  <- 0.095;
         max.levels    <- 10;
@@ -612,8 +612,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -631,8 +631,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- NULL;
         max.levels    <- 10;
@@ -640,8 +640,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -657,8 +657,8 @@ testthat::test_that (
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- "test";
         max.levels    <- 10;
@@ -666,8 +666,8 @@ testthat::test_that (
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -683,8 +683,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- base::c(1, 2, 3);
         max.levels    <- 10;
@@ -692,8 +692,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -709,8 +709,8 @@ testthat::test_that (
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0;
         max.levels    <- 10;
@@ -718,8 +718,8 @@ testthat::test_that (
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -737,8 +737,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- NULL;
@@ -746,8 +746,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -763,8 +763,8 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- "test";
@@ -772,8 +772,8 @@ testthat::test_that(
             object = nppCART(
                 np.data       = np.data,
                 p.data        = p.data,
-                predictors    = predictors,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -789,17 +789,17 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- base::c(1, 2, 3);
         testthat::expect_error(
             object = nppCART(
-                predictors    = predictors,
                 np.data       = np.data,
                 p.data        = p.data,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -815,17 +815,17 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 3.14;
         testthat::expect_error(
             object = nppCART(
-                predictors    = predictors,
                 np.data       = np.data,
                 p.data        = p.data,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -841,17 +841,17 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
         p.data        <- base::data.frame(foo = 1:4, bar = base::factor(base::c("A","B","C","D")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- -1;
 				testthat::expect_error(
             object = nppCART(
-                predictors    = predictors,
                 np.data       = np.data,
                 p.data        = p.data,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -867,17 +867,17 @@ testthat::test_that(
     code = {
 		    np.data       <- base::data.frame(foo = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), bar = base::factor(base::c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O")), weight = 1);
         p.data        <- base::data.frame(foo = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), bar = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), weight = 1);
-        predictors    <- base::colnames(np.data);
         weight        <- "weight";
+        predictors    <- setdiff(base::colnames(p.data),weight);
         min.cell.size <- 10;
         min.impurity  <- 0.095;
         max.levels    <- 10;
         testthat::expect_error(
             object = nppCART(
-                predictors    = predictors,
                 np.data       = np.data,
                 p.data        = p.data,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
@@ -893,17 +893,17 @@ testthat::test_that(
     code = {
         np.data       <- base::data.frame(foo = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), bar = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), weight = 1);
 		    p.data        <- base::data.frame(foo = base::factor(base::c("A","B","C","D","A","B","C","D","A","B","C","D","A","B","C")), bar = base::factor(base::c("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O")), weight = 1);
-		    predictors    <- base::colnames(np.data);
 		    weight        <- "weight";
+		    predictors    <- setdiff(base::colnames(p.data),weight);
 		    min.cell.size <- 10;
 		    min.impurity  <- 0.095;
 		    max.levels    <- 10;
         testthat::expect_error(
 			      object = nppCART(
-                predictors    = predictors,
                 np.data       = np.data,
                 p.data        = p.data,
                 weight        = weight,
+                predictors    = predictors,
                 min.cell.size = min.cell.size,
                 min.impurity  = min.impurity,
                 max.levels    = max.levels
