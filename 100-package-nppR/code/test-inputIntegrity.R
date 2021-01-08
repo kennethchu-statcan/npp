@@ -376,7 +376,15 @@ testthat::test_that(
         min.impurity  <- 0.095;
         max.levels    <- 10;
         testthat::expect_error(
-            object = nppCART(predictors = predictors, np.data = np.data, p.data = p.data, weight = weight, min.cell.size = min.cell.size, min.impurity = min.impurity, max.levels = max.levels),
+            object = nppCART(
+                np.data       = np.data,
+                p.data        = p.data,
+                predictors    = predictors,
+                weight        = weight,
+                min.cell.size = min.cell.size,
+                min.impurity  = min.impurity,
+                max.levels    = max.levels
+                ),
             regexp = "!base::is.null(min.cell.size) is not TRUE",
             fixed  = TRUE
             );
