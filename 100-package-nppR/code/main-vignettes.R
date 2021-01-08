@@ -18,7 +18,7 @@ require(rmarkdown);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 vignette.files <- c(
-    "vignette-nppCART-usage"
+    "nppCART-usage"
     );
 
 for ( vignette.file in vignette.files ) {

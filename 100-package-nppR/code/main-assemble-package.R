@@ -103,16 +103,16 @@ tests.R <- base::file.path( code.directory , tests.R );
 # tests.R <- base::file.path( code.directory , tests.R );
 
 list.vignettes.Rmd <- list(
-    'vignette-nppCART-usage' = list(
-        file  = base::file.path( code.directory , 'vignette-nppCART-usage.Rmd'       ),
-        asis  = base::file.path( code.directory , 'vignette-nppCART-usage.html.asis' )
+    'nppCART-usage' = list(
+        file  = base::file.path( code.directory , 'nppCART-usage.Rmd'       ),
+        asis  = base::file.path( code.directory , 'nppCART-usage.html.asis' )
         )
     );
 
 list.vignettes.pdf <- list(
-    'BeaumontChu2019' = list(
-        file  = base::file.path( code.directory , 'Beaumont-Chu_SSC-2019_nppCART.pdf'      ),
-        asis  = base::file.path( code.directory , 'Beaumont-Chu_SSC-2019_nppCART.pdf.asis' )
+    'nppCART-article' = list(
+        file  = base::file.path( code.directory , 'nppCART-article.pdf'      ),
+        asis  = base::file.path( code.directory , 'nppCART-article.pdf.asis' )
         )
     );
 
@@ -175,48 +175,6 @@ build.package(
 #
 # cat("\nlist.files(temp.RLib)\n");
 # print( list.files(temp.RLib)   );
-#
-# ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# set.seed(13);
-#
-# n.ecoregions    <-    3;
-# n.crops         <-    5;
-# n.predictors    <-    7;
-# avg.n.parcels   <- 1000;
-# min.num.parcels <-   50;
-#
-# DF.synthetic <- stcCropYield::getData.synthetic(
-#     years         = seq(2000,2020),
-#     n.ecoregions  = n.ecoregions,
-#     n.crops       = n.crops,
-#     n.predictors  = n.predictors,
-#     avg.n.parcels = avg.n.parcels
-#     );
-#
-# stcCropYield::rollingWindowForwardValidation(
-#     training.window      = 5,
-#     validation.window    = 5,
-#     DF.input             = DF.synthetic,
-#     year                 = "my_year",
-#     ecoregion            = "my_ecoregion",
-#     crop                 = "my_crop",
-#     response.variable    = "my_yield",
-#     harvested.area       = "my_harvested_area",
-#     seeded.area          = "my_seeded_area",
-#     evaluation.weight    = "my_evaluation_weight",
-#     predictors           = grep(x = colnames(DF.synthetic), pattern = "x[0-9]*", value = TRUE),
-#     min.num.parcels      = min.num.parcels,
-#     learner              = "xgboost_multiphase",
-#     by.variables.phase01 = c("my_ecoregion","my_crop"),
-#     by.variables.phase02 = c("my_crop"),
-#     by.variables.phase03 = c("my_ecoregion"),
-#     search.grid = list(
-#         alpha  = c(1,12,23),
-#         lambda = c(1,12,23)
-#         ),
-#     output.directory = file.path(code.directory,"rwFV"),
-#     log.threshold    = logger::TRACE
-#     );
 #
 # ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 if ( "windows" != base::.Platform[["OS.type"]] ) {

@@ -1,17 +1,26 @@
-#' Tree-based Inverse Propensity Weighted Estimator
+#' nppCART
 #'
-#' The nppCART function implements the Tree-based Inverse Propensity Weighted estimator, developed by Kenneth Chu and Jean-François Beaumont. It can be used to estimate the self-selection propensity of each member in a non-probability sample and the total population that the sample was taken from. The estimates are calculated by performing recursive binary partitioning on a related probability sample, which shares relevant auxillary variables with the non-probability sample. The nppCART function creates an R6 class, which contains a number of public methods that are available for the user.
+#' The nppCART algorithm, developed by Kenneth Chu and Jean-François Beaumont,
+#' is intended for estimating the self-selection propensity of each unit
+#' in a non-probability sample, via a variant of the CART algorithm,
+#' by incorporating auxiliary information from an appropriate and compatible
+#' probability sample.
+#' For more information about the algorithm and underlying methodology,
+#' please consult the vignette 'nppCART-article'
+#' by executing the command: \code{vignette("nppCART-article")}.
 #'
 #' @docType class
 #'
 #' @import R6
 #' @import dplyr
 #'
-#' @return The nppCART function returns an instance of a R6 class, which has been initialized with the inputted parameters.
+#' @return The nppCART function returns an instance of a R6 class instantiated with the input parameters.
 #'
 #' @format \code{\link{R6Class}} object
 #'
 #' @examples
+#' # See the vignette 'nppCART-usage' for more details, by executing the command: vignette("nppCART-usage")
+#'
 #' ### Generate data frame for synthetic population
 #' population.size <- 10000;
 #'
@@ -111,7 +120,7 @@
 #' my.nppCART$grow();
 #'
 #' ### Inspect the fully grown tree
-#' # my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
+#' my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
 #'
 #' ### Extract the nppCART-estimated propensities
 #' DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
