@@ -154,10 +154,10 @@
 #' @export
 
 nppCART <- function(
-    predictors = base::colnames(np.data),
     np.data,
     p.data,
     weight,
+    predictors    = setdiff(base::colnames(p.data),weight),
     min.cell.size = 10,
     min.impurity  = 0.095,
     max.levels    = 10
@@ -165,10 +165,10 @@ nppCART <- function(
 
     return(
         R6_nppCART$new(
-            predictors    = predictors,
             np.data       = np.data,
             p.data        = p.data,
             weight        = weight,
+            predictors    = predictors,
             min.cell.size = min.cell.size,
             min.impurity  = min.impurity,
             max.levels    = max.levels
