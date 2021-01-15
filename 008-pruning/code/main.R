@@ -20,6 +20,10 @@ require(survey);
 files.R <- c(
     'getPopulation.R',
     'getSamples.R',
+    'myCART.R',
+    'nppCART.R',
+    'test-myCART.R',
+    'test-nppCART.R',
     'test-svyrepdesign.R'
     );
 
@@ -29,7 +33,11 @@ for ( file.R in files.R ) {
 
 ###################################################
 ###################################################
-test.svyrepdesign();
+# test.svyrepdesign();
+
+# test.nppCART();
+
+test.myCART();
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
