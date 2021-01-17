@@ -24,7 +24,8 @@ files.R <- c(
     'nppCART.R',
     'test-myCART.R',
     'test-nppCART.R',
-    'test-svyrepdesign.R'
+    'test-svyrepdesign.R',
+    'update-branches.R'
     );
 
 for ( file.R in files.R ) {
