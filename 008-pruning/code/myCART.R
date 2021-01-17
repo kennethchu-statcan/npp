@@ -52,11 +52,11 @@ myCART  <- R6Class(
         grow = function() {
 
             self$nodes <- list();
-            lastNodeID <- 0;
+            lastNodeID <- 1; # 0;
 
             workQueue <- list(
                 private$node$new(
-                    parentID = -1,
+                    parentID = 0, #-1,
                     nodeID   = lastNodeID,
                     depth    = 0,
                     rowIDs   = self$data[,self$syntheticID]
@@ -178,7 +178,7 @@ myCART  <- R6Class(
                     #cat( paste0("\ncurrentNodeID: ",currentNodeID) );
                     #}
                     }
-                } 
+                }
 
             # private$order_nodes();
             # return( NULL );
@@ -204,6 +204,7 @@ myCART  <- R6Class(
             },
 
         get_pruning_sequence = function(nodes = self$nodes) {
+
             if ( 0 == length(nodes) ) {
                 cat("\nThe supplied list of nodes is empty.\n")
                 return( NULL );
@@ -230,8 +231,18 @@ myCART  <- R6Class(
                 }
 
             return( output_list );
+
+            },
+
+        public_nodes_to_table = function(nodes = self$nodes) {
+            return( private$nodes_to_table(nodes = nodes) );
+            },
+
+        public_get_alpha_subtree = function(DF.input = private$nodes_to_table()) {
+            return( private$get_alpha_subtree(DF.input = DF.input) );
             }
-        ),
+
+        ), # public = list(
 
     private = list(
         pop = function(list, i = length(list), envir = NULL) {
@@ -323,7 +334,6 @@ myCART  <- R6Class(
                     nodes[[i]]$notSatisfiedChildID
                     );
                 }
-
             return( DF.output );
             },
         get_alpha_subtree = function(DF.input = NULL) {
@@ -337,7 +347,7 @@ myCART  <- R6Class(
                 mutate( nLeaves_child = 1 )
                 ;
             #cat("\nDF.leaves\n");
-            #print( DF.leaves   );    
+            #print( DF.leaves   );
 
             retainedColumns <- c("nodeID","riskWgtd_child","nLeaves_child");
             DF.internalNodes <- DF.input[!hasNoChildren,] %>%
@@ -360,7 +370,7 @@ myCART  <- R6Class(
                 select( - c(riskWgtd_s,riskWgtd_ns,nLeaves_s,nLeaves_ns) )
                 ;
             #cat("\nDF.internalNodes\n");
-            #print( DF.internalNodes   );    
+            #print( DF.internalNodes   );
 
             retainedColumns <- c("nodeID","riskLeaves_child","nLeaves_child");
             for (temp.depth in seq(max(DF.internalNodes[,"depth"]),1,-1)) {
@@ -505,15 +515,15 @@ myCART  <- R6Class(
                             )
                         ];
                     notSatisfied <- base::sort(base::setdiff(currentRowIDs,satisfied));
-                    
+
                     p1 <- length(   satisfied) / length(currentRowIDs);
                     p2 <- length(notSatisfied) / length(currentRowIDs);
                     g1 <- private$impurity(self$data[self$data[,self$syntheticID] %in%    satisfied,self$response]);
                     g2 <- private$impurity(self$data[self$data[,self$syntheticID] %in% notSatisfied,self$response]);
-                    
-                    
+
+
                     #print(paste0(x$threshold, ", ", p1, ", ", g1, ", ", p2, ", ", g2, ", ", p1 * g1 + p2 * g2))
-                    
+
                     return( p1 * g1 + p2 * g2 );
                     }
                 );
@@ -573,7 +583,7 @@ myCART  <- R6Class(
                 }
             return( templist );
             },
-            
+
         # @param: set - a vector or list, containing factors
         # @return: combinationsA - a list of vectors containing 1st group of all possible splits
         # Enumerates all possible ways to split a given set of factors into 2 groups
@@ -581,10 +591,10 @@ myCART  <- R6Class(
         #  we only need to return 1 group, since we are checking if the factor belongs to the group or not)
         enumerate_set = function(set = NULL) {
 
-            combinationsA <- list()      
-            #combinationsB <- list()    
-            indexA <- 1                 
-            #indexB <- 1                
+            combinationsA <- list()
+            #combinationsB <- list()
+            indexA <- 1
+            #indexB <- 1
 
             # iterate from 1 to half the length of the set (rounded down if odd),
             # where i corresponds to the group size created by combn
@@ -593,7 +603,7 @@ myCART  <- R6Class(
             for (i in seq(1, trunc(length(set) / 2))) {
 
                 # combn returns a dataframe containing all possible combinations;
-                # ncol corresponds to the number of possible combinations 
+                # ncol corresponds to the number of possible combinations
                 size <- ncol(combn(set, i))
 
                 # special even case: checks if group size i is equal to half the length of the set
@@ -637,8 +647,8 @@ myCART  <- R6Class(
         # @return: bool (TRUE or FALSE)
         # Checks if x is contained in y: useful for checking if factor is in contained in split (combination of factors),
         # but also works for checking numerics and ordered factors (i.e. checking if x == y)
-        is_equal_to = function(x,y) {           
-            ret <- lapply(  X = x, 
+        is_equal_to = function(x,y) {
+            ret <- lapply(  X = x,
                             FUN = function(input) {
                                 for(element in y) {
                                     #print(paste0("y: ", element, ", x: ", input, ", x == y: ", element == input))
@@ -765,4 +775,3 @@ myCART  <- R6Class(
         )
 
     );
-
