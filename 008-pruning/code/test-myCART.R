@@ -69,45 +69,28 @@ test.myCART <- function(
     dev.off();
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.nodes  <- myCART.object$public_nodes_to_table();
-    cat("\nDF.nodes\n");
-    print( DF.nodes   );
+    DF.nodes <- myCART.object$public_nodes_to_table();
 
-    DF.temp.1 <- update.branches(DF.input = DF.nodes );
-    DF.temp.1 <- prune.branches( DF.input = DF.temp.1);
-    cat("\nDF.temp.1\n"); print(DF.temp.1);
-    cat("\nmin(DF.temp.1[,'myCART.g'],na.rm=TRUE)\n");
-    print( min(DF.temp.1[,'myCART.g'],na.rm=TRUE)   );
+    index.subtree <- 1;
+    list.pruned.subtrees <- list();
+    list.pruned.subtrees[[index.subtree]] <- list(alpha = 0, subtree = DF.nodes);
 
-    DF.temp.2 <- update.branches(DF.input = DF.temp.1);
-    DF.temp.2 <- prune.branches( DF.input = DF.temp.2);
-    cat("\nDF.temp.2\n"); print(DF.temp.2);
-    cat("\nmin(DF.temp.2[,'myCART.g'],na.rm=TRUE)\n");
-    print( min(DF.temp.2[,'myCART.g'],na.rm=TRUE)   );
+    DF.temp <- DF.nodes;
+    while ( nrow(DF.temp) > 1 ) {
+        index.subtree <- index.subtree + 1;
+        DF.temp       <- update.branches(DF.input = DF.temp);
+        DF.temp       <- prune.branches( DF.input = DF.temp);
+        list.pruned.subtrees[[index.subtree]] <- list(
+            alpha   = min(DF.temp[,'myCART.g'], na.rm = TRUE),
+            subtree = DF.temp
+            );
+        }
 
-    DF.temp.3 <- update.branches(DF.input = DF.temp.2);
-    DF.temp.3 <- prune.branches( DF.input = DF.temp.3);
-    cat("\nDF.temp.3\n"); print(DF.temp.3);
-    cat("\nmin(DF.temp.3[,'myCART.g'],na.rm=TRUE)\n");
-    print( min(DF.temp.3[,'myCART.g'],na.rm=TRUE)   );
+    cat("\nstr(list.pruned.subtrees)\n");
+    print( str(list.pruned.subtrees)   );
 
-    DF.temp.4 <- update.branches(DF.input = DF.temp.3);
-    DF.temp.4 <- prune.branches( DF.input = DF.temp.4);
-    cat("\nDF.temp.4\n"); print(DF.temp.4);
-    cat("\nmin(DF.temp.4[,'myCART.g'],na.rm=TRUE)\n");
-    print( min(DF.temp.4[,'myCART.g'],na.rm=TRUE)   );
-
-    DF.temp.5 <- update.branches(DF.input = DF.temp.4);
-    DF.temp.5 <- prune.branches( DF.input = DF.temp.5);
-    cat("\nDF.temp.5\n"); print(DF.temp.5);
-    cat("\nmin(DF.temp.5[,'myCART.g'],na.rm=TRUE)\n");
-    print( min(DF.temp.5[,'myCART.g'],na.rm=TRUE)   );
-
-    DF.temp.6 <- update.branches(DF.input = DF.temp.5);
-    DF.temp.6 <- prune.branches( DF.input = DF.temp.6);
-    cat("\nDF.temp.6\n"); print(DF.temp.6);
-    cat("\nmin(DF.temp.6[,'myCART.g'],na.rm=TRUE)\n");
-    print( min(DF.temp.6[,'myCART.g'],na.rm=TRUE)   );
+    cat("\nlist.pruned.subtrees\n");
+    print( list.pruned.subtrees   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
