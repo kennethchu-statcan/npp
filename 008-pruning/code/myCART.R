@@ -52,11 +52,11 @@ myCART  <- R6Class(
         grow = function() {
 
             self$nodes <- list();
-            lastNodeID <- 1; # 0;
+            lastNodeID <- 0; # 1; # 0;
 
             workQueue <- list(
                 private$node$new(
-                    parentID = 0, #-1,
+                    parentID = -1, # 0, #-1,
                     nodeID   = lastNodeID,
                     depth    = 0,
                     rowIDs   = self$data[,self$syntheticID]
