@@ -21,11 +21,11 @@ files.R <- c(
     'getPopulation.R',
     'getSamples.R',
     'myCART.R',
+    'myCART-pruning.R',
     'nppCART.R',
     'test-myCART.R',
     'test-nppCART.R',
-    'test-svyrepdesign.R',
-    'update-branches.R'
+    'test-svyrepdesign.R'
     );
 
 for ( file.R in files.R ) {
