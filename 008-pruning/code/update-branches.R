@@ -37,8 +37,8 @@ prune.branches <- function(
     is.g.minimizer <- (base::abs(DF.output[,'myCART.g'] - min.CART.g) < tolerance);
     g.minimizers   <- base::setdiff(DF.output[is.g.minimizer,'nodeID'],NA);
     nodes.to.prune <- base::c();
-    for ( g.minimizer in g.minimizers) {
-        nodes.to.prune <- base::c(nodes.to.prune,get.descendant.nodeIDs(DF.input = DF.input,nodeID=g.minimizer));
+    for ( g.minimizer in g.minimizers ) {
+        nodes.to.prune <- base::c(nodes.to.prune,get.descendant.nodeIDs(DF.input = DF.input, nodeID = g.minimizer));
         is.selected <- (DF.output[,'nodeID'] == g.minimizer);
         DF.output[is.selected,'riskLeaves'] <- DF.output[is.selected,'riskWgtd'];
         DF.output[is.selected,'nLeaves']    <- 1;
