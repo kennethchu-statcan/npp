@@ -78,8 +78,8 @@ test.myCART <- function(
     DF.temp <- DF.nodes;
     while ( nrow(DF.temp) > 1 ) {
         index.subtree <- index.subtree + 1;
-        DF.temp       <- update.branches(DF.input = DF.temp);
-        DF.temp       <- prune.branches( DF.input = DF.temp);
+        DF.temp       <- compute.g(DF.input = DF.temp);
+        DF.temp       <- prune.g.minimizers( DF.input = DF.temp);
         list.pruned.subtrees[[index.subtree]] <- list(
             alpha   = min(DF.temp[,'myCART.g'], na.rm = TRUE),
             subtree = DF.temp

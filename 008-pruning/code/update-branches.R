@@ -1,5 +1,5 @@
 
-update.branches <- function(
+compute.g <- function(
     DF.input = NULL
     ) {
 
@@ -28,7 +28,7 @@ update.branches <- function(
     }
 
 ##################################################
-prune.branches <- function(
+prune.g.minimizers <- function(
     DF.input  = NULL,
     tolerance = 1e-9
     ) {
