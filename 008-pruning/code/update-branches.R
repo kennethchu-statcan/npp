@@ -5,11 +5,12 @@ update.branches <- function(
 
     DF.output <- DF.input;
 
-    DF.output[,'riskLeaves'] <- DF.output[is.leaf,'riskWgtd'];
+    DF.output[,'riskLeaves'] <- 0;
     DF.output[,'nLeaves'   ] <- 0;
 
     is.leaf <- base::is.na(DF.output[,'satisfiedChildID']);
-    DF.output[is.leaf,'nLeaves'] <- 1;
+    DF.output[is.leaf,'riskLeaves'] <- DF.output[is.leaf,'riskWgtd'];
+    DF.output[is.leaf,'nLeaves']    <- 1;
 
     for ( temp.depth in base::seq(base::max(DF.output[,'depth']),1) ) {
         DF.temp <- DF.output[DF.output[,'depth'] == temp.depth,];
