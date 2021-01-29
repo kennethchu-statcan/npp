@@ -711,7 +711,7 @@ myCART  <- R6Class(
             list.subtrees <- base::list();
             list.subtrees[[index.subtree]] <- base::list(
                 alpha           = 0,
-                nodes_retained  = DF.nodes[,"nodeID"],
+                nodes_untouched = DF.nodes[,"nodeID"],
                 nodes_pruned_at = c(),
                 nodes_removed   = c(),
                 subtree         = DF.nodes
@@ -727,7 +727,7 @@ myCART  <- R6Class(
                 DF.temp       <- list.temp[['DF_nodes']];
                 list.subtrees[[index.subtree]] <- base::list(
                     alpha           = list.temp[['alpha']], # base::min(DF.temp[,'myCART.g'], na.rm = TRUE),
-                    nodes_retained  = list.temp[['nodes_retained']],
+                    nodes_untouched = list.temp[['nodes_untouched']],
                     nodes_pruned_at = list.temp[['nodes_pruned_at']],
                     nodes_removed   = list.temp[['nodes_removed']],
                     subtree         = DF.temp # list.temp[['DF_nodes']]
@@ -766,7 +766,7 @@ myCART  <- R6Class(
             g.minimizers   <- base::setdiff(DF.output[is.g.minimizer,'nodeID'],NA);
             nodes.removed  <- base::c();
             for ( g.minimizer in g.minimizers ) {
-                nodes.removed <- base::c(nodes.removed,private$get_descendant_nodeIDs(DF.input = DF.input, nodeID = g.minimizer));
+                nodes.removed <- base::unique(base::c(nodes.removed,private$get_descendant_nodeIDs(DF.input = DF.input, nodeID = g.minimizer)));
                 is.selected <- (DF.output[,'nodeID'] == g.minimizer);
                 DF.output[is.selected,'riskLeaves'] <- DF.output[is.selected,'riskWgtd'];
                 DF.output[is.selected,'nLeaves']    <- 1;
@@ -775,7 +775,7 @@ myCART  <- R6Class(
             DF.output <- DF.output[!(DF.output[,'nodeID'] %in% nodes.removed),];
             list.output <- base::list(
                 alpha           = min.CART.g,
-                nodes_retained  = base::setdiff(DF.input[,'nodeID'],c(g.minimizers,nodes.removed)),
+                nodes_untouched = base::setdiff(DF.input[,'nodeID'],c(g.minimizers,nodes.removed)),
                 nodes_pruned_at = g.minimizers,
                 nodes_removed   = nodes.removed,
                 DF_nodes        = DF.output
