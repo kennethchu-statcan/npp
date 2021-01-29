@@ -69,6 +69,15 @@ test.myCART <- function(
     dev.off();
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    list.subtree.sequence <- myCART.object$public_subtree_sequence();
+
+    cat("\nstr(list.subtree.sequence)\n");
+    print( str(list.subtree.sequence)   );
+
+    cat("\nlist.subtree.sequence\n");
+    print( list.subtree.sequence   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.nodes <- myCART.object$public_nodes_to_table();
 
     index.subtree <- 1;

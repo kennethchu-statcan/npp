@@ -240,6 +240,10 @@ myCART  <- R6Class(
 
         public_get_alpha_subtree = function(DF.input = private$nodes_to_table()) {
             return( private$get_alpha_subtree(DF.input = DF.input) );
+            },
+
+        public_subtree_sequence = function() {
+            return( private$subtree_sequence(DF.nodes = private$nodes_to_table()) );
             }
 
         ), # public = list(
@@ -701,6 +705,77 @@ myCART  <- R6Class(
                 self$nodes <- self$nodes[order(nodeIDs)];
                 return( NULL );
                 }
+            },
+        subtree_sequence = function(DF.nodes = private$nodes_to_table()) {
+            index.subtree <- 1;
+            list.pruned.subtrees <- base::list();
+            list.pruned.subtrees[[index.subtree]] <- base::list(alpha = 0, subtree = DF.nodes);
+            DF.temp <- DF.nodes;
+            while ( base::nrow(DF.temp) > 1 ) {
+                index.subtree <- index.subtree + 1;
+                DF.temp       <- private$compute_g(DF.input = DF.temp);
+                DF.temp       <- private$prune_g_minimizers(DF.input = DF.temp);
+                list.pruned.subtrees[[index.subtree]] <- base::list(
+                    alpha   = base::min(DF.temp[,'myCART.g'], na.rm = TRUE),
+                    subtree = DF.temp
+                    );
+                }
+            return( list.pruned.subtrees );
+            },
+        compute_g = function(
+            DF.input = NULL
+            ) {
+            DF.output <- DF.input;
+            DF.output[,'riskLeaves'] <- 0;
+            DF.output[,'nLeaves'   ] <- 0;
+            is.leaf <- base::is.na(DF.output[,'satisfiedChildID']);
+            DF.output[is.leaf,'riskLeaves'] <- DF.output[is.leaf,'riskWgtd'];
+            DF.output[is.leaf,'nLeaves']    <- 1;
+            for ( temp.depth in base::seq(base::max(DF.output[,'depth']),1) ) {
+                DF.temp <- DF.output[DF.output[,'depth'] == temp.depth,];
+                for ( i in base::seq(1,base::nrow(DF.temp)) ) {
+                    temp.parentID <- DF.temp[i,'parentID'];
+                    is.parent <- (DF.output[,'nodeID'] == temp.parentID);
+                    DF.output[is.parent,'riskLeaves'] <- DF.output[is.parent,'riskLeaves'] + DF.temp[i,'riskLeaves'];
+                    DF.output[is.parent,'nLeaves'   ] <- DF.output[is.parent,'nLeaves'   ] + DF.temp[i,'nLeaves'   ];
+                    }
+                }
+            DF.output[,'myCART.g'] <- (DF.output[,'riskWgtd'] - DF.output[,'riskLeaves']) / (DF.output[,'nLeaves'] - 1);
+            return(DF.output);
+            },
+        prune_g_minimizers = function(
+            DF.input  = NULL,
+            tolerance = 1e-9
+            ) {
+            DF.output      <- DF.input;
+            min.CART.g     <- base::min(DF.output[,'myCART.g'], na.rm  =TRUE);
+            is.g.minimizer <- (base::abs(DF.output[,'myCART.g'] - min.CART.g) < tolerance);
+            g.minimizers   <- base::setdiff(DF.output[is.g.minimizer,'nodeID'],NA);
+            nodes.to.prune <- base::c();
+            for ( g.minimizer in g.minimizers ) {
+                nodes.to.prune <- base::c(nodes.to.prune,private$get_descendant_nodeIDs(DF.input = DF.input, nodeID = g.minimizer));
+                is.selected <- (DF.output[,'nodeID'] == g.minimizer);
+                DF.output[is.selected,'riskLeaves'] <- DF.output[is.selected,'riskWgtd'];
+                DF.output[is.selected,'nLeaves']    <- 1;
+                DF.output[is.selected,c('satisfiedChildID','notSatisfiedChildID')] <- NA;
+                }
+            DF.output <- DF.output[!(DF.output[,'nodeID'] %in% nodes.to.prune),];
+            return(DF.output);
+            },
+        get_descendant_nodeIDs = function(
+            DF.input = NULL,
+            nodeID   = NULL
+            ) {
+            descendant.nodeIDs <- base::numeric();
+            offspring.nodeIDs  <- base::setdiff(base::as.numeric(DF.input[DF.input[,'nodeID'] == nodeID,base::c('satisfiedChildID','notSatisfiedChildID')]),NA);
+            while ( base::length(offspring.nodeIDs) > 0 ) {
+                descendant.nodeIDs <- c(descendant.nodeIDs,offspring.nodeIDs);
+                offspring.nodeIDs  <- DF.input[DF.input[,'nodeID'] %in% offspring.nodeIDs,c('satisfiedChildID','notSatisfiedChildID')];
+                offspring.nodeIDs  <- base::as.matrix(x = offspring.nodeIDs);
+                offspring.nodeIDs  <- base::as.numeric(base::matrix(data = offspring.nodeIDs, nrow = 1));
+                offspring.nodeIDs  <- setdiff(offspring.nodeIDs,NA);
+                }
+            return( descendant.nodeIDs );
             },
         node = R6Class(
             classname = "node",
