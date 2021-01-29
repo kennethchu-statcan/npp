@@ -708,19 +708,32 @@ myCART  <- R6Class(
             },
         subtree_sequence = function(DF.nodes = private$nodes_to_table()) {
             index.subtree <- 1;
-            list.pruned.subtrees <- base::list();
-            list.pruned.subtrees[[index.subtree]] <- base::list(alpha = 0, subtree = DF.nodes);
+            list.subtrees <- base::list();
+            list.subtrees[[index.subtree]] <- base::list(
+                alpha           = 0,
+                nodes_retained  = DF.nodes[,"nodeID"],
+                nodes_pruned_at = c(),
+                nodes_removed   = c(),
+                subtree         = DF.nodes
+                );
             DF.temp <- DF.nodes;
             while ( base::nrow(DF.temp) > 1 ) {
                 index.subtree <- index.subtree + 1;
                 DF.temp       <- private$compute_g(DF.input = DF.temp);
-                DF.temp       <- private$prune_g_minimizers(DF.input = DF.temp);
-                list.pruned.subtrees[[index.subtree]] <- base::list(
-                    alpha   = base::min(DF.temp[,'myCART.g'], na.rm = TRUE),
-                    subtree = DF.temp
+                # cat(paste0("\n# index.subtree: ",index.subtree,"\n"));
+                # cat("\nstr(DF.temp)\n");
+                # print( str(DF.temp)   );
+                list.temp     <- private$prune_g_minimizers(DF.input = DF.temp);
+                DF.temp       <- list.temp[['DF_nodes']];
+                list.subtrees[[index.subtree]] <- base::list(
+                    alpha           = list.temp[['alpha']], # base::min(DF.temp[,'myCART.g'], na.rm = TRUE),
+                    nodes_retained  = list.temp[['nodes_retained']],
+                    nodes_pruned_at = list.temp[['nodes_pruned_at']],
+                    nodes_removed   = list.temp[['nodes_removed']],
+                    subtree         = DF.temp # list.temp[['DF_nodes']]
                     );
                 }
-            return( list.pruned.subtrees );
+            return( list.subtrees );
             },
         compute_g = function(
             DF.input = NULL
@@ -748,19 +761,26 @@ myCART  <- R6Class(
             tolerance = 1e-9
             ) {
             DF.output      <- DF.input;
-            min.CART.g     <- base::min(DF.output[,'myCART.g'], na.rm  =TRUE);
-            is.g.minimizer <- (base::abs(DF.output[,'myCART.g'] - min.CART.g) < tolerance);
+            min.CART.g     <- base::min(DF.output[,'myCART.g'], na.rm = TRUE);
+            is.g.minimizer <- (base::abs(x = DF.output[,'myCART.g'] - min.CART.g) < tolerance);
             g.minimizers   <- base::setdiff(DF.output[is.g.minimizer,'nodeID'],NA);
-            nodes.to.prune <- base::c();
+            nodes.removed  <- base::c();
             for ( g.minimizer in g.minimizers ) {
-                nodes.to.prune <- base::c(nodes.to.prune,private$get_descendant_nodeIDs(DF.input = DF.input, nodeID = g.minimizer));
+                nodes.removed <- base::c(nodes.removed,private$get_descendant_nodeIDs(DF.input = DF.input, nodeID = g.minimizer));
                 is.selected <- (DF.output[,'nodeID'] == g.minimizer);
                 DF.output[is.selected,'riskLeaves'] <- DF.output[is.selected,'riskWgtd'];
                 DF.output[is.selected,'nLeaves']    <- 1;
                 DF.output[is.selected,c('satisfiedChildID','notSatisfiedChildID')] <- NA;
                 }
-            DF.output <- DF.output[!(DF.output[,'nodeID'] %in% nodes.to.prune),];
-            return(DF.output);
+            DF.output <- DF.output[!(DF.output[,'nodeID'] %in% nodes.removed),];
+            list.output <- base::list(
+                alpha           = min.CART.g,
+                nodes_retained  = base::setdiff(DF.input[,'nodeID'],c(g.minimizers,nodes.removed)),
+                nodes_pruned_at = g.minimizers,
+                nodes_removed   = nodes.removed,
+                DF_nodes        = DF.output
+                );
+            return( list.output );
             },
         get_descendant_nodeIDs = function(
             DF.input = NULL,
