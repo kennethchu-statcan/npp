@@ -693,7 +693,7 @@ R6_nppCART <- R6::R6Class(
                 DF.output[i,'impurity']   <- nodes[[i]]$impurity;
                 DF.output[i,'propensity'] <- DF.output[i,'np.count'] / DF.output[i,'p.weight'];
                 #DF.output[i,'riskWgtd']  <- DF.output[i,'risk'] * DF.output[i,'prop'];
-                DF.output[i,'riskWgtd']   <- DF.output[i,'impurity'] * DF.output[i,'propensity'];
+                DF.output[i,'riskWgtd']   <- DF.output[i,'impurity'] * DF.output[i,'p.weight'] / self$estimatedPopulationSize; # DF.output[i,'impurity'] * DF.output[i,'propensity'];
                 DF.output[i,'riskLeaves'] <- 0;
                 DF.output[i,'nLeaves']    <- 0;
                 DF.output[i,'parentID']   <- nodes[[i]]$parentID;
@@ -1120,14 +1120,15 @@ R6_nppCART <- R6::R6Class(
             DF.temp <- DF.nodes;
             while ( base::nrow(DF.temp) > 1 ) {
                 index.subtree <- index.subtree + 1;
-                DF.temp       <- private$compute_g(DF.input = DF.temp);
+                DF.compute.g  <- private$compute_g(DF.input = DF.temp);
                 # cat(paste0("\n# index.subtree: ",index.subtree,"\n"));
                 # cat("\nstr(DF.temp)\n");
                 # print( str(DF.temp)   );
-                list.temp     <- private$prune_g_minimizers(DF.input = DF.temp);
+                list.temp     <- private$prune_g_minimizers(DF.input = DF.compute.g);
                 DF.temp       <- list.temp[['DF_retained']];
                 list.subtrees[[index.subtree]] <- base::list(
-                    alpha           = list.temp[['alpha']], # base::min(DF.temp[,'myCART.g'], na.rm = TRUE),
+                    alpha           = list.temp[['alpha']], # base::min(DF.temp[,'nppCART.g'], na.rm = TRUE),
+                    DF_compute_g    = DF.compute.g,
                     nodes_untouched = list.temp[['nodes_untouched']],
                     nodes_pruned_at = list.temp[['nodes_pruned_at']],
                     nodes_removed   = list.temp[['nodes_removed']],
@@ -1143,8 +1144,8 @@ R6_nppCART <- R6::R6Class(
             tolerance = 1e-9
             ) {
             DF.output      <- DF.input;
-            min.CART.g     <- base::min(DF.output[,'myCART.g'], na.rm = TRUE);
-            is.g.minimizer <- (base::abs(x = DF.output[,'myCART.g'] - min.CART.g) < tolerance);
+            min.CART.g     <- base::min(DF.output[,'nppCART.g'], na.rm = TRUE);
+            is.g.minimizer <- (base::abs(x = DF.output[,'nppCART.g'] - min.CART.g) < tolerance);
             g.minimizers   <- base::setdiff(DF.output[is.g.minimizer,'nodeID'],NA);
             nodes.removed  <- base::c();
             for ( g.minimizer in g.minimizers ) {
@@ -1184,7 +1185,7 @@ R6_nppCART <- R6::R6Class(
                     DF.output[is.parent,'nLeaves'   ] <- DF.output[is.parent,'nLeaves'   ] + DF.temp[i,'nLeaves'   ];
                     }
                 }
-            DF.output[,'myCART.g'] <- (DF.output[,'riskWgtd'] - DF.output[,'riskLeaves']) / (DF.output[,'nLeaves'] - 1);
+            DF.output[,'nppCART.g'] <- (DF.output[,'riskWgtd'] - DF.output[,'riskLeaves']) / (DF.output[,'nLeaves'] - 1);
             return(DF.output);
             },
 

@@ -116,36 +116,36 @@ test.nppCART <- function(seed = 1234567) {
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # my.nppCART <- nppCART(
-    #     np.data    = DF.non.probability,
-    #     p.data     = DF.probability,
-    #     predictors = c("x1","x2"),
-    #     weight     = "design.weight"
-    #     );
-    #
-    # my.nppCART$grow();
-    #
-    # cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
-    # my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
-    #
-    # DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
-    # cat("\nstr(DF.npdata.estimated.propensity)\n");
-    # print( str(DF.npdata.estimated.propensity)   );
-    #
-    # write.csv(
-    #     x         = DF.npdata.estimated.propensity,
-    #     file      = "npdata-estimated-propensity.csv",
-    #     row.names = FALSE
-    #     );
-    #
-    # ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # list.pruning.sequence <- my.nppCART$public_subtree_sequence();
-    # cat("\nstr(list.pruning.sequence)\n");
-    # print( str(list.pruning.sequence)   );
-    #
-    # cat("\nlist.pruning.sequence\n");
-    # print( list.pruning.sequence   );
-    #
+    my.nppCART <- nppCART(
+        np.data    = DF.non.probability,
+        p.data     = DF.probability,
+        predictors = c("x1","x2"),
+        weight     = "design.weight"
+        );
+
+    my.nppCART$grow();
+
+    cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
+    my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
+
+    DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
+    cat("\nstr(DF.npdata.estimated.propensity)\n");
+    print( str(DF.npdata.estimated.propensity)   );
+
+    write.csv(
+        x         = DF.npdata.estimated.propensity,
+        file      = "npdata-estimated-propensity.csv",
+        row.names = FALSE
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    list.pruning.sequence <- my.nppCART$public_subtree_sequence();
+    cat("\nstr(list.pruning.sequence)\n");
+    print( str(list.pruning.sequence)   );
+
+    cat("\nlist.pruning.sequence\n");
+    print( list.pruning.sequence   );
+
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat("\n\n### Test 2:\n\n");

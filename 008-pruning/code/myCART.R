@@ -719,14 +719,15 @@ myCART  <- R6Class(
             DF.temp <- DF.nodes;
             while ( base::nrow(DF.temp) > 1 ) {
                 index.subtree <- index.subtree + 1;
-                DF.temp       <- private$compute_g(DF.input = DF.temp);
+                DF.compute.g  <- private$compute_g(DF.input = DF.temp);
                 # cat(paste0("\n# index.subtree: ",index.subtree,"\n"));
                 # cat("\nstr(DF.temp)\n");
                 # print( str(DF.temp)   );
-                list.temp     <- private$prune_g_minimizers(DF.input = DF.temp);
+                list.temp     <- private$prune_g_minimizers(DF.input = DF.compute.g);
                 DF.temp       <- list.temp[['DF_retained']];
                 list.subtrees[[index.subtree]] <- base::list(
                     alpha           = list.temp[['alpha']], # base::min(DF.temp[,'myCART.g'], na.rm = TRUE),
+                    DF_compute_g    = DF.compute.g,
                     nodes_untouched = list.temp[['nodes_untouched']],
                     nodes_pruned_at = list.temp[['nodes_pruned_at']],
                     nodes_removed   = list.temp[['nodes_removed']],
