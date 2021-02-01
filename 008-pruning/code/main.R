@@ -19,11 +19,13 @@ require(survey);
 
 files.R <- c(
     'getPopulation.R',
+    'get_pruned_nodes.R',
     'getSamples.R',
     'myCART.R',
     'myCART-pruning.R',
     'nppCART.R',
     'test-myCART.R',
+    'test-myCART-get-pruned-nodes.R',
     'test-nppCART.R',
     'test-svyrepdesign.R'
     );
@@ -37,8 +39,9 @@ for ( file.R in files.R ) {
 # test.svyrepdesign();
 
 # test.myCART();
+test.myCART.get.pruned.nodes();
 
-test.nppCART(seed = 7654321);
+# test.nppCART(seed = 7654321);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
