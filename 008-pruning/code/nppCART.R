@@ -692,8 +692,7 @@ R6_nppCART <- R6::R6Class(
                 DF.output[i,'p.weight']   <- base::sum(self$p.data[self$p.data[,self$p.syntheticID] %in% nodes[[i]]$p.rowIDs,self$weight]);
                 DF.output[i,'impurity']   <- nodes[[i]]$impurity;
                 DF.output[i,'propensity'] <- DF.output[i,'np.count'] / DF.output[i,'p.weight'];
-                #DF.output[i,'riskWgtd']  <- DF.output[i,'risk'] * DF.output[i,'prop'];
-                DF.output[i,'riskWgtd']   <- DF.output[i,'impurity'] * DF.output[i,'p.weight'] / self$estimatedPopulationSize; # DF.output[i,'impurity'] * DF.output[i,'propensity'];
+                DF.output[i,'riskWgtd']   <- DF.output[i,'impurity'] * DF.output[i,'p.weight'] / self$estimatedPopulationSize;
                 DF.output[i,'riskLeaves'] <- 0;
                 DF.output[i,'nLeaves']    <- 0;
                 DF.output[i,'parentID']   <- nodes[[i]]$parentID;
