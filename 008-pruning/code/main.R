@@ -36,9 +36,9 @@ for ( file.R in files.R ) {
 ###################################################
 # test.svyrepdesign();
 
-# test.nppCART();
+# test.myCART();
 
-test.myCART();
+test.nppCART(seed = 7654321);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 

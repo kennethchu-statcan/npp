@@ -1,11 +1,14 @@
 
-test.nppCART <- function(
-    ) {
+test.nppCART <- function(seed = 1234567) {
 
     thisFunctionName <- "test.nppCART";
 
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
     cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat(paste0("\n# randomization seed: ",seed,"\n"));
+    set.seed(seed = seed);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     require(survey);
@@ -80,11 +83,12 @@ test.nppCART <- function(
         }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.non.probability <- DF.population;
-    DF.non.probability[,"self.selected"] <- sapply(
-        X   = DF.non.probability[,"true.propensity"],
+    is.self.selected   <- sapply(
+        X   = DF.population[,"true.propensity"],
         FUN = function(x) { sample(x = c(FALSE,TRUE), size = 1, prob = c(1-x,x)) }
         );
+    DF.non.probability <- DF.population;
+    DF.non.probability[,"self.selected"] <- is.self.selected;
     DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("unit.ID","y","x1","x2","x1.jitter","x2.jitter")];
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -101,11 +105,62 @@ test.nppCART <- function(
     DF.probability[,"design.weight"] <- 1 / prob.selection;
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    saveRDS(
+        object = DF.non.probability,
+        file   = "DF-non-probability.RData",
+        );
+
+    saveRDS(
+        object = DF.probability,
+        file   = "DF-probability.RData"
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    # my.nppCART <- nppCART(
+    #     np.data    = DF.non.probability,
+    #     p.data     = DF.probability,
+    #     predictors = c("x1","x2"),
+    #     weight     = "design.weight"
+    #     );
+    #
+    # my.nppCART$grow();
+    #
+    # cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
+    # my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
+    #
+    # DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
+    # cat("\nstr(DF.npdata.estimated.propensity)\n");
+    # print( str(DF.npdata.estimated.propensity)   );
+    #
+    # write.csv(
+    #     x         = DF.npdata.estimated.propensity,
+    #     file      = "npdata-estimated-propensity.csv",
+    #     row.names = FALSE
+    #     );
+    #
+    # ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    # list.pruning.sequence <- my.nppCART$public_subtree_sequence();
+    # cat("\nstr(list.pruning.sequence)\n");
+    # print( str(list.pruning.sequence)   );
+    #
+    # cat("\nlist.pruning.sequence\n");
+    # print( list.pruning.sequence   );
+    #
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat("\n\n### Test 2:\n\n");
+
+    DF.probability <- DF.population[,c("unit.ID","x1","x2")];
+    DF.probability[,"design.weight"] <- 1;
+
     my.nppCART <- nppCART(
-        np.data    = DF.non.probability,
-        p.data     = DF.probability,
-        predictors = c("x1","x2"),
-        weight     = "design.weight"
+        np.data       = DF.non.probability,
+        p.data        = DF.probability,
+        predictors    = c("x1","x2"),
+        weight        = "design.weight",
+        min.cell.size = 1,
+        min.impurity  = 1e-9,
+        max.levels    = 10000
         );
 
     my.nppCART$grow();
@@ -113,13 +168,54 @@ test.nppCART <- function(
     cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
     my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
 
-    DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
-    cat("\nstr(DF.npdata.estimated.propensity)\n");
-    print( str(DF.npdata.estimated.propensity)   );
+    nppCART.pruning.sequence <- my.nppCART$public_subtree_sequence();
+    cat("\nstr(nppCART.pruning.sequence)\n");
+    print( str(nppCART.pruning.sequence)   );
 
-    list.pruning.sequence <- my.nppCART$get_pruning_sequence();
-    cat("\nstr(list.pruning.sequence)\n");
-    print( str(list.pruning.sequence)   );
+    cat("\nnppCART.pruning.sequence\n");
+    print( nppCART.pruning.sequence   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.population[                ,'self.selected'] <- FALSE;
+    DF.population[is.self.selected,'self.selected'] <- TRUE;
+
+    write.csv(
+        x         = DF.population,
+        file      = "DF-population.csv",
+        row.names = FALSE
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    results.rpart <- rpart(
+        formula = self.selected ~ .,
+        data    = DF.population[,c('x1','x2','self.selected')],
+        control = list(
+            minsplit  = 1,
+            minbucket = 1,
+            cp        = 0
+            )
+        );
+
+    cat("\nresults.rpart\n");
+    print( results.rpart   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    myCART.object <- myCART$new(
+        formula    = self.selected ~ .,
+        data       = DF.population[,c('x1','x2','self.selected')]
+        );
+
+    myCART.object$grow();
+    cat("\nmyCART.object$print()\n");
+    print( myCART.object$print()   );
+
+    myCART.subtree.sequence <- myCART.object$public_subtree_sequence();
+
+    cat("\nstr(myCART.subtree.sequence)\n");
+    print( str(myCART.subtree.sequence)   );
+
+    cat("\nmyCART.subtree.sequence\n");
+    print( myCART.subtree.sequence   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));

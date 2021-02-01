@@ -564,10 +564,20 @@ R6_nppCART <- R6::R6Class(
                 }
 
             return( output_list );
+            },
+
+        public_nodes_to_table = function(nodes = self$nodes) {
+            return( private$nodes_to_table(nodes = nodes) );
+            },
+
+        public_subtree_sequence = function() {
+            return( private$subtree_sequence(DF.nodes = private$nodes_to_table()) );
             }
+
         ),
 
     private = list(
+
         pop = function(list, i = base::length(list), envir = NULL) {
             base::stopifnot(base::inherits(list, "list"))
             if (0 == base::length(list)) { return(NULL); }
@@ -575,10 +585,12 @@ R6_nppCART <- R6::R6Class(
             base::assign(x = base::deparse(base::substitute(list)), value = list[-i], envir = envir);
             return( result );
             },
+
         push = function(list, x, i = base::length(list)) {
             base::stopifnot(base::inherits(list, "list"));
             return( base::c(list,list(x)) );
             },
+
         stoppingCriterionSatisfied = function(np.rowIDs = NULL, p.rowIDs = NULL) {
 
             if ( base::length(np.rowIDs) < self$min.cell.size ) {
@@ -601,6 +613,7 @@ R6_nppCART <- R6::R6Class(
             return( FALSE);
 
             },
+
         get_descendants = function(nodeIDs = NULL, nodeID = NULL) {
             nodes <- self$nodes[base::unlist(base::lapply(
                 X   = self$nodes,
@@ -629,6 +642,7 @@ R6_nppCART <- R6::R6Class(
                 return( base::c() );
                 }
             },
+
         nprow_to_leafID = function(nodes = self$nodes) {
             if ( 0 == base::length(nodes) ) {
                 base::cat("\nThe supplied list of nodes is empty.\n")
@@ -649,6 +663,7 @@ R6_nppCART <- R6::R6Class(
                 }
             return( DF.output );
             },
+
         nodes_to_table = function(nodes = self$nodes) {
             if ( 0 == base::length(nodes) ) {
                 base::cat("\nThe supplied list of nodes is empty.\n")
@@ -677,9 +692,10 @@ R6_nppCART <- R6::R6Class(
                 DF.output[i,'p.weight']   <- base::sum(self$p.data[self$p.data[,self$p.syntheticID] %in% nodes[[i]]$p.rowIDs,self$weight]);
                 DF.output[i,'impurity']   <- nodes[[i]]$impurity;
                 DF.output[i,'propensity'] <- DF.output[i,'np.count'] / DF.output[i,'p.weight'];
-                #DF.output[i,'riskWgtd']   <- DF.output[i,'risk'] * DF.output[i,'prop'];
-                #DF.output[i,'riskLeaves'] <- 0;
-                #DF.output[i,'nLeaves']    <- 0;
+                #DF.output[i,'riskWgtd']  <- DF.output[i,'risk'] * DF.output[i,'prop'];
+                DF.output[i,'riskWgtd']   <- DF.output[i,'impurity'] * DF.output[i,'propensity'];
+                DF.output[i,'riskLeaves'] <- 0;
+                DF.output[i,'nLeaves']    <- 0;
                 DF.output[i,'parentID']   <- nodes[[i]]$parentID;
                 DF.output[i,'satisfiedChildID'] <- base::ifelse(
                     base::is.null(nodes[[i]]$satisfiedChildID),
@@ -692,9 +708,9 @@ R6_nppCART <- R6::R6Class(
                     nodes[[i]]$notSatisfiedChildID
                     );
                 }
-
             return( DF.output );
             },
+
         get_alpha_subtree = function(DF.input = NULL) {
 
             hasNoChildren <- base::is.na(DF.input[,'satisfiedChildID']) & base::is.na(DF.input[,'notSatisfiedChildID']);
@@ -786,6 +802,7 @@ R6_nppCART <- R6::R6Class(
 
             return( output_list );
             },
+
         get_best_split = function(np.currentRowIDs,p.currentRowIDs) {
             uniqueVarValuePairs_factor  <- list();
             uniqueVarValuePairs_numeric <- list();
@@ -894,6 +911,7 @@ R6_nppCART <- R6::R6Class(
 
             return( output );
             },
+
         get_non_constant_columns = function(DF.input = NULL, currentRowIDs = NULL, input.colnames = NULL) {
             DF.output <- DF.input[DF.input[,self$np.syntheticID] %in% currentRowIDs,input.colnames];
 
@@ -908,6 +926,7 @@ R6_nppCART <- R6::R6Class(
 
             return( DF.output );
             },
+
         get_midpoints = function(x) {
             if (base::is.numeric(x)) {
                 y <- base::sort(base::unique(x));
@@ -976,6 +995,7 @@ R6_nppCART <- R6::R6Class(
 
             return (combinationsA);
             },
+
         get_var_value_pairs = function(x = NULL, comparison = NULL) {
             names_x  <- base::names(x);
             templist <- list();
@@ -993,6 +1013,7 @@ R6_nppCART <- R6::R6Class(
                 }
             return( templist );
             },
+
         is_less_than = function(x,y) {
             return(x < y)
             },
@@ -1022,11 +1043,13 @@ R6_nppCART <- R6::R6Class(
 
             return(base::unlist(ret))
             },
+
         impurity = function(x) {
             # Gini impurity
             p <- base::as.numeric(base::table(x) / base::length(x));
             return( base::sum(p * (1 - p)) );
             },
+
         npp_impurity = function(np.rowIDs,p.rowIDs) {
             np.subset <- self$np.data[self$np.data[,self$np.syntheticID] %in% np.rowIDs,];
              p.subset <-  self$p.data[ self$p.data[, self$p.syntheticID] %in%  p.rowIDs,];
@@ -1047,6 +1070,7 @@ R6_nppCART <- R6::R6Class(
             impurity <- 2 * p * (1 - p);
             return( impurity );
             },
+
         splitCriterion = R6::R6Class(
             classname  = "splitCriterion",
             public = list(
@@ -1060,6 +1084,7 @@ R6_nppCART <- R6::R6Class(
                     }
                 )
             ),
+
         birthCriterion = R6::R6Class(
             classname  = "birthCriterion",
             public = list(
@@ -1073,12 +1098,110 @@ R6_nppCART <- R6::R6Class(
                     }
                 )
             ),
+
         order_nodes = function() {
             if (base::length(self$nodes) > 0) {
                 nodeIDs <- base::as.integer(base::lapply(X = self$nodes, FUN = function(x) { return( x$nodeID ); } ))
                 self$nodes <- self$nodes[base::order(nodeIDs)];
                 return( NULL );
                 }
+            },
+
+        subtree_sequence = function(DF.nodes = private$nodes_to_table()) {
+            index.subtree <- 1;
+            list.subtrees <- base::list();
+            list.subtrees[[index.subtree]] <- base::list(
+                alpha           = 0,
+                nodes_untouched = DF.nodes[,"nodeID"],
+                nodes_pruned_at = c(),
+                nodes_removed   = c(),
+                subtree         = DF.nodes
+                );
+            DF.temp <- DF.nodes;
+            while ( base::nrow(DF.temp) > 1 ) {
+                index.subtree <- index.subtree + 1;
+                DF.temp       <- private$compute_g(DF.input = DF.temp);
+                # cat(paste0("\n# index.subtree: ",index.subtree,"\n"));
+                # cat("\nstr(DF.temp)\n");
+                # print( str(DF.temp)   );
+                list.temp     <- private$prune_g_minimizers(DF.input = DF.temp);
+                DF.temp       <- list.temp[['DF_retained']];
+                list.subtrees[[index.subtree]] <- base::list(
+                    alpha           = list.temp[['alpha']], # base::min(DF.temp[,'myCART.g'], na.rm = TRUE),
+                    nodes_untouched = list.temp[['nodes_untouched']],
+                    nodes_pruned_at = list.temp[['nodes_pruned_at']],
+                    nodes_removed   = list.temp[['nodes_removed']],
+                    DF_pruned_at    = list.temp[['DF_pruned_at']],
+                    DF_retained     = list.temp[['DF_retained']]
+                    );
+                }
+            return( list.subtrees );
+            },
+
+        prune_g_minimizers = function(
+            DF.input  = NULL,
+            tolerance = 1e-9
+            ) {
+            DF.output      <- DF.input;
+            min.CART.g     <- base::min(DF.output[,'myCART.g'], na.rm = TRUE);
+            is.g.minimizer <- (base::abs(x = DF.output[,'myCART.g'] - min.CART.g) < tolerance);
+            g.minimizers   <- base::setdiff(DF.output[is.g.minimizer,'nodeID'],NA);
+            nodes.removed  <- base::c();
+            for ( g.minimizer in g.minimizers ) {
+                nodes.removed <- base::unique(base::c(nodes.removed,private$get_descendant_nodeIDs(DF.input = DF.input, nodeID = g.minimizer)));
+                is.selected <- (DF.output[,'nodeID'] == g.minimizer);
+                DF.output[is.selected,'riskLeaves'] <- DF.output[is.selected,'riskWgtd'];
+                DF.output[is.selected,'nLeaves']    <- 1;
+                DF.output[is.selected,c('satisfiedChildID','notSatisfiedChildID')] <- NA;
+                }
+            # DF.output <- DF.output[!(DF.output[,'nodeID'] %in% nodes.removed),];
+            list.output <- base::list(
+                alpha           = min.CART.g,
+                nodes_untouched = base::setdiff(DF.input[,'nodeID'],c(g.minimizers,nodes.removed)),
+                nodes_pruned_at = g.minimizers,
+                nodes_removed   = nodes.removed,
+                DF_pruned_at    = DF.input[   DF.input[, 'nodeID'] %in% g.minimizers,  ],
+                DF_retained     = DF.output[!(DF.output[,'nodeID'] %in% nodes.removed),]
+                );
+            return( list.output );
+            },
+
+        compute_g = function(
+            DF.input = NULL
+            ) {
+            DF.output <- DF.input;
+            DF.output[,'riskLeaves'] <- 0;
+            DF.output[,'nLeaves'   ] <- 0;
+            is.leaf <- base::is.na(DF.output[,'satisfiedChildID']);
+            DF.output[is.leaf,'riskLeaves'] <- DF.output[is.leaf,'riskWgtd'];
+            DF.output[is.leaf,'nLeaves']    <- 1;
+            for ( temp.depth in base::seq(base::max(DF.output[,'depth']),1) ) {
+                DF.temp <- DF.output[DF.output[,'depth'] == temp.depth,];
+                for ( i in base::seq(1,base::nrow(DF.temp)) ) {
+                    temp.parentID <- DF.temp[i,'parentID'];
+                    is.parent <- (DF.output[,'nodeID'] == temp.parentID);
+                    DF.output[is.parent,'riskLeaves'] <- DF.output[is.parent,'riskLeaves'] + DF.temp[i,'riskLeaves'];
+                    DF.output[is.parent,'nLeaves'   ] <- DF.output[is.parent,'nLeaves'   ] + DF.temp[i,'nLeaves'   ];
+                    }
+                }
+            DF.output[,'myCART.g'] <- (DF.output[,'riskWgtd'] - DF.output[,'riskLeaves']) / (DF.output[,'nLeaves'] - 1);
+            return(DF.output);
+            },
+
+        get_descendant_nodeIDs = function(
+            DF.input = NULL,
+            nodeID   = NULL
+            ) {
+            descendant.nodeIDs <- base::numeric();
+            offspring.nodeIDs  <- base::setdiff(base::as.numeric(DF.input[DF.input[,'nodeID'] == nodeID,base::c('satisfiedChildID','notSatisfiedChildID')]),NA);
+            while ( base::length(offspring.nodeIDs) > 0 ) {
+                descendant.nodeIDs <- c(descendant.nodeIDs,offspring.nodeIDs);
+                offspring.nodeIDs  <- DF.input[DF.input[,'nodeID'] %in% offspring.nodeIDs,c('satisfiedChildID','notSatisfiedChildID')];
+                offspring.nodeIDs  <- base::as.matrix(x = offspring.nodeIDs);
+                offspring.nodeIDs  <- base::as.numeric(base::matrix(data = offspring.nodeIDs, nrow = 1));
+                offspring.nodeIDs  <- setdiff(offspring.nodeIDs,NA);
+                }
+            return( descendant.nodeIDs );
             },
 
         node = R6::R6Class(
