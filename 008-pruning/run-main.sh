@@ -20,5 +20,11 @@ stdoutFile=${outputDIR}/stdout.R.`basename ${myRscript} .R`
 stderrFile=${outputDIR}/stderr.R.`basename ${myRscript} .R`
 R --no-save --args ${codeDIR} ${outputDIR} < ${myRscript} > ${stdoutFile} 2> ${stderrFile}
 
+### ~~~~~ ###
+myPyScript=${codeDIR}/main.py
+stdoutFile=${outputDIR}/stdout.py.`basename ${myPyScript} .py`
+stderrFile=${outputDIR}/stderr.py.`basename ${myPyScript} .py`
+python ${myPyScript} ${codeDIR} ${outputDIR} > ${stdoutFile} 2> ${stderrFile}
+
 ##################################################
 exit
