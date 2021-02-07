@@ -22,33 +22,24 @@ test.myCART.get.pruned.nodes <- function(
     print( myCART.object$print()   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    list.subtree.sequence <- myCART.object$public_subtree_sequence();
+    myCART.subtree.hierarchy <- myCART.object$public_get_subtree_hierarchy();
 
-    cat("\nstr(list.subtree.sequence)\n");
-    print( str(list.subtree.sequence)   );
+    cat("\nstr(myCART.subtree.hierarchy)\n");
+    print( str(myCART.subtree.hierarchy)   );
 
-    cat("\nlist.subtree.sequence\n");
-    print( list.subtree.sequence   );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # temp.nodes <- myCART.object$nodes;
-    # for ( subtree.index in seq(2,length(list.subtree.sequence)) ) {
-    #     temp.nodes <- get_pruned_nodes(
-    #         input.nodes  = temp.nodes,
-    #         pruning.info = list.subtree.sequence[[subtree.index]]
-    #         );
-    #     }
+    cat("\nmyCART.subtree.hierarchy\n");
+    print( myCART.subtree.hierarchy   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    for ( index.subtree in seq(1,length(list.subtree.sequence)) ) {
+    for ( index.subtree in seq(1,length(myCART.subtree.hierarchy)) ) {
         cat("\n")
         cat(paste0("\n### index.subtree: ",index.subtree,"\n"));
-        cat("\nlist.subtree.sequence[[index.subtree]][['alpha']]:\n");
-        print( list.subtree.sequence[[index.subtree]][['alpha']]    );
-        cat("\nlist.subtree.sequence[[index.subtree]][['nodes_pruned_at']]:\n");
-        print( list.subtree.sequence[[index.subtree]][['nodes_pruned_at']]    );
-        cat("\nprint_nodes(nodes = list.subtree.sequence[[index.subtree]][['pruned_nodes']])\n");
-        print_nodes(nodes = list.subtree.sequence[[index.subtree]][['pruned_nodes']]);
+        cat("\nmyCART.subtree.hierarchy[[index.subtree]][['alpha']]:\n");
+        print( myCART.subtree.hierarchy[[index.subtree]][['alpha']]    );
+        cat("\nmyCART.subtree.hierarchy[[index.subtree]][['nodes_pruned_at']]:\n");
+        print( myCART.subtree.hierarchy[[index.subtree]][['nodes_pruned_at']]    );
+        cat("\nprint_nodes(nodes = myCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']])\n");
+        print_nodes(nodes = myCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]);
         }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###

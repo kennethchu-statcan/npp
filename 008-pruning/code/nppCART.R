@@ -181,6 +181,7 @@ R6_nppCART <- R6::R6Class(
 
     public = list(
 
+        # instantiation data
         predictors    = NULL,
         np.data       = NULL,
          p.data       = NULL,
@@ -189,11 +190,13 @@ R6_nppCART <- R6::R6Class(
         min.impurity  = NULL,
         max.levels    = NULL,
 
+        # attributes
         predictors_factor         = NULL,
         predictors_ordered_factor = NULL,
         predictors_numeric        = NULL,
 
         nodes = NULL,
+        subtree.hierarchy = NULL,
 
         np.syntheticID = NULL,
          p.syntheticID = NULL,
@@ -537,41 +540,15 @@ R6_nppCART <- R6::R6Class(
                 }
             },
 
-        get_pruning_sequence = function(nodes = self$nodes) {
-            if ( 0 == base::length(nodes) ) {
-                base::cat("\nThe supplied list of nodes is empty.\n")
-                return( NULL );
-                }
-
-            DF.node_table <- private$nodes_to_table(nodes = nodes);
-
-            alpha_subtree <- list(
-                alpha                = 0,
-                nodes_retained       = DF.node_table[,"nodeID"],
-                nodes_pruned         = base::c(),
-                nodes_removed        = base::c(),
-                nodes_retained_table = DF.node_table
-                );
-
-            output_list <- list();
-            nAlphas     <- 1;
-
-            output_list[[nAlphas]] <- alpha_subtree;
-            while (1 < base::length(alpha_subtree$nodes_retained)) {
-                nAlphas       <- 1 + nAlphas;
-                alpha_subtree <- private$get_alpha_subtree(DF.input = alpha_subtree$nodes_retained_table);
-                output_list[[nAlphas]] <- alpha_subtree;
-                }
-
-            return( output_list );
-            },
-
         public_nodes_to_table = function(nodes = self$nodes) {
             return( private$nodes_to_table(nodes = nodes) );
             },
 
-        public_subtree_sequence = function() {
-            return( private$subtree_sequence(DF.nodes = private$nodes_to_table()) );
+        public_get_subtree_hierarchy = function() {
+            if ( base::is.null(self$subtree.hierarchy) ) {
+                self$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
+            }
+            return( self$subtree.hierarchy );
             }
 
         ),
@@ -708,98 +685,6 @@ R6_nppCART <- R6::R6Class(
                     );
                 }
             return( DF.output );
-            },
-
-        get_alpha_subtree = function(DF.input = NULL) {
-
-            hasNoChildren <- base::is.na(DF.input[,'satisfiedChildID']) & base::is.na(DF.input[,'notSatisfiedChildID']);
-            DF.leaves <- DF.input[hasNoChildren,];
-            DF.leaves <- DF.leaves %>%
-                dplyr::rename( riskWgtd_child = riskWgtd ) %>%
-                dplyr::rename( nLeaves_child  = nLeaves  ) %>%
-                dplyr::select( - base::c( riskLeaves , satisfiedChildID , notSatisfiedChildID ) ) %>%
-                dplyr::mutate( nLeaves_child = 1 )
-                ;
-
-            retainedColumns <- base::c("nodeID","riskWgtd_child","nLeaves_child");
-            DF.internalNodes <- DF.input[!hasNoChildren,] %>%
-                dplyr::left_join(DF.leaves[,retainedColumns], by = base::c(   "satisfiedChildID" = "nodeID")) %>%
-                dplyr::rename( riskWgtd_s  = riskWgtd_child ) %>%
-                dplyr::rename( nLeaves_s   = nLeaves_child  ) %>%
-
-                dplyr::left_join(DF.leaves[,retainedColumns], by = base::c("notSatisfiedChildID" = "nodeID")) %>%
-                dplyr::rename( riskWgtd_ns = riskWgtd_child ) %>%
-                dplyr::rename( nLeaves_ns  = nLeaves_child  ) %>%
-
-                dplyr::mutate( riskWgtd_s  = base::ifelse(base::is.na(riskWgtd_s ),0,riskWgtd_s ) ) %>%
-                dplyr::mutate( riskWgtd_ns = base::ifelse(base::is.na(riskWgtd_ns),0,riskWgtd_ns) ) %>%
-                dplyr::mutate( riskLeaves  = riskLeaves + riskWgtd_s + riskWgtd_ns )    %>%
-
-                dplyr::mutate( nLeaves_s   = base::ifelse(base::is.na(nLeaves_s  ),0,nLeaves_s  ) ) %>%
-                dplyr::mutate( nLeaves_ns  = base::ifelse(base::is.na(nLeaves_ns ),0,nLeaves_ns ) ) %>%
-                dplyr::mutate( nLeaves     = nLeaves + nLeaves_s + nLeaves_ns         ) %>%
-
-                dplyr::select( - base::c(riskWgtd_s,riskWgtd_ns,nLeaves_s,nLeaves_ns) )
-                ;
-
-            retainedColumns <- base::c("nodeID","riskLeaves_child","nLeaves_child");
-            for (temp.depth in base::seq(base::max(DF.internalNodes[,"depth"]),1,-1)) {
-                DF.depth <- DF.internalNodes %>%
-                    dplyr::filter( depth == temp.depth ) %>%
-                    dplyr::rename( riskLeaves_child = riskLeaves ) %>%
-                    dplyr::rename( nLeaves_child    = nLeaves    ) %>%
-                    dplyr::select( - base::c( satisfiedChildID , notSatisfiedChildID ) )
-                    ;
-                DF.internalNodes <- DF.internalNodes %>%
-                    dplyr::left_join(DF.depth[,retainedColumns], by = base::c(   "satisfiedChildID" = "nodeID")) %>%
-                    dplyr::rename( riskLeaves_s  = riskLeaves_child ) %>%
-                    dplyr::rename( nLeaves_s     = nLeaves_child    ) %>%
-
-                    dplyr::left_join(DF.depth[,retainedColumns], by = base::c("notSatisfiedChildID" = "nodeID")) %>%
-                    dplyr::rename( riskLeaves_ns = riskLeaves_child ) %>%
-                    dplyr::rename( nLeaves_ns    = nLeaves_child    ) %>%
-
-                    dplyr::mutate( riskLeaves_s  = base::ifelse(base::is.na(riskLeaves_s ),0,riskLeaves_s ) ) %>%
-                    dplyr::mutate( riskLeaves_ns = base::ifelse(base::is.na(riskLeaves_ns),0,riskLeaves_ns) ) %>%
-                    dplyr::mutate( riskLeaves    = riskLeaves + riskLeaves_s + riskLeaves_ns    ) %>%
-
-                    dplyr::mutate( nLeaves_s     = base::ifelse(base::is.na(nLeaves_s    ),0,nLeaves_s    ) ) %>%
-                    dplyr::mutate( nLeaves_ns    = base::ifelse(base::is.na(nLeaves_ns   ),0,nLeaves_ns   ) ) %>%
-                    dplyr::mutate( nLeaves       = nLeaves + nLeaves_s + nLeaves_ns             ) %>%
-
-                    dplyr::select( - base::c(riskLeaves_s,riskLeaves_ns,nLeaves_s,nLeaves_ns) )
-                    ;
-                }
-            DF.internalNodes <- DF.internalNodes %>%
-                dplyr::mutate( alpha = (risk - riskLeaves) / (nLeaves - 1) );
-
-            min.alpha    <- base::min(DF.internalNodes[,'alpha']);
-            nodesToPrune <- DF.internalNodes[DF.internalNodes[,'alpha'] == min.alpha,'nodeID'];
-
-            nodesToRemove <- base::c();
-            for (tempNodeID in nodesToPrune) {
-                nodesToRemove <- base::unique(c(
-                    nodesToRemove,
-                    private$get_descendants(nodeIDs = DF.input[,'nodeID'], nodeID = tempNodeID)
-                    ));
-                }
-            nodesToRemove <- base::intersect( base::sort(nodesToRemove) , DF.input[,'nodeID'] );
-
-            nodesToRetain <- base::setdiff(DF.input[,'nodeID'],nodesToRemove);
-
-            DF.output <- DF.input[DF.input[,'nodeID'] %in% nodesToRetain,];
-            DF.output[DF.input[,'nodeID'] %in% nodesToPrune,   'satisfiedChildID'] <- NA;
-            DF.output[DF.input[,'nodeID'] %in% nodesToPrune,'notSatisfiedChildID'] <- NA;
-
-            output_list <- list(
-                alpha = min.alpha,
-                nodes_retained       = nodesToRetain,
-                nodes_pruned         = nodesToPrune,
-                nodes_removed        = nodesToRemove,
-                nodes_retained_table = DF.output
-                );
-
-            return( output_list );
             },
 
         get_best_split = function(np.currentRowIDs,p.currentRowIDs) {
@@ -1106,7 +991,7 @@ R6_nppCART <- R6::R6Class(
                 }
             },
 
-        subtree_sequence = function(DF.nodes = private$nodes_to_table()) {
+        generate_subtree_hierarchy = function(DF.nodes = private$nodes_to_table()) {
             index.subtree <- 1;
             list.subtrees <- base::list();
             list.subtrees[[index.subtree]] <- base::list(
@@ -1120,13 +1005,10 @@ R6_nppCART <- R6::R6Class(
             while ( base::nrow(DF.temp) > 1 ) {
                 index.subtree <- index.subtree + 1;
                 DF.compute.g  <- private$compute_g(DF.input = DF.temp);
-                # cat(paste0("\n# index.subtree: ",index.subtree,"\n"));
-                # cat("\nstr(DF.temp)\n");
-                # print( str(DF.temp)   );
                 list.temp     <- private$prune_g_minimizers(DF.input = DF.compute.g);
                 DF.temp       <- list.temp[['DF_retained']];
                 list.subtrees[[index.subtree]] <- base::list(
-                    alpha           = list.temp[['alpha']], # base::min(DF.temp[,'nppCART.g'], na.rm = TRUE),
+                    alpha           = list.temp[['alpha']],
                     DF_compute_g    = DF.compute.g,
                     nodes_untouched = list.temp[['nodes_untouched']],
                     nodes_pruned_at = list.temp[['nodes_pruned_at']],
@@ -1135,7 +1017,38 @@ R6_nppCART <- R6::R6Class(
                     DF_retained     = list.temp[['DF_retained']]
                     );
                 }
+            list.subtrees[[1]][['pruned_nodes']] <- self$nodes;
+            for ( index.subtree in seq(2,length(list.subtrees)) ) {
+                list.subtrees[[index.subtree]][['pruned_nodes']] <- private$get_pruned_nodes(
+                    input.nodes  = list.subtrees[[index.subtree - 1]][['pruned_nodes']],
+                    pruning.info = list.subtrees[[index.subtree    ]]
+                    );
+                }
             return( list.subtrees );
+            },
+
+        get_pruned_nodes = function(
+            input.nodes  = NULL,
+            pruning.info = NULL
+            ) {
+            nodes_untouched <- pruning.info[['nodes_untouched']];
+            nodes.pruned.at <- pruning.info[['nodes_pruned_at']];
+            nodes_removed   <- pruning.info[['nodes_removed'  ]];
+            output.nodes <- list();
+            for ( i in 1:length(input.nodes) ) {
+                temp.node <- input.nodes[[i]];
+                if ( temp.node[['nodeID']] %in% nodes_removed ) {
+                    # do nothing
+                } else if ( temp.node[['nodeID']] %in% nodes_untouched ) {
+                    output.nodes[[1+length(output.nodes)]] <- temp.node;
+                } else if ( temp.node[['nodeID']] %in% nodes.pruned.at ) {
+                    temp.node[['notSatisfiedChildID']]     <- NULL;
+                    temp.node[[   'satisfiedChildID']]     <- NULL;
+                    temp.node[[     'splitCriterion']]     <- NULL;
+                    output.nodes[[1+length(output.nodes)]] <- temp.node;
+                    }
+                }
+            return( output.nodes );
             },
 
         prune_g_minimizers = function(

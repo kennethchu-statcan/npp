@@ -139,12 +139,12 @@ test.nppCART <- function(seed = 1234567) {
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    list.pruning.sequence <- my.nppCART$public_subtree_sequence();
+    my.nppCART.subtree.hierarchy <- my.nppCART$public_get_subtree_hierarchy();
     cat("\nstr(list.pruning.sequence)\n");
-    print( str(list.pruning.sequence)   );
+    print( str(my.nppCART.subtree.hierarchy)   );
 
-    cat("\nlist.pruning.sequence\n");
-    print( list.pruning.sequence   );
+    cat("\nmy.nppCART.subtree.hierarchy\n");
+    print( my.nppCART.subtree.hierarchy   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -168,12 +168,12 @@ test.nppCART <- function(seed = 1234567) {
     cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
     my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
 
-    nppCART.pruning.sequence <- my.nppCART$public_subtree_sequence();
-    cat("\nstr(nppCART.pruning.sequence)\n");
-    print( str(nppCART.pruning.sequence)   );
+    my.nppCART.subtree.hierarchy <- my.nppCART$public_get_subtree_hierarchy();
+    cat("\nstr(my.nppCART.subtree.hierarchy)\n");
+    print( str(my.nppCART.subtree.hierarchy)   );
 
-    cat("\nnppCART.pruning.sequence\n");
-    print( nppCART.pruning.sequence   );
+    cat("\nmy.nppCART.subtree.hierarchy\n");
+    print( my.nppCART.subtree.hierarchy   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.population[                ,'self.selected'] <- FALSE;
@@ -209,13 +209,13 @@ test.nppCART <- function(seed = 1234567) {
     cat("\nmyCART.object$print()\n");
     print( myCART.object$print()   );
 
-    myCART.subtree.sequence <- myCART.object$public_subtree_sequence();
+    myCART.subtree.hierarchy <- myCART.object$public_get_subtree_hierarchy();
 
-    cat("\nstr(myCART.subtree.sequence)\n");
-    print( str(myCART.subtree.sequence)   );
+    cat("\nstr(myCART.subtree.hierarchy)\n");
+    print( str(myCART.subtree.hierarchy)   );
 
-    cat("\nmyCART.subtree.sequence\n");
-    print( myCART.subtree.sequence   );
+    cat("\nmyCART.subtree.hierarchy\n");
+    print( myCART.subtree.hierarchy   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
