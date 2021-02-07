@@ -208,10 +208,6 @@ myCART  <- R6Class(
             return( private$nodes_to_table(nodes = nodes) );
             },
 
-        # public_get_alpha_subtree = function(DF.input = private$nodes_to_table()) {
-        #     return( private$get_alpha_subtree(DF.input = DF.input) );
-        #     },
-
         public_get_subtree_hierarchy = function() {
             if ( base::is.null(self$subtree_hierarchy) ) {
                 self$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
@@ -313,115 +309,6 @@ myCART  <- R6Class(
                 }
             return( DF.output );
             },
-        # get_alpha_subtree = function(DF.input = NULL) {
-        #
-        #     hasNoChildren <- is.na(DF.input[,'satisfiedChildID']) & is.na(DF.input[,'notSatisfiedChildID']);
-        #     DF.leaves <- DF.input[hasNoChildren,];
-        #     DF.leaves <- DF.leaves %>%
-        #         rename( riskWgtd_child = riskWgtd ) %>%
-        #         rename( nLeaves_child  = nLeaves  ) %>%
-        #         select( - c( riskLeaves , satisfiedChildID , notSatisfiedChildID ) ) %>%
-        #         mutate( nLeaves_child = 1 )
-        #         ;
-        #     #cat("\nDF.leaves\n");
-        #     #print( DF.leaves   );
-        #
-        #     retainedColumns <- c("nodeID","riskWgtd_child","nLeaves_child");
-        #     DF.internalNodes <- DF.input[!hasNoChildren,] %>%
-        #         left_join(DF.leaves[,retainedColumns], by = c(   "satisfiedChildID" = "nodeID")) %>%
-        #         rename( riskWgtd_s  = riskWgtd_child ) %>%
-        #         rename( nLeaves_s   = nLeaves_child  ) %>%
-        #
-        #         left_join(DF.leaves[,retainedColumns], by = c("notSatisfiedChildID" = "nodeID")) %>%
-        #         rename( riskWgtd_ns = riskWgtd_child ) %>%
-        #         rename( nLeaves_ns  = nLeaves_child  ) %>%
-        #
-        #         mutate( riskWgtd_s  = ifelse(is.na(riskWgtd_s ),0,riskWgtd_s ) ) %>%
-        #         mutate( riskWgtd_ns = ifelse(is.na(riskWgtd_ns),0,riskWgtd_ns) ) %>%
-        #         mutate( riskLeaves  = riskLeaves + riskWgtd_s + riskWgtd_ns )    %>%
-        #
-        #         mutate( nLeaves_s   = ifelse(is.na(nLeaves_s  ),0,nLeaves_s  ) ) %>%
-        #         mutate( nLeaves_ns  = ifelse(is.na(nLeaves_ns ),0,nLeaves_ns ) ) %>%
-        #         mutate( nLeaves     = nLeaves + nLeaves_s + nLeaves_ns         ) %>%
-        #
-        #         select( - c(riskWgtd_s,riskWgtd_ns,nLeaves_s,nLeaves_ns) )
-        #         ;
-        #     #cat("\nDF.internalNodes\n");
-        #     #print( DF.internalNodes   );
-        #
-        #     retainedColumns <- c("nodeID","riskLeaves_child","nLeaves_child");
-        #     for (temp.depth in seq(max(DF.internalNodes[,"depth"]),1,-1)) {
-        #         DF.depth <- DF.internalNodes %>%
-        #             filter( depth == temp.depth ) %>%
-        #             rename( riskLeaves_child = riskLeaves ) %>%
-        #             rename( nLeaves_child    = nLeaves    ) %>%
-        #             select( - c( satisfiedChildID , notSatisfiedChildID ) )
-        #             ;
-        #         #cat("\nDF.depth\n");
-        #         #print( DF.depth   );
-        #         DF.internalNodes <- DF.internalNodes %>%
-        #             left_join(DF.depth[,retainedColumns], by = c(   "satisfiedChildID" = "nodeID")) %>%
-        #             rename( riskLeaves_s  = riskLeaves_child ) %>%
-        #             rename( nLeaves_s     = nLeaves_child    ) %>%
-        #
-        #             left_join(DF.depth[,retainedColumns], by = c("notSatisfiedChildID" = "nodeID")) %>%
-        #             rename( riskLeaves_ns = riskLeaves_child ) %>%
-        #             rename( nLeaves_ns    = nLeaves_child    ) %>%
-        #
-        #             mutate( riskLeaves_s  = ifelse(is.na(riskLeaves_s ),0,riskLeaves_s ) ) %>%
-        #             mutate( riskLeaves_ns = ifelse(is.na(riskLeaves_ns),0,riskLeaves_ns) ) %>%
-        #             mutate( riskLeaves    = riskLeaves + riskLeaves_s + riskLeaves_ns    ) %>%
-        #
-        #             mutate( nLeaves_s     = ifelse(is.na(nLeaves_s    ),0,nLeaves_s    ) ) %>%
-        #             mutate( nLeaves_ns    = ifelse(is.na(nLeaves_ns   ),0,nLeaves_ns   ) ) %>%
-        #             mutate( nLeaves       = nLeaves + nLeaves_s + nLeaves_ns             ) %>%
-        #
-        #             select( - c(riskLeaves_s,riskLeaves_ns,nLeaves_s,nLeaves_ns) )
-        #             ;
-        #         #cat("\nDF.internalNodes\n");
-        #         #print( DF.internalNodes   );
-        #         }
-        #     DF.internalNodes <- DF.internalNodes %>%
-        #         mutate( alpha = (risk - riskLeaves) / (nLeaves - 1) );
-        #     #cat("\nDF.internalNodes\n");
-        #     #print( DF.internalNodes   );
-        #
-        #     min.alpha    <- min(DF.internalNodes[,'alpha']);
-        #     nodesToPrune <- DF.internalNodes[DF.internalNodes[,'alpha'] == min.alpha,'nodeID'];
-        #     #cat("\nnodesToPrune:\n");
-        #     #print( nodesToPrune    );
-        #
-        #     nodesToRemove <- c();
-        #     for (tempNodeID in nodesToPrune) {
-        #         nodesToRemove <- base::unique(c(
-        #             nodesToRemove,
-        #             private$get_descendants(nodeIDs = DF.input[,'nodeID'], nodeID = tempNodeID)
-        #             ));
-        #         }
-        #     nodesToRemove <- base::intersect( base::sort(nodesToRemove) , DF.input[,'nodeID'] );
-        #     #cat("\nnodesToRemove:\n");
-        #     #print( nodesToRemove    );
-        #
-        #     nodesToRetain <- base::setdiff(DF.input[,'nodeID'],nodesToRemove);
-        #     #cat("\nnodesToRetain:\n");
-        #     #print( nodesToRetain    );
-        #
-        #     DF.output <- DF.input[DF.input[,'nodeID'] %in% nodesToRetain,];
-        #     DF.output[DF.input[,'nodeID'] %in% nodesToPrune,   'satisfiedChildID'] <- NA;
-        #     DF.output[DF.input[,'nodeID'] %in% nodesToPrune,'notSatisfiedChildID'] <- NA;
-        #
-        #     output_list <- list(
-        #         alpha = min.alpha,
-        #         nodes_retained       = nodesToRetain,
-        #         nodes_pruned         = nodesToPrune,
-        #         nodes_removed        = nodesToRemove,
-        #         nodes_retained_table = DF.output
-        #         );
-        #     #cat("\noutput_list:\n");
-        #     #print( output_list    );
-        #
-        #     return( output_list );
-        #     },
         get_best_split = function(currentRowIDs) {
             uniqueVarValuePairs_factor          <- list();
             uniqueVarValuePairs_ordered_factor  <- list();
