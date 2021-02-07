@@ -22,11 +22,6 @@ test.myCART <- function(
     print( myCART.object$print()   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    list.pruning.sequence <- myCART.object$get_pruning_sequence();
-    cat("\nstr(list.pruning.sequence)\n");
-    print( str(list.pruning.sequence)   );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     results.rpart <- rpart(
         formula = Species ~ .,
         data    = iris,

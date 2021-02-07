@@ -203,37 +203,6 @@ myCART  <- R6Class(
                 }
             },
 
-        # get_pruning_sequence = function(nodes = self$nodes) {
-        #
-        #     if ( 0 == length(nodes) ) {
-        #         cat("\nThe supplied list of nodes is empty.\n")
-        #         return( NULL );
-        #         }
-        #
-        #     DF.node_table <- private$nodes_to_table(nodes = nodes);
-        #
-        #     alpha_subtree <- list(
-        #         alpha                = 0,
-        #         nodes_retained       = DF.node_table[,"nodeID"],
-        #         nodes_pruned         = c(),
-        #         nodes_removed        = c(),
-        #         nodes_retained_table = DF.node_table
-        #         );
-        #
-        #     output_list <- list();
-        #     nAlphas     <- 1;
-        #
-        #     output_list[[nAlphas]] <- alpha_subtree;
-        #     while (1 < base::length(alpha_subtree$nodes_retained)) {
-        #         nAlphas       <- 1 + nAlphas;
-        #         alpha_subtree <- private$get_alpha_subtree(DF.input = alpha_subtree$nodes_retained_table);
-        #         output_list[[nAlphas]] <- alpha_subtree;
-        #         }
-        #
-        #     return( output_list );
-        #
-        #     },
-
         public_nodes_to_table = function(nodes = self$nodes) {
             return( private$nodes_to_table(nodes = nodes) );
             },
