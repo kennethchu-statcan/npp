@@ -547,7 +547,7 @@ R6_nppCART <- R6::R6Class(
         public_get_subtree_hierarchy = function() {
             if ( base::is.null(self$subtree.hierarchy) ) {
                 self$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
-            }
+                }
             return( self$subtree.hierarchy );
             }
 
@@ -1018,10 +1018,16 @@ R6_nppCART <- R6::R6Class(
                     );
                 }
             list.subtrees[[1]][['pruned_nodes']] <- self$nodes;
+            list.subtrees[[1]][['npdata_with_propensity']] <- self$get_npdata_with_propensity(
+                nodes = list.subtrees[[1]][['pruned_nodes']]
+                );
             for ( index.subtree in seq(2,length(list.subtrees)) ) {
                 list.subtrees[[index.subtree]][['pruned_nodes']] <- private$get_pruned_nodes(
                     input.nodes  = list.subtrees[[index.subtree - 1]][['pruned_nodes']],
                     pruning.info = list.subtrees[[index.subtree    ]]
+                    );
+                list.subtrees[[index.subtree]][['npdata_with_propensity']] <- self$get_npdata_with_propensity(
+                    nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                     );
                 }
             return( list.subtrees );
