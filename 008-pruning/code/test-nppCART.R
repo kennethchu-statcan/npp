@@ -7,6 +7,178 @@ test.nppCART <- function(seed = 1234567) {
     cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.population <- test.nppCART_get.population(seed = seed);
+    list.samples  <- test.nppCART_get.samples(
+        DF.population         = DF.population,
+        RData.non.probability = "DF-non-probability.RData",
+        RData.probability     = "DF-probability.RData"
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.nppCART <- nppCART(
+        np.data    = list.samples[['DF.non.probability']],
+        p.data     = list.samples[['DF.probability']],
+        predictors = c("x1","x2"),
+        weight     = "design.weight"
+        );
+
+    my.nppCART$grow();
+
+    cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
+    my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
+
+    DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
+    cat("\nstr(DF.npdata.estimated.propensity)\n");
+    print( str(DF.npdata.estimated.propensity)   );
+
+    write.csv(
+        x         = DF.npdata.estimated.propensity,
+        file      = "npdata-estimated-propensity.csv",
+        row.names = FALSE
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.nppCART.subtree.hierarchy <- my.nppCART$public_get_subtree_hierarchy();
+    cat("\nstr(list.pruning.sequence)\n");
+    print( str(my.nppCART.subtree.hierarchy)   );
+
+    cat("\nmy.nppCART.subtree.hierarchy\n");
+    print( my.nppCART.subtree.hierarchy   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat("\n\n### Test 2:\n\n");
+
+    DF.probability <- DF.population[,c("unit.ID","x1","x2")];
+    DF.probability[,"design.weight"] <- 1;
+
+    my.nppCART <- nppCART(
+        np.data       = list.samples[['DF.non.probability']],
+        p.data        = DF.probability,
+        predictors    = c("x1","x2"),
+        weight        = "design.weight",
+        min.cell.size = 1,
+        min.impurity  = 1e-9,
+        max.levels    = 10000
+        );
+
+    my.nppCART$grow();
+
+    cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
+    my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
+
+    my.nppCART.subtree.hierarchy <- my.nppCART$public_get_subtree_hierarchy();
+    cat("\nstr(my.nppCART.subtree.hierarchy)\n");
+    print( str(my.nppCART.subtree.hierarchy)   );
+
+    cat("\nmy.nppCART.subtree.hierarchy\n");
+    print( my.nppCART.subtree.hierarchy   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    is.self.selected <- (DF.population[,'unit.ID'] %in% list.samples[['DF.non.probability']][,'unit.ID']);
+    DF.population[                ,'self.selected'] <- FALSE;
+    DF.population[is.self.selected,'self.selected'] <- TRUE;
+
+    write.csv(
+        x         = DF.population,
+        file      = "DF-population.csv",
+        row.names = FALSE
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    results.rpart <- rpart(
+        formula = self.selected ~ .,
+        data    = DF.population[,c('x1','x2','self.selected')],
+        control = list(
+            minsplit  = 1,
+            minbucket = 1,
+            cp        = 0
+            )
+        );
+
+    cat("\nresults.rpart\n");
+    print( results.rpart   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    myCART.object <- myCART$new(
+        formula    = self.selected ~ .,
+        data       = DF.population[,c('x1','x2','self.selected')]
+        );
+
+    myCART.object$grow();
+    cat("\nmyCART.object$print()\n");
+    print( myCART.object$print()   );
+
+    myCART.subtree.hierarchy <- myCART.object$public_get_subtree_hierarchy();
+
+    cat("\nstr(myCART.subtree.hierarchy)\n");
+    print( str(myCART.subtree.hierarchy)   );
+
+    cat("\nmyCART.subtree.hierarchy\n");
+    print( myCART.subtree.hierarchy   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat(paste0("\n# ",thisFunctionName,"() quits."));
+    cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
+    return( NULL );
+
+    }
+
+##################################################
+test.nppCART_get.samples <- function(
+    DF.population         = NULL,
+    RData.non.probability = NULL,
+    RData.probability     = NULL
+    ) {
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    is.self.selected   <- sapply(
+        X   = DF.population[,"true.propensity"],
+        FUN = function(x) { sample(x = c(FALSE,TRUE), size = 1, prob = c(1-x,x)) }
+        );
+    DF.non.probability <- DF.population;
+    DF.non.probability[,"self.selected"] <- is.self.selected;
+    DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("unit.ID","y","x1","x2","x1.jitter","x2.jitter")];
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    prob.selection <- 0.1;
+
+    is.selected <- sample(
+        x       = c(TRUE,FALSE),
+        size    = nrow(DF.population),
+        replace = TRUE,
+        prob    = c(prob.selection, 1 - prob.selection)
+        );
+
+    DF.probability <- DF.population[is.selected,c("unit.ID","x1","x2")];
+    DF.probability[,"design.weight"] <- 1 / prob.selection;
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    if ( !is.null(RData.non.probability) ) {
+        saveRDS(
+            object = DF.non.probability,
+            file   = RData.non.probability,
+            );
+        }
+
+    if ( !is.null(RData.probability) ) {
+        saveRDS(
+            object = DF.probability,
+            file   = RData.probability
+            );
+        }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    return(list(
+        DF.non.probability = DF.non.probability,
+        DF.probability     = DF.probability
+        ));
+
+    }
+
+test.nppCART_get.population <- function(seed = 1234567) {
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# randomization seed: ",seed,"\n"));
     set.seed(seed = seed);
 
@@ -82,146 +254,6 @@ test.nppCART <- function(seed = 1234567) {
 
         }
 
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    is.self.selected   <- sapply(
-        X   = DF.population[,"true.propensity"],
-        FUN = function(x) { sample(x = c(FALSE,TRUE), size = 1, prob = c(1-x,x)) }
-        );
-    DF.non.probability <- DF.population;
-    DF.non.probability[,"self.selected"] <- is.self.selected;
-    DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("unit.ID","y","x1","x2","x1.jitter","x2.jitter")];
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    prob.selection <- 0.1;
-
-    is.selected <- sample(
-        x       = c(TRUE,FALSE),
-        size    = nrow(DF.population),
-        replace = TRUE,
-        prob    = c(prob.selection, 1 - prob.selection)
-        );
-
-    DF.probability <- DF.population[is.selected,c("unit.ID","x1","x2")];
-    DF.probability[,"design.weight"] <- 1 / prob.selection;
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    saveRDS(
-        object = DF.non.probability,
-        file   = "DF-non-probability.RData",
-        );
-
-    saveRDS(
-        object = DF.probability,
-        file   = "DF-probability.RData"
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.nppCART <- nppCART(
-        np.data    = DF.non.probability,
-        p.data     = DF.probability,
-        predictors = c("x1","x2"),
-        weight     = "design.weight"
-        );
-
-    my.nppCART$grow();
-
-    cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
-    my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
-
-    DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
-    cat("\nstr(DF.npdata.estimated.propensity)\n");
-    print( str(DF.npdata.estimated.propensity)   );
-
-    write.csv(
-        x         = DF.npdata.estimated.propensity,
-        file      = "npdata-estimated-propensity.csv",
-        row.names = FALSE
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.nppCART.subtree.hierarchy <- my.nppCART$public_get_subtree_hierarchy();
-    cat("\nstr(list.pruning.sequence)\n");
-    print( str(my.nppCART.subtree.hierarchy)   );
-
-    cat("\nmy.nppCART.subtree.hierarchy\n");
-    print( my.nppCART.subtree.hierarchy   );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    cat("\n\n### Test 2:\n\n");
-
-    DF.probability <- DF.population[,c("unit.ID","x1","x2")];
-    DF.probability[,"design.weight"] <- 1;
-
-    my.nppCART <- nppCART(
-        np.data       = DF.non.probability,
-        p.data        = DF.probability,
-        predictors    = c("x1","x2"),
-        weight        = "design.weight",
-        min.cell.size = 1,
-        min.impurity  = 1e-9,
-        max.levels    = 10000
-        );
-
-    my.nppCART$grow();
-
-    cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
-    my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
-
-    my.nppCART.subtree.hierarchy <- my.nppCART$public_get_subtree_hierarchy();
-    cat("\nstr(my.nppCART.subtree.hierarchy)\n");
-    print( str(my.nppCART.subtree.hierarchy)   );
-
-    cat("\nmy.nppCART.subtree.hierarchy\n");
-    print( my.nppCART.subtree.hierarchy   );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.population[                ,'self.selected'] <- FALSE;
-    DF.population[is.self.selected,'self.selected'] <- TRUE;
-
-    write.csv(
-        x         = DF.population,
-        file      = "DF-population.csv",
-        row.names = FALSE
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    results.rpart <- rpart(
-        formula = self.selected ~ .,
-        data    = DF.population[,c('x1','x2','self.selected')],
-        control = list(
-            minsplit  = 1,
-            minbucket = 1,
-            cp        = 0
-            )
-        );
-
-    cat("\nresults.rpart\n");
-    print( results.rpart   );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    myCART.object <- myCART$new(
-        formula    = self.selected ~ .,
-        data       = DF.population[,c('x1','x2','self.selected')]
-        );
-
-    myCART.object$grow();
-    cat("\nmyCART.object$print()\n");
-    print( myCART.object$print()   );
-
-    myCART.subtree.hierarchy <- myCART.object$public_get_subtree_hierarchy();
-
-    cat("\nstr(myCART.subtree.hierarchy)\n");
-    print( str(myCART.subtree.hierarchy)   );
-
-    cat("\nmyCART.subtree.hierarchy\n");
-    print( myCART.subtree.hierarchy   );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    cat(paste0("\n# ",thisFunctionName,"() quits."));
-    cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
-    return( NULL );
+    return( DF.population );
 
     }
-
-##################################################
