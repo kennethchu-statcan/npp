@@ -27,8 +27,8 @@ test.myCART.get.pruned.nodes <- function(
     cat("\nstr(myCART.subtree.hierarchy)\n");
     print( str(myCART.subtree.hierarchy)   );
 
-    cat("\nmyCART.subtree.hierarchy\n");
-    print( myCART.subtree.hierarchy   );
+    # cat("\nmyCART.subtree.hierarchy\n");
+    # print( myCART.subtree.hierarchy   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     for ( index.subtree in seq(1,length(myCART.subtree.hierarchy)) ) {

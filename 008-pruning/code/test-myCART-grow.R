@@ -1,8 +1,8 @@
 
-test.myCART <- function(
+test.myCART.grow <- function(
     ) {
 
-    thisFunctionName <- "test.myCART";
+    thisFunctionName <- "test.myCART.grow";
 
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
     cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
@@ -10,16 +10,6 @@ test.myCART <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     require(rpart);
     data(iris);
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    myCART.object <- myCART$new(
-        formula    = Species ~ .,
-        data       = iris
-        );
-
-    myCART.object$grow();
-    cat("\nmyCART.object$print()\n");
-    print( myCART.object$print()   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     results.rpart <- rpart(
@@ -35,66 +25,52 @@ test.myCART <- function(
     cat("\nresults.rpart\n");
     print( results.rpart   );
 
-    cat("\nstr(results.rpart)\n");
-    print( str(results.rpart)   );
-
-    cat("\nprintcp(results.rpart)\n");
-    printcp( results.rpart );
-
-    cat("\nresults.rpart[['cptable']]\n");
-    print( results.rpart[['cptable']]   );
-
-    cat("\nresults.rpart[['cptable']][,'CP']\n");
-    print( results.rpart[['cptable']][,'CP']   );
+    # cat("\nstr(results.rpart)\n");
+    # print( str(results.rpart)   );
+    #
+    # cat("\nprintcp(results.rpart)\n");
+    # printcp( results.rpart );
+    #
+    # cat("\nresults.rpart[['cptable']]\n");
+    # print( results.rpart[['cptable']]   );
+    #
+    # cat("\nresults.rpart[['cptable']][,'CP']\n");
+    # print( results.rpart[['cptable']][,'CP']   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.temp <- rbind(
-        data.frame(
-            x = results.rpart[['cptable']][,'CP'],
-            y = rep(0,nrow(results.rpart[['cptable']]))
-            ),
-        data.frame(
-            x = as.numeric(lapply( X = list.pruning.sequence, FUN = function(x) {x[['alpha']]} )),
-            y = rep(1,length(list.pruning.sequence))
-            )
+    myCART.object <- myCART$new(
+        formula    = Species ~ .,
+        data       = iris
         );
 
-    png('temp-cost-complexity.png');
-    plot( x = DF.temp[,'x'] , y = DF.temp[,'y'] );
-    dev.off();
+    myCART.object$grow();
+
+    cat("\nmyCART.object$print()\n");
+    print( myCART.object$print()   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    list.subtree.sequence <- myCART.object$public_subtree_sequence();
+    # myCART.subtree.hierarchy <- myCART.object$public_get_subtree_hierarchy();
+    #
+    # cat("\nstr(myCART.subtree.hierarchy)\n");
+    # print( str(myCART.subtree.hierarchy)   );
 
-    cat("\nstr(list.subtree.sequence)\n");
-    print( str(list.subtree.sequence)   );
+    # cat("\nmyCART.subtree.hierarchy\n");
+    # print( myCART.subtree.hierarchy   );
 
-    cat("\nlist.subtree.sequence\n");
-    print( list.subtree.sequence   );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.nodes <- myCART.object$public_nodes_to_table();
-
-    index.subtree <- 1;
-    list.pruned.subtrees <- list();
-    list.pruned.subtrees[[index.subtree]] <- list(alpha = 0, subtree = DF.nodes);
-
-    DF.temp <- DF.nodes;
-    while ( nrow(DF.temp) > 1 ) {
-        index.subtree <- index.subtree + 1;
-        DF.temp       <- compute.g(DF.input = DF.temp);
-        DF.temp       <- prune.g.minimizers( DF.input = DF.temp);
-        list.pruned.subtrees[[index.subtree]] <- list(
-            alpha   = min(DF.temp[,'myCART.g'], na.rm = TRUE),
-            subtree = DF.temp
-            );
-        }
-
-    cat("\nstr(list.pruned.subtrees)\n");
-    print( str(list.pruned.subtrees)   );
-
-    cat("\nlist.pruned.subtrees\n");
-    print( list.pruned.subtrees   );
+    # DF.temp <- rbind(
+    #     data.frame(
+    #         x = results.rpart[['cptable']][,'CP'],
+    #         y = rep(0,nrow(results.rpart[['cptable']]))
+    #         ),
+    #     data.frame(
+    #         x = as.numeric(lapply( X = myCART.subtree.hierarchy, FUN = function(x) {x[['alpha']]} )),
+    #         y = rep(1,length(myCART.subtree.hierarchy))
+    #         )
+    #     );
+    #
+    # png('temp-cost-complexity.png');
+    # plot( x = DF.temp[,'x'] , y = DF.temp[,'y'] );
+    # dev.off();
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));

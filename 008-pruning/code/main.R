@@ -24,9 +24,10 @@ files.R <- c(
     'myCART.R',
     'myCART-pruning.R',
     'nppCART.R',
-    'test-myCART.R',
+    'test-myCART-grow.R',
     'test-myCART-get-pruned-nodes.R',
-    'test-nppCART.R',
+    'test-nppCART-sanity.R',
+    'test-nppCART-utils.R',
     'test-svyrepdesign.R'
     );
 
@@ -38,10 +39,10 @@ for ( file.R in files.R ) {
 ###################################################
 # test.svyrepdesign();
 
-# test.myCART();
+# test.myCART.grow();
 # test.myCART.get.pruned.nodes();
 
-test.nppCART(seed = 7654321);
+test.nppCART.sanity(seed = 7654321);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
