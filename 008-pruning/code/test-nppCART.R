@@ -42,8 +42,8 @@ test.nppCART <- function(seed = 1234567) {
     cat("\nstr(list.pruning.sequence)\n");
     print( str(my.nppCART.subtree.hierarchy)   );
 
-    cat("\nmy.nppCART.subtree.hierarchy\n");
-    print( my.nppCART.subtree.hierarchy   );
+    # cat("\nmy.nppCART.subtree.hierarchy\n");
+    # print( my.nppCART.subtree.hierarchy   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -71,8 +71,8 @@ test.nppCART <- function(seed = 1234567) {
     cat("\nstr(my.nppCART.subtree.hierarchy)\n");
     print( str(my.nppCART.subtree.hierarchy)   );
 
-    cat("\nmy.nppCART.subtree.hierarchy\n");
-    print( my.nppCART.subtree.hierarchy   );
+    # cat("\nmy.nppCART.subtree.hierarchy\n");
+    # print( my.nppCART.subtree.hierarchy   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     is.self.selected <- (DF.population[,'unit.ID'] %in% list.samples[['DF.non.probability']][,'unit.ID']);
@@ -114,8 +114,8 @@ test.nppCART <- function(seed = 1234567) {
     cat("\nstr(myCART.subtree.hierarchy)\n");
     print( str(myCART.subtree.hierarchy)   );
 
-    cat("\nmyCART.subtree.hierarchy\n");
-    print( myCART.subtree.hierarchy   );
+    # cat("\nmyCART.subtree.hierarchy\n");
+    # print( myCART.subtree.hierarchy   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
