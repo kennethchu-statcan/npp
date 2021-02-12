@@ -96,6 +96,19 @@ test.nppCART.sanity <- function(seed = 1234567) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    for ( index.subtree in seq(1,length(my.nppCART.subtree.hierarchy)) ) {
+        cat("\n")
+        cat(paste0("\n### index.subtree: ",index.subtree,"\n"));
+        cat("\nmy.nppCART.subtree.hierarchy[[index.subtree]][['alpha']]:\n");
+        print( my.nppCART.subtree.hierarchy[[index.subtree]][['alpha']]    );
+        cat("\nmy.nppCART.subtree.hierarchy[[index.subtree]][['nodes_pruned_at']]:\n");
+        print( my.nppCART.subtree.hierarchy[[index.subtree]][['nodes_pruned_at']]    );
+        cat("\nprint_nodes(nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']])\n");
+        print_nodes(nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]);
+        }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat("\ntemp.alphas.nppCART.\n");
     print( temp.alphas.nppCART   );
 
