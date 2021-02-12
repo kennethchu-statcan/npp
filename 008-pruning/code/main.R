@@ -42,7 +42,8 @@ for ( file.R in files.R ) {
 # test.myCART.grow();
 # test.myCART.get.pruned.nodes();
 
-test.nppCART.sanity(seed = 7654321);
+# test.nppCART.iris(seed = 7654321);
+test.nppCART.sanity(seed = 1234567);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 

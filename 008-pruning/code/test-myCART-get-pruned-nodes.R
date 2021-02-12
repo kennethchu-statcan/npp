@@ -2,7 +2,7 @@
 test.myCART.get.pruned.nodes <- function(
     ) {
 
-    thisFunctionName <- "test.myCART";
+    thisFunctionName <- "test.myCART.get.pruned.nodes";
 
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
     cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
@@ -24,6 +24,11 @@ test.myCART.get.pruned.nodes <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     myCART.subtree.hierarchy <- myCART.object$public_get_subtree_hierarchy();
 
+    temp.alphas.myCART <- as.numeric(sapply(
+        X   = myCART.subtree.hierarchy,
+        FUN = function(x) { return(x[['alpha']]) }
+        ));
+
     cat("\nstr(myCART.subtree.hierarchy)\n");
     print( str(myCART.subtree.hierarchy)   );
 
@@ -41,6 +46,10 @@ test.myCART.get.pruned.nodes <- function(
         cat("\nprint_nodes(nodes = myCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']])\n");
         print_nodes(nodes = myCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]);
         }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat("\ntemp.alphas.myCART.\n");
+    print( temp.alphas.myCART   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));

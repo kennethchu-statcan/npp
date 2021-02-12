@@ -29,7 +29,6 @@ test.nppCART.sanity <- function(seed = 1234567) {
         );
 
     my.nppCART$grow();
-
     # cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
     # my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
 
@@ -70,6 +69,12 @@ test.nppCART.sanity <- function(seed = 1234567) {
     # cat("\nresults.rpart\n");
     # print( results.rpart   );
 
+    png("plot-rpart.png");
+    rpart.plot(
+        x = results.rpart
+        );
+    dev.off();
+
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     myCART.object <- myCART$new(
         formula    = self.selected ~ .,
@@ -101,10 +106,11 @@ test.nppCART.sanity <- function(seed = 1234567) {
     cat("\nresults.rpart\n");
     print( results.rpart   );
 
-    cat("\nmyCART.object$print()\n");
-    print( myCART.object$print()   );
+    cat("\nmy.nppCART$print()\n");
+    my.nppCART$print( FUN.format = function(x) {return(round(x,digits=5))} );
 
-    my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
+    cat("\nmyCART.object$print()\n");
+    myCART.object$print( FUN.format = function(x) {return(round(x,digits=5))} );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));

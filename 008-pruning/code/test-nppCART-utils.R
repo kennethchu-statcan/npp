@@ -71,7 +71,7 @@ test.nppCART_get.population <- function(seed = 1234567) {
     is.high.propensity <- (c2 - c1 == 1 | c2 - c1 == -1);
     true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 0.75, sd = 0.025);
 
-    sigma <- 0.20;
+    sigma <- 0.8;
     x1 <- c1 + rnorm(n = population.size, mean = 0, sd = sigma);
     x2 <- c2 + rnorm(n = population.size, mean = 0, sd = sigma);
 
