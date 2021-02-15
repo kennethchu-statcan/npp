@@ -6,6 +6,9 @@ test.nppCART_get.samples <- function(
     ) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    require(survey);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     is.self.selected   <- sapply(
         X   = DF.population[,"true.propensity"],
         FUN = function(x) { sample(x = c(FALSE,TRUE), size = 1, prob = c(1-x,x)) }
@@ -25,7 +28,38 @@ test.nppCART_get.samples <- function(
         );
 
     DF.probability <- DF.population[is.selected,c("unit.ID","x1","x2")];
-    DF.probability[,"design.weight"] <- 1 / prob.selection;
+    DF.probability[,"sampling.fraction"] <- prob.selection;
+    DF.probability[,"design.weight"    ] <- 1 / prob.selection;
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.svydesign.object <- survey::svydesign(
+        data = DF.probability,
+        id   = ~1,
+        fpc  = ~sampling.fraction
+        );
+    cat("\nstr(my.svydesign.object)\n");
+    print( str(my.svydesign.object)   );
+
+    my.svrepdesign.object <- survey::as.svrepdesign(
+        design     = my.svydesign.object,
+        type       = "bootstrap",
+        replicates = 500
+        );
+    cat("\nstr(my.svrepdesign.object)\n");
+    print( str(my.svrepdesign.object)   );
+
+    DF.repweights <- my.svrepdesign.object[['repweights']][['weights']];
+    DF.repweights <- as.data.frame(DF.repweights);
+    colnames(DF.repweights) <- paste0("repweight",seq(1,ncol(DF.repweights)));
+    # cat("\nstr(DF.repweights)\n");
+    # print( str(DF.repweights)   );
+
+    DF.probability <- cbind(
+        my.svrepdesign.object[['variables']],
+        DF.repweights
+        );
+    cat("\nstr(DF.probability)\n");
+    print( str(DF.probability)   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     if ( !is.null(RData.non.probability) ) {

@@ -19,11 +19,11 @@ test.svyrepdesign <- function(
         population.flag = "02"
         );
     cat("\nstr(DF.population)\n");
-    print( str(DF.population) );
+    print( str(DF.population)   );
 
     DF.population <- get.modified.population(DF.input = DF.population);
     cat("\nstr(DF.population)\n");
-    print( str(DF.population) );
+    print( str(DF.population)   );
 
     LIST.samples <- getSamples(
         DF.population  = DF.population,
@@ -35,6 +35,8 @@ test.svyrepdesign <- function(
     DF.probability <- LIST.samples[['probability.sample']];
     DF.probability[,'sampling.fraction'] <- 1 / DF.probability[,'weight'];
     DF.probability[,'dummy.one'] <- 1;
+    cat("\nstr(DF.probability)\n");
+    print( str(DF.probability)   );
 
     my.svydesign.object <- svydesign(
         data = DF.probability,
@@ -77,8 +79,8 @@ test.svyrepdesign <- function(
         my.svrepdesign.object[['variables']],
         DF.repweights
         );
-    # cat("\nstr(DF.template)\n");
-    # print( str(DF.template)   );
+    cat("\nstr(DF.template)\n");
+    print( str(DF.template)   );
 
     template.svrepdesign <- svrepdesign(
         data       = DF.template,

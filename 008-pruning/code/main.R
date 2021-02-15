@@ -26,6 +26,7 @@ files.R <- c(
     'nppCART.R',
     'test-myCART-grow.R',
     'test-myCART-get-pruned-nodes.R',
+    'test-nppCART-AIC.R',
     'test-nppCART-sanity.R',
     'test-nppCART-utils.R',
     'test-svyrepdesign.R'
@@ -43,7 +44,8 @@ for ( file.R in files.R ) {
 # test.myCART.get.pruned.nodes();
 
 # test.nppCART.iris(seed = 7654321);
-test.nppCART.sanity(seed = 1234567);
+# test.nppCART.sanity(seed = 1234567);
+test.nppCART.AIC(seed = 1234567);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
