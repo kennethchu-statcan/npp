@@ -1,6 +1,7 @@
 
 test.nppCART_get.samples <- function(
     DF.population         = NULL,
+    prob.selection        = 0.1,
     RData.non.probability = NULL,
     RData.probability     = NULL
     ) {
@@ -18,8 +19,6 @@ test.nppCART_get.samples <- function(
     DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("unit.ID","y","x1","x2","x1.jitter","x2.jitter")];
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    prob.selection <- 0.1;
-
     is.selected <- sample(
         x       = c(TRUE,FALSE),
         size    = nrow(DF.population),
