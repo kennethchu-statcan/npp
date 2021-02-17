@@ -526,6 +526,37 @@ R6_nppCART <- R6::R6Class(
             return( DF.output );
             },
 
+        get_pdata_with_nodeID = function(nodes = self$nodes) {
+
+            DF.leaf_table <- private$nodes_to_table(nodes = nodes);
+            DF.leaf_table <- DF.leaf_table[base::is.na(DF.leaf_table[,'satisfiedChildID']),];
+            #cat("\nDF.leaf_table\n");
+            #print( DF.leaf_table   );
+
+            DF.prow_to_leaf <- private$prow_to_leafID(nodes = nodes);
+            #cat("\nDF.prow_to_leaf\n");
+            #print( DF.prow_to_leaf   );
+
+            DF.prow_to_leaf <- base::merge(
+                x  = DF.prow_to_leaf,
+                y  = DF.leaf_table[,base::c("nodeID","propensity","np.count","p.weight","impurity")],
+                by = "nodeID"
+                );
+            #cat("\nDF.prow_to_leaf\n");
+            #print( DF.prow_to_leaf   );
+
+            DF.output <- base::merge(
+                x  = self$p.data,
+                y  = DF.prow_to_leaf,
+                by = self$p.syntheticID
+                );
+            DF.output <- DF.output[,base::setdiff(base::colnames(DF.output),self$p.syntheticID)];
+            #cat("\nDF.output\n");
+            #print( DF.output   );
+
+            return( DF.output );
+            },
+
         print = function(
             FUN.format = function(x) { return(x) }
             ) {
@@ -635,6 +666,27 @@ R6_nppCART <- R6::R6Class(
                         y = base::rep(x = nodes[[i]]$nodeID, times = base::length(nodes[[i]]$np.rowIDs))
                         );
                     base::colnames(DF.temp) <- base::c(self$np.syntheticID,"nodeID");
+                    DF.output <- base::rbind(DF.output,DF.temp);
+                    }
+                }
+            return( DF.output );
+            },
+
+        prow_to_leafID = function(nodes = self$nodes) {
+            if ( 0 == base::length(nodes) ) {
+                base::cat("\nThe supplied list of nodes is empty.\n")
+                return( NULL );
+                }
+            nNodes <- base::length(nodes);
+            DF.output <- data.frame(x = numeric(0), y = numeric(0));
+            base::colnames(DF.output) <- base::c(self$p.syntheticID,"nodeID");
+            for ( i in base::seq(1,nNodes) ) {
+                if ( base::is.null(nodes[[i]]$satisfiedChildID) ) {
+                    DF.temp <- data.frame(
+                        x = nodes[[i]]$p.rowIDs,
+                        y = base::rep(x = nodes[[i]]$nodeID, times = base::length(nodes[[i]]$p.rowIDs))
+                        );
+                    base::colnames(DF.temp) <- base::c(self$p.syntheticID,"nodeID");
                     DF.output <- base::rbind(DF.output,DF.temp);
                     }
                 }
