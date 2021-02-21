@@ -57,8 +57,8 @@ test.nppCART_get.samples <- function(
         my.svrepdesign.object[['variables']],
         DF.repweights
         );
-    cat("\nstr(DF.probability)\n");
-    print( str(DF.probability)   );
+    # cat("\nstr(DF.probability)\n");
+    # print( str(DF.probability)   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     if ( !is.null(RData.non.probability) ) {
