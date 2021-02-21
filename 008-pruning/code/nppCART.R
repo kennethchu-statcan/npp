@@ -580,6 +580,10 @@ R6_nppCART <- R6::R6Class(
                 self$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
                 }
             return( self$subtree.hierarchy );
+            },
+
+        public_nprow_to_leafID = function(nodes = self$nodes) {
+            return( private$nprow_to_leafID(nodes = nodes) );
             }
 
         ),
@@ -1069,20 +1073,54 @@ R6_nppCART <- R6::R6Class(
                     DF_retained     = list.temp[['DF_retained']]
                     );
                 }
-            list.subtrees[[1]][['pruned_nodes']] <- self$nodes;
+            # list.subtrees[[1]][['pruned_nodes']] <- self$nodes;
+            list.subtrees[[1]][['pruned_nodes']] <- private$duplicate_nodes(input.nodes = self$nodes);
             list.subtrees[[1]][['npdata_with_propensity']] <- self$get_npdata_with_propensity(
                 nodes = list.subtrees[[1]][['pruned_nodes']]
                 );
             for ( index.subtree in seq(2,length(list.subtrees)) ) {
                 list.subtrees[[index.subtree]][['pruned_nodes']] <- private$get_pruned_nodes(
-                    input.nodes  = list.subtrees[[index.subtree - 1]][['pruned_nodes']],
-                    pruning.info = list.subtrees[[index.subtree    ]]
+                    # input.nodes  = list.subtrees[[index.subtree - 1]][['pruned_nodes']],
+                    # pruning.info = list.subtrees[[index.subtree    ]]
+                    input.nodes  = private$duplicate_nodes(input.nodes = list.subtrees[[index.subtree - 1]][['pruned_nodes']]),
+                    pruning.info = list.subtrees[[index.subtree]]
                     );
                 list.subtrees[[index.subtree]][['npdata_with_propensity']] <- self$get_npdata_with_propensity(
                     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                     );
                 }
             return( list.subtrees );
+            },
+
+        duplicate_nodes = function(input.nodes = base::list()) {
+            output.nodes <- list();
+            if ( base::length(input.nodes) > 0 ) {
+                for ( index.element in base::seq(1,base::length(input.nodes)) ) {
+                    output.nodes[[index.element]] <- private$node$new(
+                        nodeID    = input.nodes[[index.element]]$nodeID,
+                        parentID  = input.nodes[[index.element]]$parentID,
+                        depth     = input.nodes[[index.element]]$depth,
+                        np.rowIDs = input.nodes[[index.element]]$np.rowIDs,
+                         p.rowIDs = input.nodes[[index.element]]$p.rowIDs,
+                        impurity  = input.nodes[[index.element]]$impurity,
+                        # splitCriterion = input.nodes[[index.element]]$splitCriterion,
+                        splitCriterion = private$splitCriterion$new(
+                            varname    = input.nodes[[index.element]]$splitCriterion$varname,
+                            threshold  = input.nodes[[index.element]]$splitCriterion$threshold,
+                            comparison = input.nodes[[index.element]]$splitCriterion$comparison
+                            ),
+                        # birthCriterion = input.nodes[[index.element]]$birthCriterion,
+                        birthCriterion = private$splitCriterion$new(
+                            varname    = input.nodes[[index.element]]$birthCriterion$varname,
+                            threshold  = input.nodes[[index.element]]$birthCriterion$threshold,
+                            comparison = input.nodes[[index.element]]$birthCriterion$comparison
+                            ),
+                        satisfiedChildID    = input.nodes[[index.element]]$satisfiedChildID,
+                        notSatisfiedChildID = input.nodes[[index.element]]$notSatisfiedChildID
+                        );
+                    }
+                }
+            return( output.nodes );
             },
 
         get_pruned_nodes = function(
