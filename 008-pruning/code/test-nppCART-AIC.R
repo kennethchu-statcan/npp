@@ -126,34 +126,34 @@ test.nppCART.AIC <- function(seed = 1234567) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    index.subtree <- 1; # 2;
+    index.subtree <- 2;
 
     cat(paste0("\n# index.subtree: ",index.subtree,"\n"));
 
-    # cat("\nnames(my.nppCART.subtree.hierarchy[[index.subtree]])\n");
-    # print( names(my.nppCART.subtree.hierarchy[[index.subtree]])   );
+    cat("\nnames(my.nppCART.subtree.hierarchy[[index.subtree]])\n");
+    print( names(my.nppCART.subtree.hierarchy[[index.subtree]])   );
 
-    # DF.retained <- my.nppCART.subtree.hierarchy[[index.subtree]][['DF_retained']];
-    # cat("\nDF.retained\n");
-    # print( DF.retained   );
+    DF.retained <- my.nppCART.subtree.hierarchy[[index.subtree]][['DF_retained']];
+    cat("\nDF.retained\n");
+    print( DF.retained   );
 
     cat("\nmy.nppCART$nodes\n");
     print( my.nppCART$nodes   );
 
     DF.nprow.to.leafID <- my.nppCART$public_nprow_to_leafID(
-        # nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]
+        nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]
         );
     cat("\nstr(DF.nprow.to.leafID)\n");
     print( str(DF.nprow.to.leafID)   );
 
     DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity(
-        # nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]
+        nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]
         );
     cat("\nstr(DF.npdata.with.propensity)\n");
     print( str(DF.npdata.with.propensity)   );
 
     DF.pdata.with.nodeID <- my.nppCART$get_pdata_with_nodeID(
-        # nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]
+        nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]
         );
     cat("\nstr(DF.pdata.with.nodeID)\n");
     print( str(DF.pdata.with.nodeID)   );
