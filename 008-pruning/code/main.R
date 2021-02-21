@@ -18,6 +18,7 @@ require(rpart.plot);
 require(survey);
 
 files.R <- c(
+    'compute_AIC.R',
     'getPopulation.R',
     'get_pruned_nodes.R',
     'getSamples.R',
