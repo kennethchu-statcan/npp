@@ -36,6 +36,9 @@ compute_AIC <- function(
 
     for ( temp.nodeID in DF.design.variances[,'nodeID'] ) {
         DF.temp <- DF.pdata.with.nodeID[DF.pdata.with.nodeID[,'nodeID'] == temp.nodeID,];
+        base::cat(base::paste0("\n# temp.nodeID: ",temp.nodeID,"\n"));
+        base::cat("\nstr(DF.temp)\n");
+        base::print( str(DF.temp)   );
         }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
