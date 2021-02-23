@@ -54,6 +54,9 @@ test.nppCART.AIC <- function(seed = 1234567) {
     # cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
     # my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
 
+    cat("\nmy.nppCART$print()\n");
+    my.nppCART$print( FUN.format = function(x) { return(format(x = x, digits = 3)) } );
+
     cat("\nls()\n");
     print( ls()   );
 
@@ -157,6 +160,15 @@ test.nppCART.AIC <- function(seed = 1234567) {
         );
     cat("\nstr(DF.pdata.with.nodeID)\n");
     print( str(DF.pdata.with.nodeID)   );
+
+    my.AIC <- compute_AIC(
+        DF.retained.nodes         = DF.retained,
+        DF.npdata.with.propensity = DF.npdata.with.propensity,
+        DF.pdata.with.nodeID      = DF.pdata.with.nodeID
+        );
+
+    cat("\nstr(my.AIC)\n");
+    print( str(my.AIC)   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
