@@ -37,9 +37,38 @@ compute_AIC <- function(
     for ( temp.nodeID in DF.design.variances[,'nodeID'] ) {
         DF.temp <- DF.pdata.with.nodeID[DF.pdata.with.nodeID[,'nodeID'] == temp.nodeID,];
         base::cat(base::paste0("\n# temp.nodeID: ",temp.nodeID,"\n"));
+        base::cat("\ncolnames(DF.temp)\n");
+        base::print( colnames(DF.temp)   );
         base::cat("\nstr(DF.temp)\n");
         base::print( str(DF.temp)   );
         }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.template <- DF.pdata.with.nodeID;
+    DF.template[,'dummy.one'] <- 1;
+
+    template.svrepdesign <- svrepdesign(
+        data       = DF.template,
+        weights    = as.formula("~ design.weight"),
+        type       = "bootstrap",
+        repweights = "repweight[0-9]+",
+        combined   = FALSE
+        );
+    cat("\nstr(template.svrepdesign)\n");
+    print( str(template.svrepdesign)   );
+
+    template.results.svyby <- svyby(
+        design  = template.svrepdesign,
+        formula = as.formula("~ dummy.one"),
+        by      = as.formula("~ nodeID"),
+        FUN     = svytotal, # svymean # svyvar
+        vartype = "var" # c("se","ci","ci","cv","cvpct","var")
+        );
+    # cat("\nstr(template.results.svyby)\n");
+    # print( str(template.results.svyby)   );
+
+    cat("\ntemplate.results.svyby\n");
+    print( template.results.svyby   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     base::cat(base::paste0("\n# ",thisFunctionName,"() quits."));
