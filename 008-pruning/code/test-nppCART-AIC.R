@@ -1,5 +1,9 @@
 
-test.nppCART.AIC <- function(seed = 1234567) {
+test.nppCART.AIC <- function(
+    seed           = 1234567,
+    prob.selection = 0.1,
+    n.replicates   = 500
+    ) {
 
     thisFunctionName <- "test.nppCART.AIC";
 
@@ -7,10 +11,13 @@ test.nppCART.AIC <- function(seed = 1234567) {
     cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.population <- test.nppCART_get.population(seed = seed);
     list.samples  <- test.nppCART_get.samples(
         DF.population         = DF.population,
-        prob.selection        = 1 - 1e-8, # 1.0,
+        prob.selection        = prob.selection, # 0.1, 1 - 1e-8, # 1.0,
+        n.replicates          = n.replicates,
         RData.non.probability = "DF-non-probability.RData",
         RData.probability     = "DF-probability.RData"
         );
@@ -164,7 +171,9 @@ test.nppCART.AIC <- function(seed = 1234567) {
     my.AIC <- compute_AIC(
         DF.retained.nodes         = DF.retained,
         DF.npdata.with.propensity = DF.npdata.with.propensity,
-        DF.pdata.with.nodeID      = DF.pdata.with.nodeID
+        DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
+        sampling.weight.varname   = "design.weight",
+        replicate.weight.varnames = paste0("repweight",seq(1,500))
         );
 
     cat("\nstr(my.AIC)\n");

@@ -2,7 +2,10 @@
 compute_AIC <- function(
     DF.retained.nodes         = NULL,
     DF.npdata.with.propensity = NULL,
-    DF.pdata.with.nodeID      = NULL
+    DF.pdata.with.nodeID      = NULL,
+    sampling.weight.varname   = NULL,
+    replicate.weight.varnames = NULL,
+    combined.weights          = FALSE
     ) {
 
     thisFunctionName <- "compute_AIC";
@@ -45,19 +48,24 @@ compute_AIC <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.template <- DF.pdata.with.nodeID;
+
+    temp.colnames <- base::colnames(DF.template);
+    temp.colnames[temp.colnames %in% replicate.weight.varnames] <- base::paste0("internal.repweight",base::seq(1,base::sum(temp.colnames %in% replicate.weight.varnames)))
+    base::colnames(DF.template) <- temp.colnames;
+
     DF.template[,'dummy.one'] <- 1;
 
-    template.svrepdesign <- svrepdesign(
-        data       = DF.template,
-        weights    = as.formula("~ design.weight"),
-        type       = "bootstrap",
-        repweights = "repweight[0-9]+",
-        combined   = FALSE
+    template.svrepdesign <- survey::svrepdesign(
+        data             = DF.template,
+        weights          = stats::as.formula(base::paste0("~ ",sampling.weight.varname)),
+        type             = "bootstrap",
+        repweights       = "internal.repweight[0-9]+",
+        combined.weights = combined.weights
         );
     cat("\nstr(template.svrepdesign)\n");
     print( str(template.svrepdesign)   );
 
-    template.results.svyby <- svyby(
+    template.results.svyby <- survey::svyby(
         design  = template.svrepdesign,
         formula = as.formula("~ dummy.one"),
         by      = as.formula("~ nodeID"),

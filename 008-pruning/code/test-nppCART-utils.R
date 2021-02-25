@@ -2,6 +2,7 @@
 test.nppCART_get.samples <- function(
     DF.population         = NULL,
     prob.selection        = 0.1,
+    n.replicates          = 500,
     RData.non.probability = NULL,
     RData.probability     = NULL
     ) {
@@ -42,7 +43,7 @@ test.nppCART_get.samples <- function(
     my.svrepdesign.object <- survey::as.svrepdesign(
         design     = my.svydesign.object,
         type       = "bootstrap",
-        replicates = 500
+        replicates = n.replicates # 500
         );
     cat("\nstr(my.svrepdesign.object)\n");
     print( str(my.svrepdesign.object)   );

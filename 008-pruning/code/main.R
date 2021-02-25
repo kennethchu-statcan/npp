@@ -44,7 +44,11 @@ for ( file.R in files.R ) {
 
 # test.nppCART.iris(seed = 7654321);
 # test.nppCART.sanity(seed = 1234567);
-test.nppCART.AIC(seed = 1234567);
+test.nppCART.AIC(
+    seed           = 1234567,
+    prob.selection = 0.1,
+    n.replicates   = 200
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 test.svyrepdesign();
