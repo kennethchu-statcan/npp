@@ -27,24 +27,19 @@ compute_AIC <- function(
     base::print( DF.leaves   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    likelihood.estimate <- base::sum(DF.leaves[,'likelihood.summand']);
-    base::cat("\nlikelihood.estimate\n");
-    base::print( likelihood.estimate   );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.design.variances <- base::data.frame(
-        nodeID          = DF.leaves[,'nodeID'],
-        design.variance = base::rep(x = NA, times = base::nrow(DF.leaves))
-        );
-
-    for ( temp.nodeID in DF.design.variances[,'nodeID'] ) {
-        DF.temp <- DF.pdata.with.nodeID[DF.pdata.with.nodeID[,'nodeID'] == temp.nodeID,];
-        base::cat(base::paste0("\n# temp.nodeID: ",temp.nodeID,"\n"));
-        base::cat("\ncolnames(DF.temp)\n");
-        base::print( colnames(DF.temp)   );
-        base::cat("\nstr(DF.temp)\n");
-        base::print( str(DF.temp)   );
-        }
+    # DF.design.variances <- base::data.frame(
+    #     nodeID          = DF.leaves[,'nodeID'],
+    #     design.variance = base::rep(x = NA, times = base::nrow(DF.leaves))
+    #     );
+    #
+    # for ( temp.nodeID in DF.design.variances[,'nodeID'] ) {
+    #     DF.temp <- DF.pdata.with.nodeID[DF.pdata.with.nodeID[,'nodeID'] == temp.nodeID,];
+    #     base::cat(base::paste0("\n# temp.nodeID: ",temp.nodeID,"\n"));
+    #     base::cat("\ncolnames(DF.temp)\n");
+    #     base::print( colnames(DF.temp)   );
+    #     base::cat("\nstr(DF.temp)\n");
+    #     base::print( str(DF.temp)   );
+    #     }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.template <- DF.pdata.with.nodeID;
@@ -62,8 +57,8 @@ compute_AIC <- function(
         repweights       = "internal.repweight[0-9]+",
         combined.weights = combined.weights
         );
-    cat("\nstr(template.svrepdesign)\n");
-    print( str(template.svrepdesign)   );
+    base::cat("\nstr(template.svrepdesign)\n");
+    base::print( str(template.svrepdesign)   );
 
     template.results.svyby <- survey::svyby(
         design  = template.svrepdesign,
@@ -72,15 +67,52 @@ compute_AIC <- function(
         FUN     = svytotal, # svymean # svyvar
         vartype = "var" # c("se","ci","ci","cv","cvpct","var")
         );
-    # cat("\nstr(template.results.svyby)\n");
-    # print( str(template.results.svyby)   );
+    # base::cat("\nstr(template.results.svyby)\n");
+    # base::print( str(template.results.svyby)   );
 
-    cat("\ntemplate.results.svyby\n");
-    print( template.results.svyby   );
+    base::cat("\ntemplate.results.svyby\n");
+    base::print( template.results.svyby   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    base::cat("\nDF.leaves\n");
+    base::print( DF.leaves   );
+
+    DF.leaves <- base::merge(
+        x     = DF.leaves,
+        y     = template.results.svyby,
+        by    = "nodeID",
+        all.x = TRUE,
+        sort  = TRUE
+        );
+
+    base::cat("\nDF.leaves\n");
+    base::print( DF.leaves   );
+
+    DF.leaves[,'trace.summand'] <- base::apply(
+        X      = DF.leaves[,c('p.weight','propensity','var')],
+        MARGIN = 1,
+        FUN    = function(x) { return( x[2] * x[3] / (x[1]*(1-x[2])) ) }
+        );
+
+    base::cat("\nDF.leaves\n");
+    base::print( DF.leaves   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    likelihood.estimate <- base::sum(DF.leaves[,'likelihood.summand']);
+    base::cat("\nlikelihood.estimate\n");
+    base::print( likelihood.estimate   );
+
+    trace.term <- base::sum(DF.leaves[,'trace.summand']);
+    base::cat("\ntrace.term\n");
+    base::print( trace.term   );
+
+    output.AIC <- 2 * (base::nrow(DF.leaves) + trace.term - likelihood.estimate);
+    base::cat("\noutput.AIC\n");
+    base::print( output.AIC   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     base::cat(base::paste0("\n# ",thisFunctionName,"() quits."));
     base::cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
-    base::return( NULL );
+    base::return( output.AIC );
 
     }

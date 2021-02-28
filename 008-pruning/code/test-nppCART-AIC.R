@@ -174,7 +174,7 @@ test.nppCART.AIC <- function(
         DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
         sampling.weight.varname   = "design.weight",
         replicate.weight.varnames = paste0("repweight",seq(1,500)),
-        combined.weights          = TRUE
+        combined.weights          = FALSE # TRUE
         );
 
     cat("\nstr(my.AIC)\n");
