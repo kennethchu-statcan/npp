@@ -1052,10 +1052,12 @@ R6_nppCART <- R6::R6Class(
             list.subtrees <- base::list();
             list.subtrees[[index.subtree]] <- base::list(
                 alpha           = 0,
+                DF_compute_g    = NULL,
                 nodes_untouched = DF.nodes[,"nodeID"],
                 nodes_pruned_at = c(),
                 nodes_removed   = c(),
-                subtree         = DF.nodes
+                DF_pruned_at    = NULL,
+                DF_retained     = DF.nodes
                 );
             DF.temp <- DF.nodes;
             while ( base::nrow(DF.temp) > 1 ) {

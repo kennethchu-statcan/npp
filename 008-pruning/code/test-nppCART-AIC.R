@@ -136,7 +136,8 @@ test.nppCART.AIC <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    for ( index.subtree in seq(2,length(my.nppCART.subtree.hierarchy)) ) {
+    DF.AICs <- data.frame(index.subtree = numeric(), AIC = numeric());
+    for ( index.subtree in seq(1,length(my.nppCART.subtree.hierarchy)) ) {
 
         cat("\n")
         cat(paste0("\n### index.subtree: ",index.subtree,"\n"));
@@ -180,7 +181,13 @@ test.nppCART.AIC <- function(
 
         print( paste0('\n# index.subtree = ',index.subtree,', my.AIC = ',my.AIC,"\n")   );
 
+        DF.AICs <- rbind(DF.AICs,data.frame(index.subtree = index.subtree, AIC = my.AIC));
+
         }
+
+    png("plot-AICs.png");
+    plot(x = DF.AICs[,'index.subtree'], y = DF.AICs[,'AIC']);
+    dev.off();
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
