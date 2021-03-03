@@ -178,14 +178,26 @@ test.nppCART.AIC <- function(
             combined.weights          = FALSE # TRUE
             );
 
-        print( paste0('\n# index.subtree = ',index.subtree,', my.AIC = ',my.AIC,"\n")   );
+        my.nppCART.AIC <- my.nppCART.subtree.hierarchy[[index.subtree]][['AIC']];
 
-        DF.AICs <- rbind(DF.AICs,data.frame(index.subtree = index.subtree, AIC = my.AIC));
+        cat(paste0('\n# index.subtree = ',index.subtree,', my.AIC = ',my.AIC,", my.nppCART.AIC = ",my.nppCART.AIC,"\n"));
+
+        DF.AICs <- rbind(
+            DF.AICs,
+            data.frame(index.subtree = index.subtree, my.AIC = my.AIC, nppCART.AIC = my.nppCART.AIC)
+            );
 
         }
 
-    png("plot-AICs.png");
-    plot(x = DF.AICs[,'index.subtree'], y = DF.AICs[,'AIC']);
+    cat("\nDF.AICs\n");
+    print( DF.AICs   );
+
+    png("plot-my-AICs.png");
+    plot(x = DF.AICs[,'index.subtree'], y = DF.AICs[,'my.AIC']);
+    dev.off();
+
+    png("plot-nppCART-AICs.png");
+    plot(x = DF.AICs[,'index.subtree'], y = DF.AICs[,'nppCART.AIC']);
     dev.off();
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
