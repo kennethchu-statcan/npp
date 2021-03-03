@@ -11,8 +11,6 @@ test.nppCART.AIC <- function(
     cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.population <- test.nppCART_get.population(seed = seed);
     list.samples  <- test.nppCART_get.samples(
         DF.population         = DF.population,
@@ -48,13 +46,14 @@ test.nppCART.AIC <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.nppCART <- nppCART(
-        np.data       = list.samples[['DF.non.probability']],
-        p.data        = DF.probability,
-        predictors    = c("x1","x2"),
-        weight        = "design.weight",
-        min.cell.size = 1,
-        min.impurity  = 1e-9,
-        max.levels    = 10000
+        np.data           = list.samples[['DF.non.probability']],
+        p.data            = DF.probability,
+        predictors        = c("x1","x2"),
+        weight            = "design.weight",
+        bootstrap.weights = paste0("repweight",seq(1,n.replicates)),
+        min.cell.size     = 1,
+        min.impurity      = 1e-9,
+        max.levels        = 10000
         );
 
     my.nppCART$grow();
