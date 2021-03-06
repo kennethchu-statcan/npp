@@ -193,18 +193,18 @@ R6_nppCART <- R6::R6Class(
         min.impurity      = NULL,
         max.levels        = NULL,
 
-        # attributes
-        predictors_factor         = NULL,
-        predictors_ordered_factor = NULL,
-        predictors_numeric        = NULL,
-
-        nodes = NULL,
-        subtree.hierarchy = NULL,
-
-        np.syntheticID = NULL,
-         p.syntheticID = NULL,
-
-        estimatedPopulationSize = NULL,
+        # # attributes
+        # predictors_factor         = NULL,
+        # predictors_ordered_factor = NULL,
+        # predictors_numeric        = NULL,
+        #
+        # nodes = NULL,
+        # subtree.hierarchy = NULL,
+        #
+        # np.syntheticID = NULL,
+        #  p.syntheticID = NULL,
+        #
+        # estimatedPopulationSize = NULL,
 
         initialize = function(
             predictors = base::colnames(np.data),
@@ -301,42 +301,42 @@ R6_nppCART <- R6::R6Class(
                     }
                 }
 
-            self$predictors_ordered_factor  <- self$predictors[base::sapply(X = self$np.data[1,self$predictors], FUN = function(x) { return( base::is.factor(x) & base::is.ordered(x) ) } )]
+            private$predictors_ordered_factor  <- self$predictors[base::sapply(X = self$np.data[1,self$predictors], FUN = function(x) { return( base::is.factor(x) & base::is.ordered(x) ) } )]
 
             # convert ordered factors to numeric values (corresponding to their index in the list of levels)
-            for (temp.colname in self$predictors_ordered_factor) {
+            for (temp.colname in private$predictors_ordered_factor) {
                 self$np.data[,temp.colname] <- base::unlist(base::lapply(X = self$np.data[,temp.colname], FUN = function(x) { return(base::match(x, base::levels(self$np.data[,temp.colname]))) }))
                 self$p.data[,temp.colname]  <- base::unlist(base::lapply(X = self$p.data[,temp.colname], FUN = function(x) { return(base::match(x, base::levels(self$p.data[,temp.colname]))) }))
                 }
 
-            self$predictors_factor  <- self$predictors[base::sapply(X = self$np.data[1,self$predictors], FUN = function(x) { return( base::is.factor(x) & !base::is.ordered(x) ) } )]
-            self$predictors_numeric <- self$predictors[base::sapply(X = self$np.data[1,self$predictors], FUN = base::is.numeric)]
+            private$predictors_factor  <- self$predictors[base::sapply(X = self$np.data[1,self$predictors], FUN = function(x) { return( base::is.factor(x) & !base::is.ordered(x) ) } )]
+            private$predictors_numeric <- self$predictors[base::sapply(X = self$np.data[1,self$predictors], FUN = base::is.numeric)]
 
             #str(self$np.data)
-            #print(self$predictors_ordered_factor)
-            #print(self$predictors_factor)
-            #print(self$predictors_numeric)
+            #print(private$predictors_ordered_factor)
+            #print(private$predictors_factor)
+            #print(private$predictors_numeric)
 
             # test if the max number of levels has been exceeded
-            if( base::length(self$predictors_factor) > 0 ) {
-                base::stopifnot(  base::max(base::unlist(base::lapply(X = self$np.data[,self$predictors_factor], FUN = function(x) { return( base::length(base::levels(x)) ) }))) <= self$max.levels  ) # testing factors in np.data
-                base::stopifnot(  base::max(base::unlist(base::lapply(X = self$p.data[,self$predictors_factor], FUN = function(x) { return( base::length(base::levels(x)) ) }))) <= self$max.levels  ) # testing factors in p.data
+            if( base::length(private$predictors_factor) > 0 ) {
+                base::stopifnot(  base::max(base::unlist(base::lapply(X = self$np.data[,private$predictors_factor], FUN = function(x) { return( base::length(base::levels(x)) ) }))) <= self$max.levels  ) # testing factors in np.data
+                base::stopifnot(  base::max(base::unlist(base::lapply(X = self$p.data[,private$predictors_factor], FUN = function(x) { return( base::length(base::levels(x)) ) }))) <= self$max.levels  ) # testing factors in p.data
             }
 
             # add custom row ID:
-            self$np.syntheticID <- base::paste0(base::sample(x=letters,size=10,replace=TRUE),collapse="");
-            self$np.data[,self$np.syntheticID] <- base::seq(1,base::nrow(self$np.data));
+            private$np.syntheticID <- base::paste0(base::sample(x=letters,size=10,replace=TRUE),collapse="");
+            self$np.data[,private$np.syntheticID] <- base::seq(1,base::nrow(self$np.data));
 
-            self$p.syntheticID <- base::paste0(base::sample(x=letters,size=10,replace=TRUE),collapse="");
-            self$p.data[,self$p.syntheticID] <- base::seq(1,base::nrow(self$p.data));
+            private$p.syntheticID <- base::paste0(base::sample(x=letters,size=10,replace=TRUE),collapse="");
+            self$p.data[,private$p.syntheticID] <- base::seq(1,base::nrow(self$p.data));
 
-            self$estimatedPopulationSize <- base::sum(self$p.data[,self$weight]);
+            private$estimatedPopulationSize <- base::sum(self$p.data[,self$weight]);
 
             },
 
         grow = function() {
 
-            self$nodes <- list();
+            private$nodes <- list();
             lastNodeID <- 0;
 
             workQueue <- list(
@@ -344,8 +344,8 @@ R6_nppCART <- R6::R6Class(
                     parentID  = -1,
                     nodeID    = lastNodeID,
                     depth     = 0,
-                    np.rowIDs = self$np.data[,self$np.syntheticID],
-                     p.rowIDs =  self$p.data[, self$p.syntheticID]
+                    np.rowIDs = self$np.data[,private$np.syntheticID],
+                     p.rowIDs =  self$p.data[, private$p.syntheticID]
                     )
                 );
 
@@ -365,8 +365,8 @@ R6_nppCART <- R6::R6Class(
                     #cat("\n# ~~~~~~~~~~ #")
                     #cat("\ncurrentNodeID\n");
                     #print( currentNodeID   );
-                    #np.subset <- self$np.data[self$np.data[,self$np.syntheticID] %in% np.currentRowIDs,];
-                    # p.subset <-  self$p.data[ self$p.data[, self$p.syntheticID] %in%  p.currentRowIDs,];
+                    #np.subset <- self$np.data[self$np.data[,private$np.syntheticID] %in% np.currentRowIDs,];
+                    # p.subset <-  self$p.data[ self$p.data[, private$p.syntheticID] %in%  p.currentRowIDs,];
                     #cat("\nnp.subset\n");
                     #print( np.subset   );
                     #cat("\np.subset\n");
@@ -375,8 +375,8 @@ R6_nppCART <- R6::R6Class(
                     #print( private$npp_impurity(np.rowIDs = np.currentRowIDs, p.rowIDs = p.currentRowIDs) )
                     #cat("# ~~~~~~~~~~ #\n")
                     #print(paste0("stoppingCriterionSatisfied: nodeID - ", currentNodeID))
-                    self$nodes <- private$push(
-                        list = self$nodes,
+                    private$nodes <- private$push(
+                        list = private$nodes,
                         x    = private$node$new(
                             nodeID    = currentNodeID,
                             parentID  = currentParentID,
@@ -397,8 +397,8 @@ R6_nppCART <- R6::R6Class(
 
                     if ( base::is.null(bestSplit) ) {
                         #print(paste0("null bestSplit: nodeID - ", currentNodeID))
-                        self$nodes <- private$push(
-                            list = self$nodes,
+                        private$nodes <- private$push(
+                            list = private$nodes,
                             x = private$node$new(
                                 nodeID    = currentNodeID,
                                 parentID  = currentParentID,
@@ -413,23 +413,23 @@ R6_nppCART <- R6::R6Class(
 
                         #print(paste0("valid bestSplit: nodeID - ", currentNodeID))
 
-                        np.satisfied <- self$np.data[self$np.data[,self$np.syntheticID] %in% np.currentRowIDs,self$np.syntheticID][
+                        np.satisfied <- self$np.data[self$np.data[,private$np.syntheticID] %in% np.currentRowIDs,private$np.syntheticID][
                             bestSplit$comparison(
-                                self$np.data[self$np.data[,self$np.syntheticID] %in% np.currentRowIDs,bestSplit$varname],
+                                self$np.data[self$np.data[,private$np.syntheticID] %in% np.currentRowIDs,bestSplit$varname],
                                 bestSplit$threshold
                                 )
                             ];
                         np.notSatisfied <- base::sort(base::setdiff(np.currentRowIDs,np.satisfied));
 
-                        p.satisfied <- self$p.data[self$p.data[,self$p.syntheticID] %in% p.currentRowIDs,self$p.syntheticID][
+                        p.satisfied <- self$p.data[self$p.data[,private$p.syntheticID] %in% p.currentRowIDs,private$p.syntheticID][
                             bestSplit$comparison(
-                                self$p.data[self$p.data[,self$p.syntheticID] %in% p.currentRowIDs,bestSplit$varname],
+                                self$p.data[self$p.data[,private$p.syntheticID] %in% p.currentRowIDs,bestSplit$varname],
                                 bestSplit$threshold
                                 )
                             ];
                         p.notSatisfied <- base::sort(base::setdiff(p.currentRowIDs,p.satisfied));
 
-                        # adding 2 here to make ordering of nodeID agree with the order of appearance in self$nodes
+                        # adding 2 here to make ordering of nodeID agree with the order of appearance in private$nodes
                         lastNodeID          <- lastNodeID + 2;
                         notSatisfiedChildID <- lastNodeID;
                         workQueue           <- private$push(
@@ -443,12 +443,12 @@ R6_nppCART <- R6::R6Class(
                                 birthCriterion = private$birthCriterion$new(
                                     varname    = bestSplit$varname,
                                     threshold  = bestSplit$threshold,
-                                    comparison = base::ifelse(bestSplit$varname %in% self$predictors_factor,"!=",">=")
+                                    comparison = base::ifelse(bestSplit$varname %in% private$predictors_factor,"!=",">=")
                                     )
                                 )
                             );
 
-                        # subtracting 1 here to make ordering of nodeID agree with the order of appearance in self$nodes
+                        # subtracting 1 here to make ordering of nodeID agree with the order of appearance in private$nodes
                         lastNodeID       <- lastNodeID - 1;
                         satisfiedChildID <- lastNodeID;
                         workQueue        <- private$push(
@@ -462,18 +462,18 @@ R6_nppCART <- R6::R6Class(
                                 birthCriterion = private$birthCriterion$new(
                                     varname    = bestSplit$varname,
                                     threshold  = bestSplit$threshold,
-                                    comparison = base::ifelse(bestSplit$varname %in% self$predictors_factor,"=","<")
+                                    comparison = base::ifelse(bestSplit$varname %in% private$predictors_factor,"=","<")
                                     ),
                                 )
                             );
-                        # adding 1 here to make ordering of nodeID agree with the order of appearance in self$nodes
+                        # adding 1 here to make ordering of nodeID agree with the order of appearance in private$nodes
                         lastNodeID <- lastNodeID + 1;
 
                         #cat("\n# ~~~~~~~~~~ #")
                         #cat("\ncurrentNodeID\n");
                         #print( currentNodeID   );
-                        #np.subset <- self$np.data[self$np.data[,self$np.syntheticID] %in% np.currentRowIDs,];
-                        # p.subset <-  self$p.data[ self$p.data[, self$p.syntheticID] %in%  p.currentRowIDs,];
+                        #np.subset <- self$np.data[self$np.data[,private$np.syntheticID] %in% np.currentRowIDs,];
+                        # p.subset <-  self$p.data[ self$p.data[, private$p.syntheticID] %in%  p.currentRowIDs,];
                         #cat("\nnp.subset\n");
                         #print( np.subset   );
                         #cat("\np.subset\n");
@@ -482,8 +482,8 @@ R6_nppCART <- R6::R6Class(
                         #print( private$npp_impurity(np.rowIDs = np.currentRowIDs, p.rowIDs = p.currentRowIDs) )
                         #cat("# ~~~~~~~~~~ #\n")
 
-                        self$nodes <- private$push(
-                            list = self$nodes,
+                        private$nodes <- private$push(
+                            list = private$nodes,
                             x = private$node$new(
                                 nodeID    = currentNodeID,
                                 parentID  = currentParentID,
@@ -514,39 +514,51 @@ R6_nppCART <- R6::R6Class(
         print = function(
             FUN.format = function(x) { return(x) }
             ) {
-            if ( 0 == base::length(self$nodes) ) {
+            if ( 0 == base::length(private$nodes) ) {
                 base::cat("\nlist of nodes is empty.\n")
                 }
             else {
-                for ( i in base::seq(1,base::length(self$nodes)) ) {
-                    self$nodes[[i]]$print_node(FUN.format = FUN.format);
+                for ( i in base::seq(1,base::length(private$nodes)) ) {
+                    private$nodes[[i]]$print_node(FUN.format = FUN.format);
                     }
                 base::cat("\n");
                 }
             },
 
+        get_nodes = function() {
+            if ( base::is.null(private$nodes) ) { self$grow() }
+            return( private$nodes );
+            },
+
+        get_subtree_hierarchy = function() {
+            if ( base::is.null(private$subtree.hierarchy) ) {
+                private$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
+                }
+            return( private$subtree.hierarchy );
+            },
+
         get_npdata_with_propensity = function() {
-            if ( base::is.null(self$nodes) ) { self$grow() }
-            DF.output <- private$private_get_npdata_with_propensity(nodes = self$nodes);
+            if ( base::is.null(private$nodes) ) { self$grow() }
+            DF.output <- private$private_get_npdata_with_propensity(nodes = private$nodes);
             if ( base::nrow(DF.output) > 0 & !base::is.null(self$bootstrap.weights) ) {
-                if ( base::is.null(self$subtree.hierarchy) ) {
-                    self$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
+                if ( base::is.null(private$subtree.hierarchy) ) {
+                    private$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
                     }
-                temp.AICs <- base::sapply(X = self$subtree.hierarchy, FUN = function(x) return(x[['AIC']]));
+                temp.AICs <- base::sapply(X = private$subtree.hierarchy, FUN = function(x) return(x[['AIC']]));
                 index.optimal.subtree <- base::which( temp.AICs == base::min(temp.AICs) );
-                DF.output.pruned <- self$subtree.hierarchy[[index.optimal.subtree]][['npdata_with_propensity']];
-                DF.output.pruned <- DF.output.pruned[,base::c(self$np.syntheticID,'nodeID','propensity','np.count','p.weight','impurity')];
+                DF.output.pruned <- private$subtree.hierarchy[[index.optimal.subtree]][['npdata_with_propensity']];
+                DF.output.pruned <- DF.output.pruned[,base::c(private$np.syntheticID,'nodeID','propensity','np.count','p.weight','impurity')];
                 base::colnames(DF.output.pruned) <- base::sapply(
                     X   = base::colnames(DF.output.pruned),
-                    FUN = function(x) { base::return(base::ifelse(x == self$np.syntheticID,x,paste0(x,'.pruned'))) }
+                    FUN = function(x) { base::return(base::ifelse(x == private$np.syntheticID,x,paste0(x,'.pruned'))) }
                     );
                 DF.output <- base::merge(
                     x  = DF.output,
                     y  = DF.output.pruned,
-                    by = self$np.syntheticID
+                    by = private$np.syntheticID
                     );
                 }
-            DF.output <- DF.output[,base::setdiff(base::colnames(DF.output),self$np.syntheticID)];
+            DF.output <- DF.output[,base::setdiff(base::colnames(DF.output),private$np.syntheticID)];
             return( DF.output );
             },
 
@@ -555,35 +567,28 @@ R6_nppCART <- R6::R6Class(
                 base::warning("No bootstrap weight column names were supplied; NULL is returned for data frame of alphas and AICs.");
                 return(NULL);
                 }
-            if ( base::is.null(self$subtree.hierarchy) ) {
-                self$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
+            if ( base::is.null(private$subtree.hierarchy) ) {
+                private$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
                 }
             DF.output <- base::data.frame(
-                index.subtree = base::seq(1,base::length(self$subtree.hierarchy)),
+                index.subtree = base::seq(1,base::length(private$subtree.hierarchy)),
                 alpha = base::as.numeric(base::sapply(
-                    X   = self$subtree.hierarchy,
+                    X   = private$subtree.hierarchy,
                     FUN = function(x) { return(x[['alpha']]) }
                     )),
                 AIC = base::as.numeric(base::sapply(
-                    X   = self$subtree.hierarchy,
+                    X   = private$subtree.hierarchy,
                     FUN = function(x) { return(x[['AIC']]) }
                     ))
                 );
             return( DF.output );
             },
 
-        public_nodes_to_table = function(nodes = self$nodes) {
+        public_nodes_to_table = function(nodes = private$nodes) {
             return( private$nodes_to_table(nodes = nodes) );
             },
 
-        public_get_subtree_hierarchy = function() {
-            if ( base::is.null(self$subtree.hierarchy) ) {
-                self$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
-                }
-            return( self$subtree.hierarchy );
-            },
-
-        public_nprow_to_leafID = function(nodes = self$nodes) {
+        public_nprow_to_leafID = function(nodes = private$nodes) {
             return( private$nprow_to_leafID(nodes = nodes) );
             }
 
@@ -591,6 +596,20 @@ R6_nppCART <- R6::R6Class(
 
     private = list(
 
+        # attributes
+        predictors_factor         = NULL,
+        predictors_ordered_factor = NULL,
+        predictors_numeric        = NULL,
+
+        nodes = NULL,
+        subtree.hierarchy = NULL,
+
+        np.syntheticID = NULL,
+         p.syntheticID = NULL,
+
+        estimatedPopulationSize = NULL,
+
+        # methods
         pop = function(list, i = base::length(list), envir = NULL) {
             base::stopifnot(base::inherits(list, "list"))
             if (0 == base::length(list)) { return(NULL); }
@@ -611,7 +630,7 @@ R6_nppCART <- R6::R6Class(
                 return(TRUE);
             }
 
-            estimatedCellPopulationSize <- base::sum(self$p.data[self$p.data[,self$p.syntheticID] %in%  p.rowIDs,self$weight]);
+            estimatedCellPopulationSize <- base::sum(self$p.data[self$p.data[,private$p.syntheticID] %in%  p.rowIDs,self$weight]);
             if ( estimatedCellPopulationSize < length(np.rowIDs) ) {
                 #print("estimatedCellPopulationSize < length(np.rowIDs)")
                 return(TRUE);
@@ -628,8 +647,8 @@ R6_nppCART <- R6::R6Class(
             },
 
         get_descendants = function(nodeIDs = NULL, nodeID = NULL) {
-            nodes <- self$nodes[base::unlist(base::lapply(
-                X   = self$nodes,
+            nodes <- private$nodes[base::unlist(base::lapply(
+                X   = private$nodes,
                 FUN = function(x) { return( x$nodeID %in% nodeIDs) }
                 ))];
             temp <- base::unlist(base::lapply(X = nodes, FUN = function(x) { return( nodeID == x$nodeID ) }));
@@ -656,49 +675,49 @@ R6_nppCART <- R6::R6Class(
                 }
             },
 
-        nprow_to_leafID = function(nodes = self$nodes) {
+        nprow_to_leafID = function(nodes = private$nodes) {
             if ( 0 == base::length(nodes) ) {
                 base::cat("\nThe supplied list of nodes is empty.\n")
                 return( NULL );
                 }
             nNodes <- base::length(nodes);
             DF.output <- data.frame(x = numeric(0), y = numeric(0));
-            base::colnames(DF.output) <- base::c(self$np.syntheticID,"nodeID");
+            base::colnames(DF.output) <- base::c(private$np.syntheticID,"nodeID");
             for ( i in base::seq(1,nNodes) ) {
                 if ( base::is.null(nodes[[i]]$satisfiedChildID) ) {
                     DF.temp <- data.frame(
                         x = nodes[[i]]$np.rowIDs,
                         y = base::rep(x = nodes[[i]]$nodeID, times = base::length(nodes[[i]]$np.rowIDs))
                         );
-                    base::colnames(DF.temp) <- base::c(self$np.syntheticID,"nodeID");
+                    base::colnames(DF.temp) <- base::c(private$np.syntheticID,"nodeID");
                     DF.output <- base::rbind(DF.output,DF.temp);
                     }
                 }
             return( DF.output );
             },
 
-        prow_to_leafID = function(nodes = self$nodes) {
+        prow_to_leafID = function(nodes = private$nodes) {
             if ( 0 == base::length(nodes) ) {
                 base::cat("\nThe supplied list of nodes is empty.\n")
                 return( NULL );
                 }
             nNodes <- base::length(nodes);
             DF.output <- data.frame(x = numeric(0), y = numeric(0));
-            base::colnames(DF.output) <- base::c(self$p.syntheticID,"nodeID");
+            base::colnames(DF.output) <- base::c(private$p.syntheticID,"nodeID");
             for ( i in base::seq(1,nNodes) ) {
                 if ( base::is.null(nodes[[i]]$satisfiedChildID) ) {
                     DF.temp <- data.frame(
                         x = nodes[[i]]$p.rowIDs,
                         y = base::rep(x = nodes[[i]]$nodeID, times = base::length(nodes[[i]]$p.rowIDs))
                         );
-                    base::colnames(DF.temp) <- base::c(self$p.syntheticID,"nodeID");
+                    base::colnames(DF.temp) <- base::c(private$p.syntheticID,"nodeID");
                     DF.output <- base::rbind(DF.output,DF.temp);
                     }
                 }
             return( DF.output );
             },
 
-        nodes_to_table = function(nodes = self$nodes) {
+        nodes_to_table = function(nodes = private$nodes) {
             if ( 0 == base::length(nodes) ) {
                 base::cat("\nThe supplied list of nodes is empty.\n")
                 return( NULL );
@@ -723,10 +742,10 @@ R6_nppCART <- R6::R6Class(
                 DF.output[i,'nodeID'  ]   <- nodes[[i]]$nodeID;
                 DF.output[i,'depth'   ]   <- nodes[[i]]$depth;
                 DF.output[i,'np.count']   <- base::length(nodes[[i]]$np.rowIDs);
-                DF.output[i,'p.weight']   <- base::sum(self$p.data[self$p.data[,self$p.syntheticID] %in% nodes[[i]]$p.rowIDs,self$weight]);
+                DF.output[i,'p.weight']   <- base::sum(self$p.data[self$p.data[,private$p.syntheticID] %in% nodes[[i]]$p.rowIDs,self$weight]);
                 DF.output[i,'impurity']   <- nodes[[i]]$impurity;
                 DF.output[i,'propensity'] <- DF.output[i,'np.count'] / DF.output[i,'p.weight'];
-                DF.output[i,'riskWgtd']   <- DF.output[i,'impurity'] * DF.output[i,'p.weight'] / self$estimatedPopulationSize;
+                DF.output[i,'riskWgtd']   <- DF.output[i,'impurity'] * DF.output[i,'p.weight'] / private$estimatedPopulationSize;
                 DF.output[i,'riskLeaves'] <- 0;
                 DF.output[i,'nLeaves']    <- 0;
                 DF.output[i,'parentID']   <- nodes[[i]]$parentID;
@@ -747,11 +766,11 @@ R6_nppCART <- R6::R6Class(
         get_best_split = function(np.currentRowIDs,p.currentRowIDs) {
             uniqueVarValuePairs_factor  <- list();
             uniqueVarValuePairs_numeric <- list();
-            if (base::length(self$predictors_factor) > 0) {
+            if (base::length(private$predictors_factor) > 0) {
                 temp.list <- base::as.list(private$get_non_constant_columns(
                     DF.input       = self$np.data,
                     currentRowIDs  = np.currentRowIDs,
-                    input.colnames = self$predictors_factor
+                    input.colnames = private$predictors_factor
                     ));
                 if (base::length(temp.list) > 0) {
                     uniqueVarValuePairs_factor <- private$get_var_value_pairs(
@@ -763,11 +782,11 @@ R6_nppCART <- R6::R6Class(
                         );
                     }
                 }
-            if (base::length(self$predictors_numeric) > 0) {
+            if (base::length(private$predictors_numeric) > 0) {
                 temp.list <- base::as.list(private$get_non_constant_columns(
                     DF.input       = self$np.data,
                     currentRowIDs  = np.currentRowIDs,
-                    input.colnames = self$predictors_numeric
+                    input.colnames = private$predictors_numeric
                     ));
                 if (base::length(temp.list) > 0) {
                     uniqueVarValuePairs_numeric <- private$get_var_value_pairs(
@@ -786,17 +805,17 @@ R6_nppCART <- R6::R6Class(
                 X   = uniqueVarValuePairs,
                 FUN = function(x) {
 
-                    np.satisfied <- self$np.data[self$np.data[,self$np.syntheticID] %in% np.currentRowIDs,self$np.syntheticID][
+                    np.satisfied <- self$np.data[self$np.data[,private$np.syntheticID] %in% np.currentRowIDs,private$np.syntheticID][
                         x$comparison(
-                            self$np.data[self$np.data[,self$np.syntheticID] %in% np.currentRowIDs,x$varname],
+                            self$np.data[self$np.data[,private$np.syntheticID] %in% np.currentRowIDs,x$varname],
                             x$threshold
                             )
                         ];
                     np.notSatisfied <- base::sort(base::setdiff(np.currentRowIDs,np.satisfied));
 
-                    p.satisfied <- self$p.data[self$p.data[,self$p.syntheticID] %in% p.currentRowIDs,self$p.syntheticID][
+                    p.satisfied <- self$p.data[self$p.data[,private$p.syntheticID] %in% p.currentRowIDs,private$p.syntheticID][
                         x$comparison(
-                            self$p.data[self$p.data[,self$p.syntheticID] %in% p.currentRowIDs,x$varname],
+                            self$p.data[self$p.data[,private$p.syntheticID] %in% p.currentRowIDs,x$varname],
                             x$threshold
                             )
                         ];
@@ -804,18 +823,18 @@ R6_nppCART <- R6::R6Class(
 
                     ##########
                     ##########
-                    # p1 <- base::length(   np.satisfied) / self$estimatedPopulationSize;
-                    # p2 <- base::length(np.notSatisfied) / self$estimatedPopulationSize;
+                    # p1 <- base::length(   np.satisfied) / private$estimatedPopulationSize;
+                    # p2 <- base::length(np.notSatisfied) / private$estimatedPopulationSize;
                     # g1 <- private$npp_impurity(np.rowIDs = np.satisfied,    p.rowIDs =  p.satisfied   );
                     # g2 <- private$npp_impurity(np.rowIDs = np.notSatisfied, p.rowIDs =  p.notSatisfied);
                     # #print(paste0("threshold: ", x$threshold, ", p1: ", p1, ", g1: ", g1, ", p2: ", p2, ", g2: ", g2, ", impurity: ", p1 * g1 + p2 * g2))
                     # return( p1 * g1 + p2 * g2 );
                     ##########
                     ##########
-                    p1 <- sum(self$p.data[self$p.data[,self$p.syntheticID] %in% p.satisfied,   self$weight]);
-                    p2 <- sum(self$p.data[self$p.data[,self$p.syntheticID] %in% p.notSatisfied,self$weight]);
-                    p1 <- p1 / self$estimatedPopulationSize;
-                    p2 <- p2 / self$estimatedPopulationSize;
+                    p1 <- sum(self$p.data[self$p.data[,private$p.syntheticID] %in% p.satisfied,   self$weight]);
+                    p2 <- sum(self$p.data[self$p.data[,private$p.syntheticID] %in% p.notSatisfied,self$weight]);
+                    p1 <- p1 / private$estimatedPopulationSize;
+                    p2 <- p2 / private$estimatedPopulationSize;
                     g1 <- private$npp_impurity(np.rowIDs = np.satisfied,    p.rowIDs =  p.satisfied   );
                     g2 <- private$npp_impurity(np.rowIDs = np.notSatisfied, p.rowIDs =  p.notSatisfied);
                     temp.impurity <- p1 * g1 + p2 * g2;
@@ -837,9 +856,9 @@ R6_nppCART <- R6::R6Class(
             # returns split that corresponds to the minimum impurity (exluding NA values)
             output <- uniqueVarValuePairs[[ base::which.min(impurities[!base::is.na(impurities)]) ]];
 
-            check.np.satisfied <- self$np.data[self$np.data[,self$np.syntheticID] %in% np.currentRowIDs,self$np.syntheticID][
+            check.np.satisfied <- self$np.data[self$np.data[,private$np.syntheticID] %in% np.currentRowIDs,private$np.syntheticID][
                         output$comparison(
-                            self$np.data[self$np.data[,self$np.syntheticID] %in% np.currentRowIDs,output$varname],
+                            self$np.data[self$np.data[,private$np.syntheticID] %in% np.currentRowIDs,output$varname],
                             output$threshold
                             )
                         ];
@@ -854,7 +873,7 @@ R6_nppCART <- R6::R6Class(
             },
 
         get_non_constant_columns = function(DF.input = NULL, currentRowIDs = NULL, input.colnames = NULL) {
-            DF.output <- DF.input[DF.input[,self$np.syntheticID] %in% currentRowIDs,input.colnames];
+            DF.output <- DF.input[DF.input[,private$np.syntheticID] %in% currentRowIDs,input.colnames];
 
             # If length(input.colnames) == 1, then DF.output will be a vector.
             # In that case, cast DF.output into a data frame.
@@ -981,8 +1000,8 @@ R6_nppCART <- R6::R6Class(
             },
 
         npp_impurity = function(np.rowIDs,p.rowIDs) {
-            np.subset <- self$np.data[self$np.data[,self$np.syntheticID] %in% np.rowIDs,];
-             p.subset <-  self$p.data[ self$p.data[, self$p.syntheticID] %in%  p.rowIDs,];
+            np.subset <- self$np.data[self$np.data[,private$np.syntheticID] %in% np.rowIDs,];
+             p.subset <-  self$p.data[ self$p.data[, private$p.syntheticID] %in%  p.rowIDs,];
 
             if ( base::nrow(np.subset) < self$min.cell.size ) { return(Inf); }
             if ( base::nrow( p.subset) < self$min.cell.size ) { return(Inf); }
@@ -1026,9 +1045,9 @@ R6_nppCART <- R6::R6Class(
             ),
 
         order_nodes = function() {
-            if (base::length(self$nodes) > 0) {
-                nodeIDs <- base::as.integer(base::lapply(X = self$nodes, FUN = function(x) { return( x$nodeID ); } ))
-                self$nodes <- self$nodes[base::order(nodeIDs)];
+            if (base::length(private$nodes) > 0) {
+                nodeIDs <- base::as.integer(base::lapply(X = private$nodes, FUN = function(x) { return( x$nodeID ); } ))
+                private$nodes <- private$nodes[base::order(nodeIDs)];
                 return( NULL );
                 }
             },
@@ -1063,7 +1082,7 @@ R6_nppCART <- R6::R6Class(
                 }
             ##### ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #####
             index.subtree <- 1;
-            list.subtrees[[index.subtree]][['pruned_nodes']] <- private$duplicate_nodes(input.nodes = self$nodes);
+            list.subtrees[[index.subtree]][['pruned_nodes']] <- private$duplicate_nodes(input.nodes = private$nodes);
             list.subtrees[[index.subtree]][['npdata_with_propensity']] <- private$private_get_npdata_with_propensity(
                 nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                 );
@@ -1328,7 +1347,7 @@ R6_nppCART <- R6::R6Class(
             return( descendant.nodeIDs );
             },
 
-        private_get_npdata_with_propensity = function(nodes = self$nodes) {
+        private_get_npdata_with_propensity = function(nodes = private$nodes) {
 
             DF.leaf_table <- private$nodes_to_table(nodes = nodes);
             DF.leaf_table <- DF.leaf_table[base::is.na(DF.leaf_table[,'satisfiedChildID']),];
@@ -1350,7 +1369,7 @@ R6_nppCART <- R6::R6Class(
             DF.output <- base::merge(
                 x  = self$np.data,
                 y  = DF.nprow_to_leaf,
-                by = self$np.syntheticID
+                by = private$np.syntheticID
                 );
             # cat("\nDF.output\n");
             # print( DF.output   );
@@ -1358,7 +1377,7 @@ R6_nppCART <- R6::R6Class(
             return( DF.output );
             },
 
-        private_get_pdata_with_nodeID = function(nodes = self$nodes) {
+        private_get_pdata_with_nodeID = function(nodes = private$nodes) {
 
             DF.leaf_table <- private$nodes_to_table(nodes = nodes);
             DF.leaf_table <- DF.leaf_table[base::is.na(DF.leaf_table[,'satisfiedChildID']),];
@@ -1380,9 +1399,9 @@ R6_nppCART <- R6::R6Class(
             DF.output <- base::merge(
                 x  = self$p.data,
                 y  = DF.prow_to_leaf,
-                by = self$p.syntheticID
+                by = private$p.syntheticID
                 );
-            DF.output <- DF.output[,base::setdiff(base::colnames(DF.output),self$p.syntheticID)];
+            DF.output <- DF.output[,base::setdiff(base::colnames(DF.output),private$p.syntheticID)];
             #cat("\nDF.output\n");
             #print( DF.output   );
 
