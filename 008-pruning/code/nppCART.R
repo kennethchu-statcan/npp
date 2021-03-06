@@ -264,7 +264,7 @@ R6_nppCART <- R6::R6Class(
             private$predictors        <- predictors;
             private$np.data           <- np.data;
             private$p.data            <-  p.data;
-            private$weight            <- weight;
+            private$sampling.weight   <- weight;
             private$bootstrap.weights <- bootstrap.weights;
             private$min.cell.size     <- min.cell.size;
             private$min.impurity      <- min.impurity;
@@ -308,7 +308,7 @@ R6_nppCART <- R6::R6Class(
             private$p.syntheticID <- base::paste0(base::sample(x=letters,size=10,replace=TRUE),collapse="");
             private$p.data[,private$p.syntheticID] <- base::seq(1,base::nrow(private$p.data));
 
-            private$estimatedPopulationSize <- base::sum(private$p.data[,private$weight]);
+            private$estimatedPopulationSize <- base::sum(private$p.data[,private$sampling.weight]);
 
             }, # initialize = function()
 
@@ -317,7 +317,7 @@ R6_nppCART <- R6::R6Class(
                 predictors        = private$predictors,
                 np.data           = private$np.data,
                 p.data            = private$p.data,
-                weight            = private$weight,
+                weight            = private$sampling.weight,
                 bootstrap.weights = private$bootstrap.weights,
                 min.cell.size     = private$min.cell.size,
                 min.impurity      = private$min.impurity,
@@ -595,7 +595,7 @@ R6_nppCART <- R6::R6Class(
         predictors        = NULL,
         np.data           = NULL,
          p.data           = NULL,
-        weight            = NULL,
+        sampling.weight   = NULL,
         bootstrap.weights = NULL,
         min.cell.size     = NULL,
         min.impurity      = NULL,
@@ -635,7 +635,7 @@ R6_nppCART <- R6::R6Class(
                 return(TRUE);
             }
 
-            estimatedCellPopulationSize <- base::sum(private$p.data[private$p.data[,private$p.syntheticID] %in%  p.rowIDs,private$weight]);
+            estimatedCellPopulationSize <- base::sum(private$p.data[private$p.data[,private$p.syntheticID] %in%  p.rowIDs,private$sampling.weight]);
             if ( estimatedCellPopulationSize < length(np.rowIDs) ) {
                 #print("estimatedCellPopulationSize < length(np.rowIDs)")
                 return(TRUE);
@@ -747,7 +747,7 @@ R6_nppCART <- R6::R6Class(
                 DF.output[i,'nodeID'  ]   <- nodes[[i]]$nodeID;
                 DF.output[i,'depth'   ]   <- nodes[[i]]$depth;
                 DF.output[i,'np.count']   <- base::length(nodes[[i]]$np.rowIDs);
-                DF.output[i,'p.weight']   <- base::sum(private$p.data[private$p.data[,private$p.syntheticID] %in% nodes[[i]]$p.rowIDs,private$weight]);
+                DF.output[i,'p.weight']   <- base::sum(private$p.data[private$p.data[,private$p.syntheticID] %in% nodes[[i]]$p.rowIDs,private$sampling.weight]);
                 DF.output[i,'impurity']   <- nodes[[i]]$impurity;
                 DF.output[i,'propensity'] <- DF.output[i,'np.count'] / DF.output[i,'p.weight'];
                 DF.output[i,'riskWgtd']   <- DF.output[i,'impurity'] * DF.output[i,'p.weight'] / private$estimatedPopulationSize;
@@ -836,8 +836,8 @@ R6_nppCART <- R6::R6Class(
                     # return( p1 * g1 + p2 * g2 );
                     ##########
                     ##########
-                    p1 <- sum(private$p.data[private$p.data[,private$p.syntheticID] %in% p.satisfied,   private$weight]);
-                    p2 <- sum(private$p.data[private$p.data[,private$p.syntheticID] %in% p.notSatisfied,private$weight]);
+                    p1 <- sum(private$p.data[private$p.data[,private$p.syntheticID] %in% p.satisfied,   private$sampling.weight]);
+                    p2 <- sum(private$p.data[private$p.data[,private$p.syntheticID] %in% p.notSatisfied,private$sampling.weight]);
                     p1 <- p1 / private$estimatedPopulationSize;
                     p2 <- p2 / private$estimatedPopulationSize;
                     g1 <- private$npp_impurity(np.rowIDs = np.satisfied,    p.rowIDs =  p.satisfied   );
@@ -1011,7 +1011,7 @@ R6_nppCART <- R6::R6Class(
             if ( base::nrow(np.subset) < private$min.cell.size ) { return(Inf); }
             if ( base::nrow( p.subset) < private$min.cell.size ) { return(Inf); }
 
-            estimatedPopulationSize <- base::sum(p.subset[,private$weight]);
+            estimatedPopulationSize <- base::sum(p.subset[,private$sampling.weight]);
             if ( 0 == estimatedPopulationSize ) { return( Inf ); }
 
             p <- base::nrow(np.subset) / estimatedPopulationSize;
@@ -1098,7 +1098,7 @@ R6_nppCART <- R6::R6Class(
                 DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],            # DF.retained,
                 DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']], # DF.npdata.with.propensity,
                 DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
-                sampling.weight.varname   = private$weight,
+                sampling.weight.varname   = private$sampling.weight,
                 replicate.weight.varnames = private$bootstrap.weights, # paste0("repweight",seq(1,500)),
                 combined.weights          = FALSE # TRUE
                 );
@@ -1120,7 +1120,7 @@ R6_nppCART <- R6::R6Class(
                     DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],            # DF.retained,
                     DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']], # DF.npdata.with.propensity,
                     DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
-                    sampling.weight.varname   = private$weight,
+                    sampling.weight.varname   = private$sampling.weight,
                     replicate.weight.varnames = private$bootstrap.weights, # paste0("repweight",seq(1,500)),
                     combined.weights          = FALSE # TRUE
                     );
