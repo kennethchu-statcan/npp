@@ -57,9 +57,6 @@ test.nppCART.AIC <- function(
         );
 
     my.nppCART$grow();
-    # cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
-    # my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
-
     cat("\nmy.nppCART$print()\n");
     my.nppCART$print( FUN.format = function(x) { return(format(x = x, digits = 3)) } );
 
@@ -67,7 +64,6 @@ test.nppCART.AIC <- function(
     cat("\nstr(DF.npdata.with.propensity)\n");
     print( str(DF.npdata.with.propensity)   );
 
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.alpha.AIC <- my.nppCART$get_alphas_AICs();
     cat("\nDF.alpha.AIC\n");
     print( DF.alpha.AIC   );
