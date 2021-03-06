@@ -9,7 +9,9 @@ start.proc.time <- proc.time();
 setwd(output.directory);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+require(cowplot);
 require(foreach);
+require(ggplot2);
 require(parallel);
 require(R6);
 require(RColorBrewer);
@@ -22,6 +24,7 @@ files.R <- c(
     'getPopulation.R',
     'get_pruned_nodes.R',
     'getSamples.R',
+    'initializePlot.R',
     'myCART.R',
     'myCART-pruning.R',
     'nppCART.R',

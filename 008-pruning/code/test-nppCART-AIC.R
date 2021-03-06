@@ -69,6 +69,92 @@ test.nppCART.AIC <- function(
     print( DF.alpha.AIC   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.ggplot.alpha <- initializePlot(
+        title    = NULL,
+        subtitle = NULL # paste0(jurisdiction,' COVID-19 daily hospital admissions')
+        );
+
+    my.ggplot.alpha <- my.ggplot.alpha + geom_step(
+        data    = DF.alpha.AIC,
+        mapping = aes(x = alpha, y = index.subtree),
+        alpha   = 0.9,
+        size    = 1.3,
+        colour  = "black"
+        );
+
+    my.ggplot.alpha <- my.ggplot.alpha + scale_y_continuous(
+        limits = NULL,
+        breaks = seq(0,100,1)
+        );
+
+    # PNG.output  <- paste0("plot-alpha.png");
+    # ggsave(
+    #     file   = PNG.output,
+    #     plot   = my.ggplot.alpha,
+    #     dpi    = 300,
+    #     height =   5,
+    #     width  =  10,
+    #     units  = 'in'
+    #     );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.ggplot.AIC <- initializePlot(
+        title    = NULL,
+        subtitle = NULL # paste0(jurisdiction,' COVID-19 daily hospital admissions')
+        );
+
+    my.ggplot.AIC <- my.ggplot.AIC + geom_point(
+        data    = DF.alpha.AIC,
+        mapping = aes(x = AIC, y = index.subtree),
+        alpha   = 0.9,
+        size    = 2.0,
+        colour  = "black"
+        );
+
+    my.ggplot.AIC <- my.ggplot.AIC + geom_line(
+        data        = DF.alpha.AIC,
+        mapping     = aes(x = AIC, y = index.subtree),
+        orientation = "y",
+        alpha       = 0.5,
+        size        = 0.5,
+        colour      = "black"
+        );
+
+    my.ggplot.AIC <- my.ggplot.AIC + scale_y_continuous(
+        limits = NULL,
+        breaks = seq(0,100,1)
+        );
+
+    # PNG.output  <- paste0("plot-AIC.png");
+    # ggsave(
+    #     file   = PNG.output,
+    #     plot   = my.ggplot.AIC,
+    #     dpi    = 300,
+    #     height =   5,
+    #     width  =  10,
+    #     units  = 'in'
+    #     );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.cowplot <- cowplot::plot_grid(
+        my.ggplot.alpha,
+        my.ggplot.AIC,
+        nrow       = 1,
+        align      = "h",
+        rel_widths = c(2,1)
+        );
+
+    PNG.output  <- paste0("plot-alpha-AIC.png");
+    cowplot::ggsave2(
+        file   = PNG.output,
+        plot   = my.cowplot,
+        dpi    = 300,
+        height =   5,
+        width  =  20,
+        units  = 'in'
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.nppCART.subtree.hierarchy <- my.nppCART$get_subtree_hierarchy();
     # cat("\nstr(my.nppCART.subtree.hierarchy)\n");
     # print( str(my.nppCART.subtree.hierarchy)   );
@@ -92,11 +178,6 @@ test.nppCART.AIC <- function(
     #     row.names = FALSE
     #     );
 
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    cat("\nstr(my.nppCART$p.data)\n");
-    print( str(my.nppCART$p.data)   );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     # for ( index.subtree in seq(1,length(my.nppCART.subtree.hierarchy)) ) {
     #
