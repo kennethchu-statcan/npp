@@ -63,19 +63,9 @@ test.nppCART.AIC <- function(
     cat("\nmy.nppCART$print()\n");
     my.nppCART$print( FUN.format = function(x) { return(format(x = x, digits = 3)) } );
 
-    cat("\nls()\n");
-    print( ls()   );
-
-    your.nppCART <- rlang::duplicate(x = my.nppCART, shallow = FALSE);
-
-    cat("\nls()\n");
-    print( ls()   );
-
-    cat("\nbase::.Internal(address(my.nppCART))\n");
-    print( base::.Internal(address(my.nppCART))   );
-
-    cat("\nbase::.Internal(address(your.nppCART))\n");
-    print( base::.Internal(address(your.nppCART))   );
+    DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity();
+    cat("\nstr(DF.npdata.with.propensity)\n");
+    print( str(DF.npdata.with.propensity)   );
 
     my.nppCART.subtree.hierarchy <- my.nppCART$public_get_subtree_hierarchy();
     # cat("\nstr(my.nppCART.subtree.hierarchy)\n");
@@ -86,8 +76,24 @@ test.nppCART.AIC <- function(
         FUN = function(x) { return(x[['alpha']]) }
         ));
 
-    cat("\ntemp.alphas.nppCART.\n");
+    cat("\ntemp.alphas.nppCART\n");
     print( temp.alphas.nppCART   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.alpha.AIC <- data.frame(
+        index.subtree = seq(1,length(my.nppCART.subtree.hierarchy)),
+        alpha = as.numeric(sapply(
+            X   = my.nppCART.subtree.hierarchy,
+            FUN = function(x) { return(x[['alpha']]) }
+            )),
+        AIC = as.numeric(sapply(
+            X   = my.nppCART.subtree.hierarchy,
+            FUN = function(x) { return(x[['AIC']]) }
+            ))
+        );
+
+    cat("\nDF.alpha.AIC\n");
+    print( DF.alpha.AIC   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     # is.self.selected <- (DF.population[,'unit.ID'] %in% list.samples[['DF.non.probability']][,'unit.ID']);
@@ -135,70 +141,70 @@ test.nppCART.AIC <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.AICs <- data.frame(index.subtree = numeric(), AIC = numeric());
-    for ( index.subtree in seq(1,length(my.nppCART.subtree.hierarchy)) ) {
-
-        cat("\n")
-        cat(paste0("\n### index.subtree: ",index.subtree,"\n"));
-
-        cat("\nnames(my.nppCART.subtree.hierarchy[[index.subtree]])\n");
-        print( names(my.nppCART.subtree.hierarchy[[index.subtree]])   );
-
-        DF.retained <- my.nppCART.subtree.hierarchy[[index.subtree]][['DF_retained']];
-        cat("\nDF.retained\n");
-        print( DF.retained   );
-
-        # cat("\nmy.nppCART$nodes\n");
-        # print( my.nppCART$nodes   );
-
-        DF.nprow.to.leafID <- my.nppCART$public_nprow_to_leafID(
-            nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]
-            );
-        cat("\nstr(DF.nprow.to.leafID)\n");
-        print( str(DF.nprow.to.leafID)   );
-
-        DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity(
-            nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]
-            );
-        cat("\nstr(DF.npdata.with.propensity)\n");
-        print( str(DF.npdata.with.propensity)   );
-
-        DF.pdata.with.nodeID <- my.nppCART$get_pdata_with_nodeID(
-            nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]
-            );
-        cat("\nstr(DF.pdata.with.nodeID)\n");
-        print( str(DF.pdata.with.nodeID)   );
-
-        my.AIC <- compute_AIC(
-            DF.retained.nodes         = DF.retained,
-            DF.npdata.with.propensity = DF.npdata.with.propensity,
-            DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
-            sampling.weight.varname   = "design.weight",
-            replicate.weight.varnames = paste0("repweight",seq(1,500)),
-            combined.weights          = FALSE # TRUE
-            );
-
-        my.nppCART.AIC <- my.nppCART.subtree.hierarchy[[index.subtree]][['AIC']];
-
-        cat(paste0('\n# index.subtree = ',index.subtree,', my.AIC = ',my.AIC,", my.nppCART.AIC = ",my.nppCART.AIC,"\n"));
-
-        DF.AICs <- rbind(
-            DF.AICs,
-            data.frame(index.subtree = index.subtree, my.AIC = my.AIC, nppCART.AIC = my.nppCART.AIC)
-            );
-
-        }
-
-    cat("\nDF.AICs\n");
-    print( DF.AICs   );
-
-    png("plot-my-AICs.png");
-    plot(x = DF.AICs[,'index.subtree'], y = DF.AICs[,'my.AIC']);
-    dev.off();
-
-    png("plot-nppCART-AICs.png");
-    plot(x = DF.AICs[,'index.subtree'], y = DF.AICs[,'nppCART.AIC']);
-    dev.off();
+    # DF.AICs <- data.frame(index.subtree = numeric(), AIC = numeric());
+    # for ( index.subtree in seq(1,length(my.nppCART.subtree.hierarchy)) ) {
+    #
+    #     cat("\n")
+    #     cat(paste0("\n### index.subtree: ",index.subtree,"\n"));
+    #
+    #     cat("\nnames(my.nppCART.subtree.hierarchy[[index.subtree]])\n");
+    #     print( names(my.nppCART.subtree.hierarchy[[index.subtree]])   );
+    #
+    #     DF.retained <- my.nppCART.subtree.hierarchy[[index.subtree]][['DF_retained']];
+    #     cat("\nDF.retained\n");
+    #     print( DF.retained   );
+    #
+    #     # cat("\nmy.nppCART$nodes\n");
+    #     # print( my.nppCART$nodes   );
+    #
+    #     DF.nprow.to.leafID <- my.nppCART$public_nprow_to_leafID(
+    #         nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]
+    #         );
+    #     cat("\nstr(DF.nprow.to.leafID)\n");
+    #     print( str(DF.nprow.to.leafID)   );
+    #
+    #     DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity(
+    #         nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]
+    #         );
+    #     cat("\nstr(DF.npdata.with.propensity)\n");
+    #     print( str(DF.npdata.with.propensity)   );
+    #
+    #     DF.pdata.with.nodeID <- my.nppCART$get_pdata_with_nodeID(
+    #         nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]
+    #         );
+    #     cat("\nstr(DF.pdata.with.nodeID)\n");
+    #     print( str(DF.pdata.with.nodeID)   );
+    #
+    #     my.AIC <- compute_AIC(
+    #         DF.retained.nodes         = DF.retained,
+    #         DF.npdata.with.propensity = DF.npdata.with.propensity,
+    #         DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
+    #         sampling.weight.varname   = "design.weight",
+    #         replicate.weight.varnames = paste0("repweight",seq(1,500)),
+    #         combined.weights          = FALSE # TRUE
+    #         );
+    #
+    #     my.nppCART.AIC <- my.nppCART.subtree.hierarchy[[index.subtree]][['AIC']];
+    #
+    #     cat(paste0('\n# index.subtree = ',index.subtree,', my.AIC = ',my.AIC,", my.nppCART.AIC = ",my.nppCART.AIC,"\n"));
+    #
+    #     DF.AICs <- rbind(
+    #         DF.AICs,
+    #         data.frame(index.subtree = index.subtree, my.AIC = my.AIC, nppCART.AIC = my.nppCART.AIC)
+    #         );
+    #
+    #     }
+    #
+    # cat("\nDF.AICs\n");
+    # print( DF.AICs   );
+    #
+    # png("plot-my-AICs.png");
+    # plot(x = DF.AICs[,'index.subtree'], y = DF.AICs[,'my.AIC']);
+    # dev.off();
+    #
+    # png("plot-nppCART-AICs.png");
+    # plot(x = DF.AICs[,'index.subtree'], y = DF.AICs[,'nppCART.AIC']);
+    # dev.off();
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
