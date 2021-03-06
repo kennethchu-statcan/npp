@@ -934,10 +934,6 @@ R6_nppCART <- R6::R6Class(
         is_equal_to = function(x,y) {
             ret <- base::lapply(
                 X   = x,
-                # FUN = function(x) {
-                #     for(element in y) { if(element == x) { return(TRUE) } }
-                #     return(FALSE);
-                #     }
                 FUN = function(z) {
                     for(element in y) { if(element == z) { return(TRUE) } }
                     return(FALSE);
@@ -955,10 +951,6 @@ R6_nppCART <- R6::R6Class(
         npp_impurity = function(np.rowIDs,p.rowIDs) {
             np.subset <- self$np.data[self$np.data[,self$np.syntheticID] %in% np.rowIDs,];
              p.subset <-  self$p.data[ self$p.data[, self$p.syntheticID] %in%  p.rowIDs,];
-
-            #print(self$min.cell.size)
-            #print(base::sum(p.subset[,self$weight]))
-            #print(1 < base::nrow(np.subset) / base::sum(p.subset[,self$weight]))
 
             if ( base::nrow(np.subset) < self$min.cell.size ) { return(Inf); }
             if ( base::nrow( p.subset) < self$min.cell.size ) { return(Inf); }
