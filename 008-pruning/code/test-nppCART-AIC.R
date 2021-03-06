@@ -67,7 +67,13 @@ test.nppCART.AIC <- function(
     cat("\nstr(DF.npdata.with.propensity)\n");
     print( str(DF.npdata.with.propensity)   );
 
-    my.nppCART.subtree.hierarchy <- my.nppCART$public_get_subtree_hierarchy();
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.alpha.AIC <- my.nppCART$get_alphas_AICs();
+    cat("\nDF.alpha.AIC\n");
+    print( DF.alpha.AIC   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.nppCART.subtree.hierarchy <- my.nppCART$get_subtree_hierarchy();
     # cat("\nstr(my.nppCART.subtree.hierarchy)\n");
     # print( str(my.nppCART.subtree.hierarchy)   );
 
@@ -78,22 +84,6 @@ test.nppCART.AIC <- function(
 
     cat("\ntemp.alphas.nppCART\n");
     print( temp.alphas.nppCART   );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.alpha.AIC <- data.frame(
-        index.subtree = seq(1,length(my.nppCART.subtree.hierarchy)),
-        alpha = as.numeric(sapply(
-            X   = my.nppCART.subtree.hierarchy,
-            FUN = function(x) { return(x[['alpha']]) }
-            )),
-        AIC = as.numeric(sapply(
-            X   = my.nppCART.subtree.hierarchy,
-            FUN = function(x) { return(x[['AIC']]) }
-            ))
-        );
-
-    cat("\nDF.alpha.AIC\n");
-    print( DF.alpha.AIC   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     # is.self.selected <- (DF.population[,'unit.ID'] %in% list.samples[['DF.non.probability']][,'unit.ID']);
