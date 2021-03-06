@@ -1095,11 +1095,11 @@ R6_nppCART <- R6::R6Class(
                 nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                 );
             list.subtrees[[index.subtree]][['AIC']] <- private$compute_AIC(
-                DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],            # DF.retained,
-                DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']], # DF.npdata.with.propensity,
+                DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],
+                DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']],
                 DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
                 sampling.weight.varname   = private$sampling.weight,
-                replicate.weight.varnames = private$bootstrap.weights, # paste0("repweight",seq(1,500)),
+                replicate.weight.varnames = private$bootstrap.weights,
                 combined.weights          = FALSE # TRUE
                 );
             ##### ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #####
@@ -1117,11 +1117,11 @@ R6_nppCART <- R6::R6Class(
                     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                     );
                 list.subtrees[[index.subtree]][['AIC']] <- private$compute_AIC(
-                    DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],            # DF.retained,
-                    DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']], # DF.npdata.with.propensity,
+                    DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],
+                    DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']],
                     DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
                     sampling.weight.varname   = private$sampling.weight,
-                    replicate.weight.varnames = private$bootstrap.weights, # paste0("repweight",seq(1,500)),
+                    replicate.weight.varnames = private$bootstrap.weights,
                     combined.weights          = FALSE # TRUE
                     );
                 }
