@@ -49,7 +49,7 @@ test.nppCART.AIC <- function(
         np.data           = list.samples[['DF.non.probability']],
         p.data            = DF.probability,
         predictors        = c("x1","x2"),
-        weight            = "design.weight",
+        sampling.weight   = "design.weight",
         bootstrap.weights = paste0("repweight",seq(1,n.replicates)),
         min.cell.size     = 1,
         min.impurity      = 1e-9,
