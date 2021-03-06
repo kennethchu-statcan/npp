@@ -126,10 +126,11 @@
 #' ### Extract the nppCART-estimated propensities
 #' DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
 #'
-#' @param predictors This parameter corresponds to the auxillary variables on which the partitioning is performed. The input must be a string or vector of strings that contain column names shared by both np.data and p.data. If no value is specified, predictors will be set to all the column names in np.data.
 #' @param np.data This parameter corresponds to the non-probability sample. The input must be a nonempty matrix-like data type (i.e. matrix, dataframe or tibble). A value must be specified here for initialization to be successful.
 #' @param p.data This parameter corresponds to the probability sample. The input must be a nonempty matrix-like data type (i.e. matrix, dataframe or tibble). A value must be specified here for initialization to be successful.
 #' @param weight This parameter corresponds to the column in the probability sample that contains the sampling weights. The input must be a string corresponding to a column name in p.data, such that there are only positive numbers in that column. A value must be specified here for initialization to be successful.
+#' @param bootstrap.weights This parameter corresponds to the columns in the probability sample that contains the bootstrap weights. The input must be a character vector corresponding to a subset of column names in p.data, such that there are only non-negative numbers in these columns.
+#' @param predictors This parameter corresponds to the auxillary variables on which the partitioning is performed. The input must be a string or vector of strings that contain column names shared by both np.data and p.data. If no value is specified, predictors will be set to all the column names in np.data.
 #' @param min.cell.size This parameter corresponds to the minimum number of rows remaining in the probability sample and non-probabilty sample to continue partitioning. The input must be a positive integer. If no value is specified, min.cell.size will be set to 10.
 #' @param min.impurity This parameter corresponds to the minimum impurity calculated in each leaf node to continue partitioning. The input must be a positive number. If no value is specified, min.impurity will be set to 0.095.
 #' @param max.levels This parameter corresponds to the maximum number of levels allowed by each factor in the predictor variables. The input must be a number that is greater than or equal to zero. If no value is specified, max.levels will be set to 10.
@@ -146,10 +147,8 @@
 #' \describe{
 #'  \item{\code{initialize(predictors, np.data, p.data, weight, min.cell.size, min.impurity)}}{This method is called when the R6 class is created (i.e. when nppCART is called). The arguments passed into nppCART are passed into initialize. This method contains input integrity checks to ensure that the arguments meet the required specifications. In addition, the method does some preprocessing of the input data.}
 #'  \item{\code{grow()}}{This method is used to grow a classification tree through recursive binary partitioning of the predictors. It operates in the R6 class internally, and does not have parameters or a return value. This method should be called after the initialization of the class.}
-#'  \item{\code{predict()}}{This method is obsolete and should not be used.}
 #'  \item{\code{get_npdata_with_propensity(nodes)}}{This method returns a dataframe that contains the non-probability sample, with the tree-calculated values. The tree-calculated values include: the unique identifier for each node (called nodeID); the self-selection propensity for each member in the non-probability sample (called propensity); the number of members in the non-probability sample, which belong to each node (called np.count); the sum of the members’ weights in the probability sample, which belong to each node (called p.weight); and the tree impurity of each node (called impurity). There is one parameter, nodes, which is passed in a value internally by default, and should not be modified. This method should be used after calling grow.}
 #'  \item{\code{print()}}{This method is used to print the classification tree in a readable format (each node is on a separate line and indented appropriately). There is one parameter, FUN.format, which is a function that customizes the output format. This method should be used after calling grow.}
-#'  \item{\code{get_pruning_sequence(nodes)}}{This method is obsolete and should not be used.}
 #' }
 #'
 #' @export
@@ -240,10 +239,20 @@ R6_nppCART <- R6::R6Class(
             base::stopifnot(
                 !base::is.null(weight), # must not be NULL
                 base::is.character(weight) & (base::length(weight) == 1), # must be a single string
-                base::length(base::setdiff(weight, base::colnames(p.data))) == 0,  # must correspond to a column name of p.data
+                base::length(base::setdiff(weight,base::colnames(p.data))) == 0,  # must correspond to a column name of p.data
                 base::is.numeric(p.data[,weight]), # corresponding column of p.data must contain only numeric data types
                 base::all(p.data[,weight] > 0)  # all numbers in corresponding column must be positive
                 );
+
+            # test bootstrap weights
+            if ( !base::is.null(bootstrap.weights) ) {
+                base::stopifnot(
+                    base::is.character(bootstrap.weights) & (base::length(bootstrap.weights) > 1), # must be a character vector of length >= 2
+                    base::length(base::setdiff(bootstrap.weights,base::colnames(p.data))) == 0,  # must be a subset of column names of p.data
+                    base::all(base::apply( X = p.data[,bootstrap.weights], MARGIN = 2, FUN = function(x) {return(base::is.numeric(x))} )), # all bootstrap weight columns must be numeric
+                    base::all(p.data[,bootstrap.weights] >= 0)  # all numbers in corresponding column must be non-negative
+                    );
+                }
 
             # test predictors
             base::stopifnot(
@@ -495,10 +504,25 @@ R6_nppCART <- R6::R6Class(
                 }
             # private$order_nodes();
             # return( NULL );
-            },
+            }, # grow = function()
 
-        predict = function() {
-            return( NULL );
+        # predict = function() {
+        #     base::warning("This function is currently un-implemented.");
+        #     return( NULL );
+        #     },
+
+        print = function(
+            FUN.format = function(x) { return(x) }
+            ) {
+            if ( 0 == base::length(self$nodes) ) {
+                base::cat("\nlist of nodes is empty.\n")
+                }
+            else {
+                for ( i in base::seq(1,base::length(self$nodes)) ) {
+                    self$nodes[[i]]$print_node(FUN.format = FUN.format);
+                    }
+                base::cat("\n");
+                }
             },
 
         get_npdata_with_propensity = function() {
@@ -526,18 +550,26 @@ R6_nppCART <- R6::R6Class(
             return( DF.output );
             },
 
-        print = function(
-            FUN.format = function(x) { return(x) }
-            ) {
-            if ( 0 == base::length(self$nodes) ) {
-                base::cat("\nlist of nodes is empty.\n")
+        get_alphas_AICs = function() {
+            if ( base::is.null(self$bootstrap.weights) ) {
+                base::warning("No bootstrap weight column names were supplied; NULL is returned for data frame of alphas and AICs.");
+                return(NULL);
                 }
-            else {
-                for ( i in base::seq(1,base::length(self$nodes)) ) {
-                    self$nodes[[i]]$print_node(FUN.format = FUN.format);
-                    }
-                base::cat("\n");
+            if ( base::is.null(self$subtree.hierarchy) ) {
+                self$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
                 }
+            DF.output <- base::data.frame(
+                index.subtree = base::seq(1,base::length(self$subtree.hierarchy)),
+                alpha = base::as.numeric(base::sapply(
+                    X   = self$subtree.hierarchy,
+                    FUN = function(x) { return(x[['alpha']]) }
+                    )),
+                AIC = base::as.numeric(base::sapply(
+                    X   = self$subtree.hierarchy,
+                    FUN = function(x) { return(x[['AIC']]) }
+                    ))
+                );
+            return( DF.output );
             },
 
         public_nodes_to_table = function(nodes = self$nodes) {
