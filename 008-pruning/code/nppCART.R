@@ -501,65 +501,28 @@ R6_nppCART <- R6::R6Class(
             return( NULL );
             },
 
-        get_npdata_with_propensity = function(nodes = self$nodes) {
-
-            DF.leaf_table <- private$nodes_to_table(nodes = nodes);
-            DF.leaf_table <- DF.leaf_table[base::is.na(DF.leaf_table[,'satisfiedChildID']),];
-            #cat("\nDF.leaf_table\n");
-            #print( DF.leaf_table   );
-
-            DF.nprow_to_leaf <- private$nprow_to_leafID(nodes = nodes);
-            #cat("\nDF.nprow_to_leaf\n");
-            #print( DF.nprow_to_leaf   );
-
-            DF.nprow_to_leaf <- base::merge(
-                x  = DF.nprow_to_leaf,
-                y  = DF.leaf_table[,base::c("nodeID","propensity","np.count","p.weight","impurity")],
-                by = "nodeID"
-                );
-            #cat("\nDF.nprow_to_leaf\n");
-            #print( DF.nprow_to_leaf   );
-
-            DF.output <- base::merge(
-                x  = self$np.data,
-                y  = DF.nprow_to_leaf,
-                by = self$np.syntheticID
-                );
+        get_npdata_with_propensity = function() {
+            if ( base::is.null(self$nodes) ) { self$grow() }
+            DF.output <- private$private_get_npdata_with_propensity(nodes = self$nodes);
+            if ( base::nrow(DF.output) > 0 & !base::is.null(self$bootstrap.weights) ) {
+                if ( base::is.null(self$subtree.hierarchy) ) {
+                    self$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
+                    }
+                temp.AICs <- base::sapply(X = self$subtree.hierarchy, FUN = function(x) return(x[['AIC']]));
+                index.optimal.subtree <- base::which( temp.AICs == base::min(temp.AICs) );
+                DF.output.pruned <- self$subtree.hierarchy[[index.optimal.subtree]][['npdata_with_propensity']];
+                DF.output.pruned <- DF.output.pruned[,base::c(self$np.syntheticID,'nodeID','propensity','np.count','p.weight','impurity')];
+                base::colnames(DF.output.pruned) <- base::sapply(
+                    X   = base::colnames(DF.output.pruned),
+                    FUN = function(x) { base::return(base::ifelse(x == self$np.syntheticID,x,paste0(x,'.pruned'))) }
+                    );
+                DF.output <- base::merge(
+                    x  = DF.output,
+                    y  = DF.output.pruned,
+                    by = self$np.syntheticID
+                    );
+                }
             DF.output <- DF.output[,base::setdiff(base::colnames(DF.output),self$np.syntheticID)];
-            #cat("\nDF.output\n");
-            #print( DF.output   );
-
-            return( DF.output );
-            },
-
-        get_pdata_with_nodeID = function(nodes = self$nodes) {
-
-            DF.leaf_table <- private$nodes_to_table(nodes = nodes);
-            DF.leaf_table <- DF.leaf_table[base::is.na(DF.leaf_table[,'satisfiedChildID']),];
-            #cat("\nDF.leaf_table\n");
-            #print( DF.leaf_table   );
-
-            DF.prow_to_leaf <- private$prow_to_leafID(nodes = nodes);
-            #cat("\nDF.prow_to_leaf\n");
-            #print( DF.prow_to_leaf   );
-
-            DF.prow_to_leaf <- base::merge(
-                x  = DF.prow_to_leaf,
-                y  = DF.leaf_table[,base::c("nodeID","propensity","np.count","p.weight","impurity")],
-                by = "nodeID"
-                );
-            #cat("\nDF.prow_to_leaf\n");
-            #print( DF.prow_to_leaf   );
-
-            DF.output <- base::merge(
-                x  = self$p.data,
-                y  = DF.prow_to_leaf,
-                by = self$p.syntheticID
-                );
-            DF.output <- DF.output[,base::setdiff(base::colnames(DF.output),self$p.syntheticID)];
-            #cat("\nDF.output\n");
-            #print( DF.output   );
-
             return( DF.output );
             },
 
@@ -969,25 +932,18 @@ R6_nppCART <- R6::R6Class(
         # Checks if x is contained in y: useful for checking if factor is in contained in split (combination of factors),
         # but also works for checking numerics and ordered factors (i.e. checking if x == y)
         is_equal_to = function(x,y) {
-            ret <- base::lapply(  X = x,
-                            FUN = function(x) {
-                                for(element in y) {
-                                    if(element == x) {
-                                        return(TRUE)
-                                    }
-                                }
-                                return(FALSE)
-
-                                #print(any(ifelse(input == y, TRUE, FALSE)))
-                                #return(any(ifelse(input == y, TRUE, FALSE)))
-
-                                #print(x %in% y)
-                                #return(x %in% y)
-                            })
-            #print(x %in% y)
-            #return(x %in% y)
-
-            return(base::unlist(ret))
+            ret <- base::lapply(
+                X   = x,
+                # FUN = function(x) {
+                #     for(element in y) { if(element == x) { return(TRUE) } }
+                #     return(FALSE);
+                #     }
+                FUN = function(z) {
+                    for(element in y) { if(element == z) { return(TRUE) } }
+                    return(FALSE);
+                    }
+                );
+            return(base::unlist(ret));
             },
 
         impurity = function(x) {
@@ -1084,10 +1040,10 @@ R6_nppCART <- R6::R6Class(
             ##### ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #####
             index.subtree <- 1;
             list.subtrees[[index.subtree]][['pruned_nodes']] <- private$duplicate_nodes(input.nodes = self$nodes);
-            list.subtrees[[index.subtree]][['npdata_with_propensity']] <- self$get_npdata_with_propensity(
+            list.subtrees[[index.subtree]][['npdata_with_propensity']] <- private$private_get_npdata_with_propensity(
                 nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                 );
-            DF.pdata.with.nodeID <- self$get_pdata_with_nodeID(
+            DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
                 nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                 );
             list.subtrees[[index.subtree]][['AIC']] <- private$compute_AIC(
@@ -1106,10 +1062,10 @@ R6_nppCART <- R6::R6Class(
                     input.nodes  = private$duplicate_nodes(input.nodes = list.subtrees[[index.subtree - 1]][['pruned_nodes']]),
                     pruning.info = list.subtrees[[index.subtree]]
                     );
-                list.subtrees[[index.subtree]][['npdata_with_propensity']] <- self$get_npdata_with_propensity(
+                list.subtrees[[index.subtree]][['npdata_with_propensity']] <- private$private_get_npdata_with_propensity(
                     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                     );
-                DF.pdata.with.nodeID <- self$get_pdata_with_nodeID(
+                DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
                     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                     );
                 list.subtrees[[index.subtree]][['AIC']] <- private$compute_AIC(
@@ -1346,6 +1302,67 @@ R6_nppCART <- R6::R6Class(
                 offspring.nodeIDs  <- setdiff(offspring.nodeIDs,NA);
                 }
             return( descendant.nodeIDs );
+            },
+
+        private_get_npdata_with_propensity = function(nodes = self$nodes) {
+
+            DF.leaf_table <- private$nodes_to_table(nodes = nodes);
+            DF.leaf_table <- DF.leaf_table[base::is.na(DF.leaf_table[,'satisfiedChildID']),];
+            # cat("\nDF.leaf_table\n");
+            # print( DF.leaf_table   );
+
+            DF.nprow_to_leaf <- private$nprow_to_leafID(nodes = nodes);
+            # cat("\nDF.nprow_to_leaf\n");
+            # print( DF.nprow_to_leaf   );
+
+            DF.nprow_to_leaf <- base::merge(
+                x  = DF.nprow_to_leaf,
+                y  = DF.leaf_table[,base::c("nodeID","propensity","np.count","p.weight","impurity")],
+                by = "nodeID"
+                );
+            # cat("\nDF.nprow_to_leaf\n");
+            # print( DF.nprow_to_leaf   );
+
+            DF.output <- base::merge(
+                x  = self$np.data,
+                y  = DF.nprow_to_leaf,
+                by = self$np.syntheticID
+                );
+            # cat("\nDF.output\n");
+            # print( DF.output   );
+
+            return( DF.output );
+            },
+
+        private_get_pdata_with_nodeID = function(nodes = self$nodes) {
+
+            DF.leaf_table <- private$nodes_to_table(nodes = nodes);
+            DF.leaf_table <- DF.leaf_table[base::is.na(DF.leaf_table[,'satisfiedChildID']),];
+            #cat("\nDF.leaf_table\n");
+            #print( DF.leaf_table   );
+
+            DF.prow_to_leaf <- private$prow_to_leafID(nodes = nodes);
+            #cat("\nDF.prow_to_leaf\n");
+            #print( DF.prow_to_leaf   );
+
+            DF.prow_to_leaf <- base::merge(
+                x  = DF.prow_to_leaf,
+                y  = DF.leaf_table[,base::c("nodeID","propensity","np.count","p.weight","impurity")],
+                by = "nodeID"
+                );
+            #cat("\nDF.prow_to_leaf\n");
+            #print( DF.prow_to_leaf   );
+
+            DF.output <- base::merge(
+                x  = self$p.data,
+                y  = DF.prow_to_leaf,
+                by = self$p.syntheticID
+                );
+            DF.output <- DF.output[,base::setdiff(base::colnames(DF.output),self$p.syntheticID)];
+            #cat("\nDF.output\n");
+            #print( DF.output   );
+
+            return( DF.output );
             },
 
         node = R6::R6Class(
