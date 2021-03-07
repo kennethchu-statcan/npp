@@ -227,7 +227,7 @@ R6_nppCART <- R6::R6Class(
                 base::stopifnot(
                     base::is.character(bootstrap.weights) & (base::length(bootstrap.weights) > 1), # must be a character vector of length >= 2
                     base::length(base::setdiff(bootstrap.weights,base::colnames(p.data))) == 0,  # must be a subset of column names of p.data
-                    base::all(base::apply( X = p.data[,bootstrap.weights], MARGIN = 2, FUN = function(x) {return(base::is.numeric(x))} )), # all bootstrap weight columns must be numeric
+                    base::all(base::as.logical(base::lapply( X = p.data[,bootstrap.weights], FUN = function(x) {return(base::is.numeric(x))} ))), # all bootstrap weight columns must be numeric
                     base::all(p.data[,bootstrap.weights] >= 0)  # all numbers in corresponding column must be non-negative
                     );
                 }
