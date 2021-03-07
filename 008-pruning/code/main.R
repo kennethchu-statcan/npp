@@ -17,6 +17,7 @@ require(R6);
 require(RColorBrewer);
 require(rpart);
 require(rpart.plot);
+require(stringr);
 require(survey);
 
 files.R <- c(
@@ -49,8 +50,9 @@ for ( file.R in files.R ) {
 # test.nppCART.sanity(seed = 1234567);
 test.nppCART.AIC(
     seed           = 1234567,
-    prob.selection = 0.1,
-    n.replicates   = 200
+    prob.selection = as.numeric(pi/20), # 0.1570796, 0.1,
+    n.replicates   = 500,
+    n.simulations  = 200
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
