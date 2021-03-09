@@ -41,6 +41,26 @@ test.nppCART.AIC_plot.simulations <- function(
     ) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.histogram.current <- initializePlot(title = NULL, subtitle = NULL);
+    my.histogram.current <- my.histogram.current + geom_vline(
+        xintercept = vline.xintercept,
+        colour     = "orange",
+        size       = 1.00
+        );
+    my.histogram.current <- my.histogram.current + geom_histogram(
+        data     = DF.simulations,
+        mapping  = aes(x = estimate.current),
+        alpha    = 0.5
+        # binwidth = 2000,
+        # fill     = "black",
+        # colour   = NULL
+        );
+    my.histogram.current <- my.histogram.current + scale_x_continuous(
+        limits = c(0,1e6),
+        breaks = seq(0,1e6,1e5)
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.histogram.fully.grown <- initializePlot(title = NULL, subtitle = NULL);
     my.histogram.fully.grown <- my.histogram.fully.grown + geom_vline(
         xintercept = vline.xintercept,
@@ -54,6 +74,10 @@ test.nppCART.AIC_plot.simulations <- function(
         # binwidth = 2000,
         # fill     = "black",
         # colour   = NULL
+        );
+    my.histogram.fully.grown <- my.histogram.fully.grown + scale_x_continuous(
+        limits = c(0,1e6),
+        breaks = seq(0,1e6,1e5)
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -71,9 +95,14 @@ test.nppCART.AIC_plot.simulations <- function(
         # fill     = "black",
         # colour   = NULL
         );
+    my.histogram.pruned <- my.histogram.pruned + scale_x_continuous(
+        limits = c(0,1e6),
+        breaks = seq(0,1e6,1e5)
+        );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.cowplot <- cowplot::plot_grid(
+        my.histogram.current,
         my.histogram.fully.grown,
         my.histogram.pruned,
         nrow       = 1,
@@ -86,7 +115,7 @@ test.nppCART.AIC_plot.simulations <- function(
         file   = PNG.output,
         plot   = my.cowplot,
         dpi    = 300,
-        height =  10,
+        height =   6,
         width  =  20,
         units  = 'in'
         );
@@ -122,6 +151,7 @@ test.nppCART.AIC_do.simulations <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.output <- data.frame(
         index.simulation     = seq(1,n.simulations),
+        estimate.current     = rep(NA,times=n.simulations),
         estimate.fully.grown = rep(NA,times=n.simulations),
         estimate.pruned      = rep(NA,times=n.simulations)
         );
@@ -165,6 +195,26 @@ test.nppCART.AIC_do.simulations <- function(
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        current.nppCART <- nppR::nppCART(
+            np.data       = list.samples[['DF.non.probability']],
+            p.data        = DF.probability,
+            predictors    = c("x1","x2"),
+            weight        = "design.weight",
+            min.cell.size = 1,
+            min.impurity  = 1e-50,
+            max.levels    = 10000
+            );
+
+        current.nppCART$grow();
+        cat("\ncurrent.nppCART$print()\n");
+        current.nppCART$print( FUN.format = function(x) { return(format(x = x, digits = 3)) } );
+
+        DF.current <- current.nppCART$get_npdata_with_propensity();
+        cat("\nstr(DF.current)\n");
+        print( str(DF.current)   );
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         my.nppCART <- nppCART(
             np.data           = list.samples[['DF.non.probability']],
             p.data            = DF.probability,
@@ -189,24 +239,25 @@ test.nppCART.AIC_do.simulations <- function(
         print( DF.impurity.alpha.AIC   );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        my.nppCART.subtree.hierarchy <- my.nppCART$get_subtree_hierarchy();
-
-        for ( index.temp in seq(1,length(my.nppCART.subtree.hierarchy)) ) {
-
-            DF.retained <- my.nppCART.subtree.hierarchy[[index.temp]][['DF_retained']];
-            DF.temp <- DF.retained[is.na(DF.retained[,'satisfiedChildID']),];
-
-            cat("\nsum(DF.temp[,'p.weight'])\n");
-            print( sum(DF.temp[,'p.weight'])   );
-
-            cat("\nDF.retained\n");
-            print( DF.retained   );
-
-            }
+        # my.nppCART.subtree.hierarchy <- my.nppCART$get_subtree_hierarchy();
+        #
+        # for ( index.temp in seq(1,length(my.nppCART.subtree.hierarchy)) ) {
+        #
+        #     DF.retained <- my.nppCART.subtree.hierarchy[[index.temp]][['DF_retained']];
+        #     DF.temp <- DF.retained[is.na(DF.retained[,'satisfiedChildID']),];
+        #
+        #     cat("\nsum(DF.temp[,'p.weight'])\n");
+        #     print( sum(DF.temp[,'p.weight'])   );
+        #
+        #     cat("\nDF.retained\n");
+        #     print( DF.retained   );
+        #
+        #     }
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        DF.output[index.simulation,'estimate.current'    ] <- sum(               DF.current[,'y'] /                DF.current[,'propensity'       ]);
         DF.output[index.simulation,'estimate.fully.grown'] <- sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity'       ]);
-        DF.output[index.simulation,'estimate.pruned']      <- sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity.pruned']);
+        DF.output[index.simulation,'estimate.pruned'     ] <- sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity.pruned']);
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         my.ggplot.alpha <- initializePlot(title = NULL, subtitle = NULL);
