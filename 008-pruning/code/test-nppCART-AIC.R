@@ -14,6 +14,53 @@ test.nppCART.AIC <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.population <- test.nppCART_get.population(seed = seed);
 
+    DF.simulations <- test.nppCART.AIC_do.simulations(
+        seed           = seed,
+        DF.population  = DF.population,
+        prob.selection = prob.selection,
+        n.replicates   = n.replicates,
+        n.simulations  = n.simulations
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat(paste0("\n# ",thisFunctionName,"() quits."));
+    cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
+    return( NULL );
+
+    }
+
+####################
+test.nppCART.AIC_do.simulations <- function(
+    seed           = NULL,
+    DF.population  = NULL,
+    prob.selection = NULL,
+    n.replicates   = NULL,
+    n.simulations  = NULL,
+    CSV.output     = "df-simulations.csv"
+    ) {
+
+    thisFunctionName <- "test.nppCART.AIC_do.simulations";
+
+    cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
+    cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    if ( file.exists(CSV.output) ) {
+        DF.output <- read.csv(file = CSV.output);
+        return(DF.output);
+        }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat(paste0("\n# randomization seed: ",seed,"\n"));
+    set.seed(seed = seed);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.output <- data.frame(
+        index.simulation     = seq(1,n.simulations),
+        estimate.fully.grown = rep(NA,times=n.simulations),
+        estimate.pruned      = rep(NA,times=n.simulations)
+        );
+
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     for ( index.simulation in seq(1,n.simulations) ) {
 
@@ -72,15 +119,35 @@ test.nppCART.AIC <- function(
         cat("\nstr(DF.npdata.with.propensity)\n");
         print( str(DF.npdata.with.propensity)   );
 
-        DF.alpha.AIC <- my.nppCART$get_alphas_AICs();
-        cat("\nDF.alpha.AIC\n");
-        print( DF.alpha.AIC   );
+        DF.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
+        cat("\nDF.impurity.alpha.AIC\n");
+        print( DF.impurity.alpha.AIC   );
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        my.nppCART.subtree.hierarchy <- my.nppCART$get_subtree_hierarchy();
+
+        for ( index.temp in seq(1,length(my.nppCART.subtree.hierarchy)) ) {
+
+            DF.retained <- my.nppCART.subtree.hierarchy[[index.temp]][['DF_retained']];
+            DF.temp <- DF.retained[is.na(DF.retained[,'satisfiedChildID']),];
+
+            cat("\nsum(DF.temp[,'p.weight'])\n");
+            print( sum(DF.temp[,'p.weight'])   );
+
+            cat("\nDF.retained\n");
+            print( DF.retained   );
+
+            }
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        DF.output[index.simulation,'estimate.fully.grown'] <- sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity'       ]);
+        DF.output[index.simulation,'estimate.pruned']      <- sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity.pruned']);
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         my.ggplot.alpha <- initializePlot(title = NULL, subtitle = NULL);
 
         my.ggplot.alpha <- my.ggplot.alpha + geom_step(
-            data    = DF.alpha.AIC,
+            data    = DF.impurity.alpha.AIC,
             mapping = aes(x = alpha, y = index.subtree),
             alpha   = 0.9,
             size    = 1.3,
@@ -93,10 +160,35 @@ test.nppCART.AIC <- function(
             );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        my.ggplot.impurity <- initializePlot(title = NULL, subtitle = NULL);
+
+        my.ggplot.impurity <- my.ggplot.impurity + geom_point(
+            data    = DF.impurity.alpha.AIC,
+            mapping = aes(x = tree.impurity, y = index.subtree),
+            alpha   = 0.9,
+            size    = 2.0,
+            colour  = "black"
+            );
+
+        my.ggplot.impurity <- my.ggplot.impurity + geom_line(
+            data        = DF.impurity.alpha.AIC,
+            mapping     = aes(x = tree.impurity, y = index.subtree),
+            orientation = "y",
+            alpha       = 0.5,
+            size        = 0.5,
+            colour      = "black"
+            );
+
+        my.ggplot.impurity <- my.ggplot.impurity + scale_y_continuous(
+            limits = NULL,
+            breaks = seq(0,100,1)
+            );
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         my.ggplot.AIC <- initializePlot(title = NULL, subtitle = NULL);
 
         my.ggplot.AIC <- my.ggplot.AIC + geom_point(
-            data    = DF.alpha.AIC,
+            data    = DF.impurity.alpha.AIC,
             mapping = aes(x = AIC, y = index.subtree),
             alpha   = 0.9,
             size    = 2.0,
@@ -104,7 +196,7 @@ test.nppCART.AIC <- function(
             );
 
         my.ggplot.AIC <- my.ggplot.AIC + geom_line(
-            data        = DF.alpha.AIC,
+            data        = DF.impurity.alpha.AIC,
             mapping     = aes(x = AIC, y = index.subtree),
             orientation = "y",
             alpha       = 0.5,
@@ -119,11 +211,12 @@ test.nppCART.AIC <- function(
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         my.cowplot <- cowplot::plot_grid(
+            my.ggplot.impurity,
             my.ggplot.alpha,
             my.ggplot.AIC,
             nrow       = 1,
             align      = "h",
-            rel_widths = c(2,1)
+            rel_widths = c(2,3,2)
             );
 
         index.simulation.string <- stringr::str_pad(
@@ -146,8 +239,15 @@ test.nppCART.AIC <- function(
         }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    write.csv(
+        file      = CSV.output,
+        x         = DF.output,
+        row.names = FALSE
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
-    return( NULL );
+    return( DF.output );
 
     }
