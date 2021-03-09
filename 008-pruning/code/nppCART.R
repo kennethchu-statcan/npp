@@ -557,7 +557,7 @@ R6_nppCART <- R6::R6Class(
             return( private$subtree.hierarchy );
             },
 
-        get_alphas_AICs = function() {
+        get_impurities_alphas_AICs = function() {
             if ( base::is.null(private$bootstrap.weights) ) {
                 base::warning("No bootstrap weight column names were supplied; NULL is returned for data frame of alphas and AICs.");
                 return(NULL);
@@ -567,6 +567,10 @@ R6_nppCART <- R6::R6Class(
                 }
             DF.output <- base::data.frame(
                 index.subtree = base::seq(1,base::length(private$subtree.hierarchy)),
+                tree.impurity = base::as.numeric(base::sapply(
+                    X   = private$subtree.hierarchy,
+                    FUN = function(x) { return(x[['tree_impurity']]) }
+                    )),
                 alpha = base::as.numeric(base::sapply(
                     X   = private$subtree.hierarchy,
                     FUN = function(x) { return(x[['alpha']]) }
@@ -1091,6 +1095,9 @@ R6_nppCART <- R6::R6Class(
             list.subtrees[[index.subtree]][['npdata_with_propensity']] <- private$private_get_npdata_with_propensity(
                 nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                 );
+            list.subtrees[[index.subtree]][['tree_impurity']] <- private$compute_tree_impurity(
+                DF.retained = list.subtrees[[index.subtree]][['DF_retained']]
+                );
             DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
                 nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                 );
@@ -1112,6 +1119,9 @@ R6_nppCART <- R6::R6Class(
                     );
                 list.subtrees[[index.subtree]][['npdata_with_propensity']] <- private$private_get_npdata_with_propensity(
                     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
+                    );
+                list.subtrees[[index.subtree]][['tree_impurity']] <- private$compute_tree_impurity(
+                    DF.retained = list.subtrees[[index.subtree]][['DF_retained']]
                     );
                 DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
                     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
@@ -1231,6 +1241,12 @@ R6_nppCART <- R6::R6Class(
                 }
             DF.output[,'nppCART.g'] <- (DF.output[,'riskWgtd'] - DF.output[,'riskLeaves']) / (DF.output[,'nLeaves'] - 1);
             return(DF.output);
+            },
+
+        compute_tree_impurity = function(DF.retained = NULL) {
+            DF.temp <- DF.retained[base::is.na(DF.retained[,'satisfiedChildID']),];
+            tree.impurity <- base::sum(DF.temp[,'p.weight'] * DF.temp[,'impurity']) / base::sum(DF.temp[,'p.weight']);
+            return(tree.impurity);
             },
 
         compute_AIC = function(
