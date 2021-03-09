@@ -22,6 +22,11 @@ test.nppCART.AIC <- function(
         n.simulations  = n.simulations
         );
 
+    test.nppCART.AIC_plot.simulations(
+        DF.simulations   = DF.simulations,
+        vline.xintercept = sum(DF.population[,'y'])
+        );
+
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
@@ -30,13 +35,73 @@ test.nppCART.AIC <- function(
     }
 
 ####################
+test.nppCART.AIC_plot.simulations <- function(
+    DF.simulations   = NULL,
+    vline.xintercept = NULL
+    ) {
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.histogram.fully.grown <- initializePlot(title = NULL, subtitle = NULL);
+    my.histogram.fully.grown <- my.histogram.fully.grown + geom_vline(
+        xintercept = vline.xintercept,
+        colour     = "orange",
+        size       = 1.00
+        );
+    my.histogram.fully.grown <- my.histogram.fully.grown + geom_histogram(
+        data     = DF.simulations,
+        mapping  = aes(x = estimate.fully.grown),
+        alpha    = 0.5
+        # binwidth = 2000,
+        # fill     = "black",
+        # colour   = NULL
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.histogram.pruned <- initializePlot(title = NULL, subtitle = NULL);
+    my.histogram.pruned <- my.histogram.pruned + geom_vline(
+        xintercept = vline.xintercept,
+        colour     = "orange",
+        size       = 1.00
+        );
+    my.histogram.pruned <- my.histogram.pruned + geom_histogram(
+        data     = DF.simulations,
+        mapping  = aes(x = estimate.pruned),
+        alpha    = 0.5
+        # binwidth = 2000,
+        # fill     = "black",
+        # colour   = NULL
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.cowplot <- cowplot::plot_grid(
+        my.histogram.fully.grown,
+        my.histogram.pruned,
+        nrow       = 1,
+        align      = "h",
+        rel_widths = c(1,1)
+        );
+
+    PNG.output  <- paste0("plot-histograms.png");
+    cowplot::ggsave2(
+        file   = PNG.output,
+        plot   = my.cowplot,
+        dpi    = 300,
+        height =  10,
+        width  =  20,
+        units  = 'in'
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+
+    }
+
 test.nppCART.AIC_do.simulations <- function(
     seed           = NULL,
     DF.population  = NULL,
     prob.selection = NULL,
     n.replicates   = NULL,
     n.simulations  = NULL,
-    CSV.output     = "df-simulations.csv"
+    CSV.output     = "DF-simulations.csv"
     ) {
 
     thisFunctionName <- "test.nppCART.AIC_do.simulations";
@@ -226,7 +291,7 @@ test.nppCART.AIC_do.simulations <- function(
             pad    = "0"
             );
 
-        PNG.output  <- paste0("plot-alpha-AIC-",index.simulation.string,".png");
+        PNG.output  <- paste0("plot-impurity-alpha-AIC-",index.simulation.string,".png");
         cowplot::ggsave2(
             file   = PNG.output,
             plot   = my.cowplot,
