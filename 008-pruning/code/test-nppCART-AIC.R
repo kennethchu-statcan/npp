@@ -175,14 +175,6 @@ test.nppCART.AIC_do.simulations <- function(
     set.seed(seed = seed);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.output <- data.frame(
-        index.simulation     = seq(1,n.simulations),
-        estimate.current     = rep(NA,times=n.simulations),
-        estimate.fully.grown = rep(NA,times=n.simulations),
-        estimate.pruned      = rep(NA,times=n.simulations)
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     for ( index.simulation in seq(1,n.simulations) ) {
 
         cat(paste0("\n### index.simulation: ",index.simulation,"\n"));
@@ -259,9 +251,23 @@ test.nppCART.AIC_do.simulations <- function(
         print( DF.impurity.alpha.AIC   );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        DF.output[index.simulation,'estimate.current'    ] <- sum(               DF.current[,'y'] /                DF.current[,'propensity'       ]);
-        DF.output[index.simulation,'estimate.fully.grown'] <- sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity'       ]);
-        DF.output[index.simulation,'estimate.pruned'     ] <- sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity.pruned']);
+        # DF.output[index.simulation,'estimate.current'    ] <- sum(               DF.current[,'y'] /                DF.current[,'propensity'       ]);
+        # DF.output[index.simulation,'estimate.fully.grown'] <- sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity'       ]);
+        # DF.output[index.simulation,'estimate.pruned'     ] <- sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity.pruned']);
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        DF.temp <- data.frame(
+            index.simulation     = index.simulation,
+            estimate.current     = sum(               DF.current[,'y'] /                DF.current[,'propensity'       ]),
+            estimate.fully.grown = sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity'       ]),
+            estimate.pruned      = sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity.pruned'])
+            );
+
+        write.csv(
+            file      = paste0("tmp-population-",population.flag,"-",index.simulation,".csv"),
+            x         = DF.temp,
+            row.names = FALSE
+            );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         my.ggplot.alpha <- initializePlot(title = NULL, subtitle = NULL);
@@ -357,6 +363,25 @@ test.nppCART.AIC_do.simulations <- function(
             );
 
         }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.output <- data.frame(
+        index.simulation     = seq(1,n.simulations),
+        estimate.current     = rep(NA,times=n.simulations),
+        estimate.fully.grown = rep(NA,times=n.simulations),
+        estimate.pruned      = rep(NA,times=n.simulations)
+        );
+
+    temp.files <- list.files(pattern = paste0("tmp-population-"));
+    for ( temp.file in temp.files ) {
+        DF.temp <- read.csv(file = temp.file);
+        index.simulation <- DF.temp[1,'index.simulation'];
+        DF.output[index.simulation,'estimate.current']     <- DF.temp[1,'estimate.current'];
+        DF.output[index.simulation,'estimate.fully.grown'] <- DF.temp[1,'estimate.fully.grown'];
+        DF.output[index.simulation,'estimate.pruned']      <- DF.temp[1,'estimate.pruned'];
+        }
+
+    file.remove(temp.files);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     write.csv(
