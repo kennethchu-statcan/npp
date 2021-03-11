@@ -2,6 +2,7 @@
 test.nppCART.AIC <- function(
     seed            = 1234567,
     population.flag = NULL,
+    population.size = NULL,
     prob.selection  = 0.1,
     n.replicates    = 500,
     n.simulations   = 10
@@ -15,7 +16,8 @@ test.nppCART.AIC <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.population <- test.nppCART_get.population(
         seed            = seed,
-        population.flag = population.flag
+        population.flag = population.flag,
+        population.size = population.size
         );
 
     write.csv(

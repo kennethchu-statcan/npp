@@ -86,19 +86,32 @@ test.nppCART_get.samples <- function(
 
 test.nppCART_get.population <- function(
     seed            = 1234567,
-    population.flag = NULL
+    population.flag = NULL,
+    population.size = NULL
     ) {
     if ( "01" == population.flag ) {
-        DF.population <- test.nppCART_get.population.01(seed = seed);
+        DF.population <- test.nppCART_get.population.01(
+            seed            = seed,
+            population.size = population.size
+            );
     } else if ( "02" == population.flag ) {
-        DF.population <- test.nppCART_get.population.02(seed = seed);
+        DF.population <- test.nppCART_get.population.02(
+            seed            = seed,
+            population.size = population.size
+            );
     } else {
-        DF.population <- test.nppCART_get.population.03(seed = seed);
+        DF.population <- test.nppCART_get.population.03(
+            seed            = seed,
+            population.size = population.size
+            );
         }
     return( DF.population );
     }
 
-test.nppCART_get.population.02 <- function(seed = 1234567) {
+test.nppCART_get.population.02 <- function(
+    seed            = 1234567,
+    population.size = NULL
+    ) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# randomization seed: ",seed,"\n"));
@@ -108,8 +121,6 @@ test.nppCART_get.population.02 <- function(seed = 1234567) {
     require(survey);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    population.size <- 10000;
-
     temp.centres <- c(0.5,1.5,2.5);
 
     c1 <- sample(x = temp.centres, size = population.size, replace = TRUE);
@@ -181,7 +192,10 @@ test.nppCART_get.population.02 <- function(seed = 1234567) {
 
     }
 
-test.nppCART_get.population.03 <- function(seed = 1234567) {
+test.nppCART_get.population.03 <- function(
+    seed            = 1234567,
+    population.size = NULL
+    ) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# randomization seed: ",seed,"\n"));
@@ -191,8 +205,6 @@ test.nppCART_get.population.03 <- function(seed = 1234567) {
     require(survey);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    population.size <- 10000;
-
     temp.centres <- c(0.5,1.5,2.5);
 
     c1 <- sample(x = temp.centres, size = population.size, replace = TRUE);
