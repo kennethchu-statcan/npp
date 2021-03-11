@@ -50,18 +50,18 @@ for ( file.R in files.R ) {
 # test.nppCART.iris(seed = 7654321);
 # test.nppCART.sanity(seed = 1234567);
 
-population.size <- 2000; # 10000;
-n.replicates    <-  500;
-n.simulations   <-   10;
+population.size <- 10000;
+n.replicates    <-   500;
+n.simulations   <-    10;
 
-test.nppCART.AIC(
-    seed            = 1234567,
-    population.flag = "02",
-    population.size = population.size,
-    prob.selection  = as.numeric(pi/20), # 0.1570796, 0.1,
-    n.replicates    = n.replicates,
-    n.simulations   = n.simulations
-    );
+# test.nppCART.AIC(
+#     seed            = 1234567,
+#     population.flag = "02",
+#     population.size = population.size,
+#     prob.selection  = as.numeric(pi/20), # 0.1570796, 0.1,
+#     n.replicates    = n.replicates,
+#     n.simulations   = n.simulations
+#     );
 
 test.nppCART.AIC(
     seed            = 1234567,

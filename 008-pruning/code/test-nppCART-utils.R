@@ -87,8 +87,13 @@ test.nppCART_get.samples <- function(
 test.nppCART_get.population <- function(
     seed            = 1234567,
     population.flag = NULL,
-    population.size = NULL
+    population.size = NULL,
+    CSV.population  = paste0("DF-",population.flag,"-population.csv")
     ) {
+    if ( file.exists(CSV.population) ) {
+        DF.population <- read.csv(file = CSV.population);
+        return( DF.population );
+        }
     if ( "01" == population.flag ) {
         DF.population <- test.nppCART_get.population.01(
             seed            = seed,
@@ -105,6 +110,11 @@ test.nppCART_get.population <- function(
             population.size = population.size
             );
         }
+    write.csv(
+        x         = DF.population,
+        file      = CSV.population,
+        row.names = FALSE
+        );
     return( DF.population );
     }
 
