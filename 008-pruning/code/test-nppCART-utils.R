@@ -84,7 +84,21 @@ test.nppCART_get.samples <- function(
 
     }
 
-test.nppCART_get.population <- function(seed = 1234567) {
+test.nppCART_get.population <- function(
+    seed            = 1234567,
+    population.flag = NULL
+    ) {
+    if ( "01" == population.flag ) {
+        DF.population <- test.nppCART_get.population.1(seed = seed);
+    } else if ( "02" == population.flag ) {
+        DF.population <- test.nppCART_get.population.2(seed = seed);
+    } else {
+        DF.population <- test.nppCART_get.population.3(seed = seed);
+        }
+    return( DF.population );
+    }
+
+test.nppCART_get.population.2 <- function(seed = 1234567) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# randomization seed: ",seed,"\n"));
@@ -156,7 +170,8 @@ test.nppCART_get.population <- function(seed = 1234567) {
             );
 
         colname.jitter <- gsub(x = colname.numeric, pattern = "numeric", replacement = "jitter");
-        DF.population[,colname.jitter] <- (-0.5) + as.numeric(DF.population[,colname.factor]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+        # DF.population[,colname.jitter] <- (-0.5) + as.numeric(DF.population[,colname.factor]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+        DF.population[,colname.jitter] <- as.numeric(DF.population[,colname.factor]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
 
         DF.population <- DF.population[,setdiff(colnames(DF.population),colname.numeric)];
 

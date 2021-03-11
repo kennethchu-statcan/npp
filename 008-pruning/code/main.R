@@ -34,7 +34,8 @@ files.R <- c(
     'test-nppCART-AIC.R',
     'test-nppCART-sanity.R',
     'test-nppCART-utils.R',
-    'test-svyrepdesign.R'
+    'test-svyrepdesign.R',
+    'visualizePopulation.R'
     );
 
 for ( file.R in files.R ) {
@@ -49,10 +50,11 @@ for ( file.R in files.R ) {
 # test.nppCART.iris(seed = 7654321);
 # test.nppCART.sanity(seed = 1234567);
 test.nppCART.AIC(
-    seed           = 1234567,
-    prob.selection = as.numeric(pi/20), # 0.1570796, 0.1,
-    n.replicates   = 500,
-    n.simulations  = 200
+    seed            = 1234567,
+    population.flag = "02",
+    prob.selection  = as.numeric(pi/20), # 0.1570796, 0.1,
+    n.replicates    = 500,
+    n.simulations   =  10
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###

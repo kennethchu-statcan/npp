@@ -1,9 +1,10 @@
 
 test.nppCART.AIC <- function(
-    seed           = 1234567,
-    prob.selection = 0.1,
-    n.replicates   = 500,
-    n.simulations  = 10
+    seed            = 1234567,
+    population.flag = NULL,
+    prob.selection  = 0.1,
+    n.replicates    = 500,
+    n.simulations   = 10
     ) {
 
     thisFunctionName <- "test.nppCART.AIC";
@@ -12,19 +13,39 @@ test.nppCART.AIC <- function(
     cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.population <- test.nppCART_get.population(seed = seed);
+    DF.population <- test.nppCART_get.population(
+        seed            = seed,
+        population.flag = population.flag
+        );
 
+    write.csv(
+        x         = DF.population,
+        file      = paste0("DF-",population.flag,"-population.csv"),
+        row.names = FALSE
+        );
+
+    visualizePopulation(
+        population.flag = population.flag,
+        population      = DF.population,
+        textsize.title  = 30,
+        textsize.axis   = 20,
+        inputIsNumeric  = FALSE
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.simulations <- test.nppCART.AIC_do.simulations(
-        seed           = seed,
-        DF.population  = DF.population,
-        prob.selection = prob.selection,
-        n.replicates   = n.replicates,
-        n.simulations  = n.simulations
+        seed            = seed,
+        population.flag = population.flag,
+        DF.population   = DF.population,
+        prob.selection  = prob.selection,
+        n.replicates    = n.replicates,
+        n.simulations   = n.simulations
         );
 
     test.nppCART.AIC_plot.simulations(
         DF.simulations   = DF.simulations,
-        vline.xintercept = sum(DF.population[,'y'])
+        vline.xintercept = sum(DF.population[,'y']),
+        PNG.output       = paste0("plot-population-",population.flag,"-histograms.png")
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -37,7 +58,8 @@ test.nppCART.AIC <- function(
 ####################
 test.nppCART.AIC_plot.simulations <- function(
     DF.simulations   = NULL,
-    vline.xintercept = NULL
+    vline.xintercept = NULL,
+    PNG.output       = paste0("plot-histograms.png")
     ) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -110,7 +132,6 @@ test.nppCART.AIC_plot.simulations <- function(
         rel_widths = c(1,1)
         );
 
-    PNG.output  <- paste0("plot-histograms.png");
     cowplot::ggsave2(
         file   = PNG.output,
         plot   = my.cowplot,
@@ -125,12 +146,13 @@ test.nppCART.AIC_plot.simulations <- function(
     }
 
 test.nppCART.AIC_do.simulations <- function(
-    seed           = NULL,
-    DF.population  = NULL,
-    prob.selection = NULL,
-    n.replicates   = NULL,
-    n.simulations  = NULL,
-    CSV.output     = "DF-simulations.csv"
+    seed            = NULL,
+    population.flag = NULL,
+    DF.population   = NULL,
+    prob.selection  = NULL,
+    n.replicates    = NULL,
+    n.simulations   = NULL,
+    CSV.output      = paste0("DF-",population.flag,"-simulations.csv")
     ) {
 
     thisFunctionName <- "test.nppCART.AIC_do.simulations";
@@ -143,6 +165,10 @@ test.nppCART.AIC_do.simulations <- function(
         DF.output <- read.csv(file = CSV.output);
         return(DF.output);
         }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    temp.directory <- "plots-impurity-alpha-AIC";
+    if ( !dir.exists(temp.directory) ) { dir.create(path = temp.directory, recursive = TRUE) }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# randomization seed: ",seed,"\n"));
@@ -174,12 +200,6 @@ test.nppCART.AIC_do.simulations <- function(
         is.self.selected <- (DF.population[,'unit.ID'] %in% list.samples[['DF.non.probability']][,'unit.ID']);
         DF.population[                ,'self.selected'] <- FALSE;
         DF.population[is.self.selected,'self.selected'] <- TRUE;
-
-        write.csv(
-            x         = DF.population,
-            file      = "DF-population.csv",
-            row.names = FALSE
-            );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         cat("\nstr(list.samples[['DF.non.probability']])\n");
@@ -237,22 +257,6 @@ test.nppCART.AIC_do.simulations <- function(
         DF.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
         cat("\nDF.impurity.alpha.AIC\n");
         print( DF.impurity.alpha.AIC   );
-
-        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        # my.nppCART.subtree.hierarchy <- my.nppCART$get_subtree_hierarchy();
-        #
-        # for ( index.temp in seq(1,length(my.nppCART.subtree.hierarchy)) ) {
-        #
-        #     DF.retained <- my.nppCART.subtree.hierarchy[[index.temp]][['DF_retained']];
-        #     DF.temp <- DF.retained[is.na(DF.retained[,'satisfiedChildID']),];
-        #
-        #     cat("\nsum(DF.temp[,'p.weight'])\n");
-        #     print( sum(DF.temp[,'p.weight'])   );
-        #
-        #     cat("\nDF.retained\n");
-        #     print( DF.retained   );
-        #
-        #     }
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         DF.output[index.simulation,'estimate.current'    ] <- sum(               DF.current[,'y'] /                DF.current[,'propensity'       ]);
@@ -342,9 +346,9 @@ test.nppCART.AIC_do.simulations <- function(
             pad    = "0"
             );
 
-        PNG.output  <- paste0("plot-impurity-alpha-AIC-",index.simulation.string,".png");
+        PNG.output <- paste0("plot-",population.flag,"-impurity-alpha-AIC-",index.simulation.string,".png");
         cowplot::ggsave2(
-            file   = PNG.output,
+            file   = file.path(temp.directory,PNG.output),
             plot   = my.cowplot,
             dpi    = 300,
             height =   5,
