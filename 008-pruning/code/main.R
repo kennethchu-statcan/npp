@@ -51,7 +51,7 @@ for ( file.R in files.R ) {
 # test.nppCART.sanity(seed = 1234567);
 test.nppCART.AIC(
     seed            = 1234567,
-    population.flag = "02",
+    population.flag = "03",
     prob.selection  = as.numeric(pi/20), # 0.1570796, 0.1,
     n.replicates    = 500,
     n.simulations   =  10
