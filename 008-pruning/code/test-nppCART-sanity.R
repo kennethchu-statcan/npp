@@ -1,5 +1,10 @@
 
-test.nppCART.sanity <- function(seed = 1234567) {
+test.nppCART.sanity <- function(
+    seed            = 1234567,
+    population.flag = "sanity",
+    population.size = 10000,
+    n.replicates    =   500
+    ) {
 
     thisFunctionName <- "test.nppCART.sanity";
 
@@ -7,42 +12,50 @@ test.nppCART.sanity <- function(seed = 1234567) {
     cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.population <- test.nppCART_get.population(seed = seed);
-    list.samples  <- test.nppCART_get.samples(
-        DF.population         = DF.population,
-        RData.non.probability = "DF-non-probability.RData",
-        RData.probability     = "DF-probability.RData"
+    DF.population <- test.nppCART_get.population(
+        seed            = seed,
+        population.flag = population.flag,
+        population.size = population.size
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.probability <- DF.population[,c("unit.ID","x1","x2")];
-    DF.probability[,"design.weight"] <- 1;
-
-    my.nppCART <- nppCART(
-        np.data       = list.samples[['DF.non.probability']],
-        p.data        = DF.probability,
-        predictors    = c("x1","x2"),
-        weight        = "design.weight",
-        min.cell.size = 1,
-        min.impurity  = 1e-9,
-        max.levels    = 10000
+    list.samples  <- test.nppCART_get.samples(
+        DF.population         = DF.population,
+        prob.selection        = 0.999999999,
+        n.replicates          = n.replicates,
+        RData.non.probability = paste0("DF-",population.flag,"-non-probability.RData"),
+        RData.probability     = paste0("DF-",population.flag,"-probability.RData")
         );
 
-    my.nppCART$grow();
+    cat("\nstr(list.samples[['DF.probability']])\n");
+    print( str(list.samples[['DF.probability']])   );
+
+    cat("\nsummary(list.samples[['DF.probability']][,c('unit.ID','x1','x2','sampling.fraction','design.weight')])\n");
+    print( summary(list.samples[['DF.probability']][,c('unit.ID','x1','x2','sampling.fraction','design.weight')])   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    # my.nppCART <- nppCART(
+    #     np.data           = list.samples[['DF.non.probability']],
+    #     p.data            = list.samples[['DF.probability'    ]], # DF.probability,
+    #     predictors        = c("x1","x2"),
+    #     sampling.weight   = "design.weight",
+    #     bootstrap.weights = paste0("repweight",seq(1,n.replicates)),
+    #     min.cell.size     = 1,
+    #     min.impurity      = 1e-9,
+    #     max.levels        = 10000
+    #     );
+    #
+    # my.nppCART$grow();
     # cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
     # my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
-
-    my.nppCART.subtree.hierarchy <- my.nppCART$public_get_subtree_hierarchy();
-    # cat("\nstr(my.nppCART.subtree.hierarchy)\n");
-    # print( str(my.nppCART.subtree.hierarchy)   );
-
-    temp.alphas.nppCART <- as.numeric(sapply(
-        X   = my.nppCART.subtree.hierarchy,
-        FUN = function(x) { return(x[['alpha']]) }
-        ));
-
-    # cat("\ntemp.alphas.nppCART.\n");
-    # print( temp.alphas.nppCART   );
+    #
+    # DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity();
+    # cat("\nstr(DF.npdata.with.propensity)\n");
+    # print( str(DF.npdata.with.propensity)   );
+    #
+    # DF.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
+    # cat("\nDF.impurity.alpha.AIC\n");
+    # print( DF.impurity.alpha.AIC   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     is.self.selected <- (DF.population[,'unit.ID'] %in% list.samples[['DF.non.probability']][,'unit.ID']);
@@ -51,7 +64,7 @@ test.nppCART.sanity <- function(seed = 1234567) {
 
     write.csv(
         x         = DF.population,
-        file      = "DF-population.csv",
+        file      = "DF-sanity-population-python.csv",
         row.names = FALSE
         );
 
@@ -70,60 +83,8 @@ test.nppCART.sanity <- function(seed = 1234567) {
     # print( results.rpart   );
 
     png("plot-rpart.png");
-    rpart.plot(
-        x = results.rpart
-        );
+    rpart.plot(x = results.rpart);
     dev.off();
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    myCART.object <- myCART$new(
-        formula    = self.selected ~ .,
-        data       = DF.population[,c('x1','x2','self.selected')]
-        );
-
-    myCART.object$grow();
-    # cat("\nmyCART.object$print()\n");
-    # print( myCART.object$print()   );
-
-    myCART.subtree.hierarchy <- myCART.object$public_get_subtree_hierarchy();
-    # cat("\nstr(myCART.subtree.hierarchy)\n");
-    # print( str(myCART.subtree.hierarchy)   );
-
-    temp.alphas.myCART <- as.numeric(sapply(
-        X   = myCART.subtree.hierarchy,
-        FUN = function(x) { return(x[['alpha']]) }
-        ));
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    for ( index.subtree in seq(1,length(my.nppCART.subtree.hierarchy)) ) {
-        cat("\n")
-        cat(paste0("\n### index.subtree: ",index.subtree,"\n"));
-        cat("\nmy.nppCART.subtree.hierarchy[[index.subtree]][['alpha']]:\n");
-        print( my.nppCART.subtree.hierarchy[[index.subtree]][['alpha']]    );
-        cat("\nmy.nppCART.subtree.hierarchy[[index.subtree]][['nodes_pruned_at']]:\n");
-        print( my.nppCART.subtree.hierarchy[[index.subtree]][['nodes_pruned_at']]    );
-        cat("\nprint_nodes(nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']])\n");
-        print_nodes(nodes = my.nppCART.subtree.hierarchy[[index.subtree]][['pruned_nodes']]);
-        }
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    cat("\ntemp.alphas.nppCART.\n");
-    print( temp.alphas.nppCART   );
-
-    cat("\ntemp.alphas.myCART.\n");
-    print( temp.alphas.myCART   );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    cat("\nresults.rpart\n");
-    print( results.rpart   );
-
-    cat("\nmy.nppCART$print()\n");
-    my.nppCART$print( FUN.format = function(x) {return(round(x,digits=5))} );
-
-    cat("\nmyCART.object$print()\n");
-    myCART.object$print( FUN.format = function(x) {return(round(x,digits=5))} );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));

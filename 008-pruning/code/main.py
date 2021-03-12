@@ -27,15 +27,31 @@ import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier, export_graphviz, export_text, plot_tree
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-DF_population = pandas.read_csv(filepath_or_buffer = "DF-population.csv")
+DF_population = pandas.read_csv(filepath_or_buffer = "DF-sanity-population-python.csv")
 
-DF_population['x1'] = DF_population['x1'].str.replace(pat = 'small',  repl = '0.5')
-DF_population['x1'] = DF_population['x1'].str.replace(pat = 'medium', repl = '1.5')
-DF_population['x1'] = DF_population['x1'].str.replace(pat = 'large',  repl = '2.5')
+DF_population['x1'] = DF_population['x1'].str.replace(pat = 'small.1',  repl = '0.5')
+DF_population['x1'] = DF_population['x1'].str.replace(pat = 'small.2',  repl = '1.5')
+DF_population['x1'] = DF_population['x1'].str.replace(pat = 'small.3',  repl = '2.5')
 
-DF_population['x2'] = DF_population['x2'].str.replace(pat = 'petit', repl = '0.5')
-DF_population['x2'] = DF_population['x2'].str.replace(pat = 'moyen', repl = '1.5')
-DF_population['x2'] = DF_population['x2'].str.replace(pat = 'grand', repl = '2.5')
+DF_population['x1'] = DF_population['x1'].str.replace(pat = 'medium.1', repl = '3.5')
+DF_population['x1'] = DF_population['x1'].str.replace(pat = 'medium.2', repl = '4.5')
+DF_population['x1'] = DF_population['x1'].str.replace(pat = 'medium.3', repl = '5.5')
+
+DF_population['x1'] = DF_population['x1'].str.replace(pat = 'large.1',  repl = '6.5')
+DF_population['x1'] = DF_population['x1'].str.replace(pat = 'large.2',  repl = '7.5')
+DF_population['x1'] = DF_population['x1'].str.replace(pat = 'large.3',  repl = '8.5')
+
+DF_population['x2'] = DF_population['x2'].str.replace(pat = 'petit.1',  repl = '0.5')
+DF_population['x2'] = DF_population['x2'].str.replace(pat = 'petit.2',  repl = '1.5')
+DF_population['x2'] = DF_population['x2'].str.replace(pat = 'petit.3',  repl = '2.5')
+
+DF_population['x2'] = DF_population['x2'].str.replace(pat = 'moyen.1',  repl = '3.5')
+DF_population['x2'] = DF_population['x2'].str.replace(pat = 'moyen.2',  repl = '4.5')
+DF_population['x2'] = DF_population['x2'].str.replace(pat = 'moyen.3',  repl = '5.5')
+
+DF_population['x2'] = DF_population['x2'].str.replace(pat = 'grand.1',  repl = '6.5')
+DF_population['x2'] = DF_population['x2'].str.replace(pat = 'grand.2',  repl = '7.5')
+DF_population['x2'] = DF_population['x2'].str.replace(pat = 'grand.3',  repl = '8.5')
 
 DF_population['x1'] = pandas.to_numeric(DF_population['x1'])
 DF_population['x2'] = pandas.to_numeric(DF_population['x2'])

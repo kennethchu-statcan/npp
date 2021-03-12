@@ -104,6 +104,11 @@ test.nppCART_get.population <- function(
             seed            = seed,
             population.size = population.size
             );
+    } else if ( "sanity" == population.flag ) {
+        DF.population <- test.nppCART_get.population.03(
+            seed            = seed,
+            population.size = population.size
+            );
     } else {
         DF.population <- test.nppCART_get.population.03(
             seed            = seed,
