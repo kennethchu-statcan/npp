@@ -34,28 +34,28 @@ test.nppCART.sanity <- function(
     print( summary(list.samples[['DF.probability']][,c('unit.ID','x1','x2','sampling.fraction','design.weight')])   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # my.nppCART <- nppCART(
-    #     np.data           = list.samples[['DF.non.probability']],
-    #     p.data            = list.samples[['DF.probability'    ]], # DF.probability,
-    #     predictors        = c("x1","x2"),
-    #     sampling.weight   = "design.weight",
-    #     bootstrap.weights = paste0("repweight",seq(1,n.replicates)),
-    #     min.cell.size     = 1,
-    #     min.impurity      = 1e-9,
-    #     max.levels        = 10000
-    #     );
-    #
-    # my.nppCART$grow();
-    # cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
-    # my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
-    #
-    # DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity();
-    # cat("\nstr(DF.npdata.with.propensity)\n");
-    # print( str(DF.npdata.with.propensity)   );
-    #
-    # DF.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
-    # cat("\nDF.impurity.alpha.AIC\n");
-    # print( DF.impurity.alpha.AIC   );
+    my.nppCART <- nppCART(
+        np.data           = list.samples[['DF.non.probability']],
+        p.data            = list.samples[['DF.probability'    ]], # DF.probability,
+        predictors        = c("x1","x2"),
+        sampling.weight   = "design.weight",
+        bootstrap.weights = paste0("repweight",seq(1,n.replicates)),
+        min.cell.size     = 1,
+        min.impurity      = 1e-9,
+        max.levels        = 10000
+        );
+
+    my.nppCART$grow();
+    cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
+    my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
+
+    DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity();
+    cat("\nstr(DF.npdata.with.propensity)\n");
+    print( str(DF.npdata.with.propensity)   );
+
+    DF.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
+    cat("\nDF.impurity.alpha.AIC\n");
+    print( DF.impurity.alpha.AIC   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     is.self.selected <- (DF.population[,'unit.ID'] %in% list.samples[['DF.non.probability']][,'unit.ID']);
