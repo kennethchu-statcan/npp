@@ -310,9 +310,6 @@ test.nppCART.AIC_do.one.simulation_hex <- function(
         by = 'unit.ID'
         );
 
-    cat("\nstr(DF.input)\n");
-    print( str(DF.input)   );
-
     my.ggplot <- my.ggplot + geom_hex(
         data     = DF.input,
         mapping  = aes(x = true.propensity, y = variable.to.plot),
