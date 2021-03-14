@@ -56,12 +56,12 @@ n.replicates    <-   500;
 n.simulations   <-    10;
 n.chains        <- ifelse(test = is.macOS, yes = 10, no = 200);
 
-test.nppCART.sanity(
-    seed            = 1234567,
-    population.flag = "sanity",
-    population.size = population.size,
-    n.replicates    = n.replicates
-    );
+# test.nppCART.sanity(
+#     seed            = 1234567,
+#     population.flag = "sanity",
+#     population.size = population.size,
+#     n.replicates    = n.replicates
+#     );
 
 test.nppCART.AIC(
     seed            = 1234567,

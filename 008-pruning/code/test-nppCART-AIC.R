@@ -39,21 +39,21 @@ test.nppCART.AIC <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.simulations <- test.nppCART.AIC_do.simulations(
-        seed            = seed,
-        population.flag = population.flag,
-        DF.population   = DF.population,
-        prob.selection  = prob.selection,
-        n.replicates    = n.replicates,
-        n.simulations   = n.simulations
-        );
-
-    test.nppCART.AIC_plot.simulations(
-        DF.simulations   = DF.simulations,
-        vline.xintercept = sum(DF.population[,'y']),
-        bin.width        = 3000,
-        PNG.output       = paste0("plot-population-",population.flag,"-histograms.png")
-        );
+    # DF.simulations <- test.nppCART.AIC_do.simulations(
+    #     seed            = seed,
+    #     population.flag = population.flag,
+    #     DF.population   = DF.population,
+    #     prob.selection  = prob.selection,
+    #     n.replicates    = n.replicates,
+    #     n.simulations   = n.simulations
+    #     );
+    #
+    # test.nppCART.AIC_plot.simulations(
+    #     DF.simulations   = DF.simulations,
+    #     vline.xintercept = sum(DF.population[,'y']),
+    #     bin.width        = 3000,
+    #     PNG.output       = paste0("plot-population-",population.flag,"-histograms.png")
+    #     );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
@@ -156,6 +156,40 @@ test.nppCART.AIC_do.one.simulation <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.ggplot.fully.grown <- test.nppCART.AIC_do.one.simulation_hex(
+        DF.input            = DF.npdata.with.propensity,
+        DF.population       = DF.population,
+        population.flag     = population.flag,
+        propensity.variable = "propensity"
+        );
+
+    my.ggplot.pruned <- test.nppCART.AIC_do.one.simulation_hex(
+        DF.input            = DF.npdata.with.propensity,
+        DF.population       = DF.population,
+        population.flag     = population.flag,
+        propensity.variable = "propensity.pruned"
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.cowplot <- cowplot::plot_grid(
+        my.ggplot.fully.grown,
+        my.ggplot.pruned,
+        nrow       = 1,
+        align      = "h",
+        rel_widths = c(1,1)
+        );
+
+    PNG.output <- paste0("plot-simulation-",population.flag,"-propensity-hex.png");
+    cowplot::ggsave2(
+        file   = PNG.output,
+        plot   = my.cowplot,
+        dpi    = 300,
+        height =  11,
+        width  =  20,
+        units  = 'in'
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
     return( NULL );
@@ -220,6 +254,69 @@ test.nppCART.AIC_do.one.simulation_scatter <- function(
         title    = NULL,
         subtitle = paste0("Simulation ",population.flag),
         colour   = ifelse("propensity" == propensity.variable,"estd. propensity (fully grown)   ","estd. propensity (pruned)   ")
+        );
+
+    return(my.ggplot);
+
+    }
+
+test.nppCART.AIC_do.one.simulation_hex <- function(
+    DF.input            = NULL,
+    DF.population       = NULL,
+    population.flag     = NULL,
+    propensity.variable = NULL,
+    textsize.axis       = 20
+    ) {
+
+    my.ggplot <- initializePlot(title = NULL, subtitle = paste0("Simulation ",population.flag));
+    my.ggplot <- my.ggplot + theme(
+        legend.position  = "bottom",
+        legend.key.width = ggplot2::unit(0.75,"in")
+        );
+
+    my.ggplot <- my.ggplot + geom_hline(yintercept = 0,colour="gray",size=0.75);
+    my.ggplot <- my.ggplot + geom_vline(xintercept = 0,colour="gray",size=0.75);
+
+    my.ggplot <- my.ggplot + xlab("true.propensity");
+    my.ggplot <- my.ggplot + ylab(ifelse(test = ("propensity" == propensity.variable),yes = "propensity.fully.grown", no = propensity.variable));
+
+    my.ggplot <- my.ggplot + scale_x_continuous(limits = c(0,1), breaks = seq(0,1,0.2));
+    my.ggplot <- my.ggplot + scale_y_continuous(limits = c(0,1), breaks = seq(0,1,0.2));
+
+    if ( population.flag %in% c("02","03") ) {
+        scale_fill_gradient_limits <- 300 * c(  0,1);
+        scale_fill_gradient_breaks <- 300 * seq(0,1,0.25);
+    } else {
+        scale_fill_gradient_limits <- 500 * c(  0,4);
+        scale_fill_gradient_breaks <- 500 * seq(0,4,1);
+        }
+
+    my.ggplot <- my.ggplot + scale_fill_gradient(
+        limits = scale_fill_gradient_limits,
+        breaks = scale_fill_gradient_breaks,
+        low    = "lightgrey",
+        high   = "red"
+        );
+
+    colnames(DF.input) <- gsub(
+        x           = colnames(DF.input),
+        pattern     = propensity.variable,
+        replacement = "variable.to.plot"
+        );
+
+    DF.input <- merge(
+        x  = DF.input,
+        y  = DF.population[,c('unit.ID','true.propensity')],
+        by = 'unit.ID'
+        );
+
+    cat("\nstr(DF.input)\n");
+    print( str(DF.input)   );
+
+    my.ggplot <- my.ggplot + geom_hex(
+        data     = DF.input,
+        mapping  = aes(x = true.propensity, y = variable.to.plot),
+        binwidth = c(0.02,0.02)
         );
 
     return(my.ggplot);
