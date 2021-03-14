@@ -238,7 +238,7 @@ test.nppCART.AIC_do.one.simulation_scatter <- function(
     my.ggplot <- my.ggplot + scale_y_continuous(
         limits = c(  0,length(x2.levels)+1),
         breaks = seq(0,length(x2.levels)+1,1),
-        labels = c("",x1.levels,"")
+        labels = c("",x2.levels,"")
         );
 
     my.ggplot <- my.ggplot + scale_colour_gradient(
