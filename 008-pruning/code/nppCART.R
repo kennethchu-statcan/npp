@@ -270,6 +270,17 @@ R6_nppCART <- R6::R6Class(
             private$min.impurity      <- min.impurity;
             private$max.levels        <- max.levels;
 
+            # add synthetic row ID:
+            private$np.syntheticID <- base::paste0(base::sample(x=letters,size=10,replace=TRUE),collapse="");
+            private$np.data[,private$np.syntheticID] <- base::seq(1,base::nrow(private$np.data));
+
+            private$p.syntheticID <- base::paste0(base::sample(x=letters,size=10,replace=TRUE),collapse="");
+            private$p.data[,private$p.syntheticID] <- base::seq(1,base::nrow(private$p.data));
+
+            # make replica of non-probability data frame (with synthetic ID)
+            private$np.data.original <- private$np.data;
+
+            # convert character predictors to factors.
             for (temp.colname in private$predictors) {
                 if (base::is.character(private$np.data[,temp.colname])) {
                     private$np.data[,temp.colname] <- base::as.factor(private$np.data[,temp.colname]);
@@ -279,6 +290,7 @@ R6_nppCART <- R6::R6Class(
                     }
                 }
 
+            # determining the collection of predictor variables which are ordered factors
             private$predictors_ordered_factor <- private$predictors[base::sapply(X = private$np.data[1,private$predictors], FUN = function(x) { return( base::is.factor(x) & base::is.ordered(x) ) } )]
 
             # convert ordered factors to numeric values (corresponding to their index in the list of levels)
@@ -300,13 +312,6 @@ R6_nppCART <- R6::R6Class(
                 base::stopifnot( base::max(base::unlist(base::lapply(X = private$np.data[,private$predictors_factor], FUN = function(x) { return( base::length(base::levels(x)) ) }))) <= private$max.levels ) # testing factors in np.data
                 base::stopifnot( base::max(base::unlist(base::lapply(X = private$p.data[, private$predictors_factor], FUN = function(x) { return( base::length(base::levels(x)) ) }))) <= private$max.levels ) # testing factors in p.data
             }
-
-            # add custom row ID:
-            private$np.syntheticID <- base::paste0(base::sample(x=letters,size=10,replace=TRUE),collapse="");
-            private$np.data[,private$np.syntheticID] <- base::seq(1,base::nrow(private$np.data));
-
-            private$p.syntheticID <- base::paste0(base::sample(x=letters,size=10,replace=TRUE),collapse="");
-            private$p.data[,private$p.syntheticID] <- base::seq(1,base::nrow(private$p.data));
 
             private$estimatedPopulationSize <- base::sum(private$p.data[,private$sampling.weight]);
 
@@ -542,6 +547,12 @@ R6_nppCART <- R6::R6Class(
                     by = private$np.syntheticID
                     );
                 }
+            retained.colnames <- base::c(private$np.syntheticID,base::setdiff(base::colnames(DF.output),base::colnames(private$np.data.original)));
+            DF.output <- base::merge(
+                x  = private$np.data.original,
+                y  = DF.output[,retained.colnames],
+                by = private$np.syntheticID
+                );
             DF.output <- DF.output[,base::setdiff(base::colnames(DF.output),private$np.syntheticID)];
             return( DF.output );
             },
@@ -598,6 +609,7 @@ R6_nppCART <- R6::R6Class(
         # instantiation data
         predictors        = NULL,
         np.data           = NULL,
+        np.data.original  = NULL,
          p.data           = NULL,
         sampling.weight   = NULL,
         bootstrap.weights = NULL,
