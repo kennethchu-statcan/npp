@@ -135,6 +135,17 @@ test.nppCART.AIC_do.one.simulation <- function(
         propensity.variable = "propensity"
         );
 
+    PNG.output <- paste0("plot-simulation-",population.flag,"-propensity-scatter-fully-grown.png");
+    ggsave(
+        filename = PNG.output,
+        plot     = my.ggplot.fully.grown,
+        dpi      = 300,
+        height   =  11,
+        width    =  10,
+        units    = 'in'
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.ggplot.pruned <- test.nppCART.AIC_do.one.simulation_scatter(
         DF.input            = DF.npdata.with.propensity,
         DF.population       = DF.population,
@@ -142,23 +153,14 @@ test.nppCART.AIC_do.one.simulation <- function(
         propensity.variable = "propensity.pruned"
         );
 
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.cowplot <- cowplot::plot_grid(
-        my.ggplot.fully.grown,
-        my.ggplot.pruned,
-        nrow       = 1,
-        align      = "h",
-        rel_widths = c(1,1)
-        );
-
-    PNG.output <- paste0("plot-simulation-",population.flag,"-propensity-scatter.png");
-    cowplot::ggsave2(
-        file   = PNG.output,
-        plot   = my.cowplot,
-        dpi    = 300,
-        height =  11,
-        width  =  20,
-        units  = 'in'
+    PNG.output <- paste0("plot-simulation-",population.flag,"-propensity-scatter-pruned.png");
+    ggsave(
+        filename = PNG.output,
+        plot     = my.ggplot.fully.grown,
+        dpi      = 300,
+        height   =  11,
+        width    =  10,
+        units    = 'in'
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -169,6 +171,17 @@ test.nppCART.AIC_do.one.simulation <- function(
         propensity.variable = "propensity"
         );
 
+    PNG.output <- paste0("plot-simulation-",population.flag,"-propensity-hex-fully-grown.png");
+    ggsave(
+        filename = PNG.output,
+        plot     = my.ggplot.fully.grown,
+        dpi      = 300,
+        height   =  11,
+        width    =  10,
+        units    = 'in'
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.ggplot.pruned <- test.nppCART.AIC_do.one.simulation_hex(
         DF.input            = DF.npdata.with.propensity,
         DF.population       = DF.population,
@@ -176,23 +189,14 @@ test.nppCART.AIC_do.one.simulation <- function(
         propensity.variable = "propensity.pruned"
         );
 
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.cowplot <- cowplot::plot_grid(
-        my.ggplot.fully.grown,
-        my.ggplot.pruned,
-        nrow       = 1,
-        align      = "h",
-        rel_widths = c(1,1)
-        );
-
-    PNG.output <- paste0("plot-simulation-",population.flag,"-propensity-hex.png");
-    cowplot::ggsave2(
-        file   = PNG.output,
-        plot   = my.cowplot,
-        dpi    = 300,
-        height =  11,
-        width  =  20,
-        units  = 'in'
+    PNG.output <- paste0("plot-simulation-",population.flag,"-propensity-hex-pruned.png");
+    ggsave(
+        filename = PNG.output,
+        plot     = my.ggplot.pruned,
+        dpi      = 300,
+        height   =  11,
+        width    =  10,
+        units    = 'in'
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
