@@ -52,7 +52,7 @@ test.nppCART.AIC <- function(
         DF.simulations   = DF.simulations,
         vline.xintercept = sum(DF.population[,'y']),
         bin.width        = 3000,
-        PNG.output       = paste0("plot-population-",population.flag,"-histograms.png")
+        PNG.output       = paste0("plot-simulation-",population.flag,"-histograms.png")
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
