@@ -156,7 +156,7 @@ test.nppCART.AIC_do.one.simulation <- function(
     PNG.output <- paste0("plot-simulation-",population.flag,"-propensity-scatter-pruned.png");
     ggsave(
         filename = PNG.output,
-        plot     = my.ggplot.fully.grown,
+        plot     = my.ggplot.pruned,
         dpi      = 300,
         height   =  11,
         width    =  10,
