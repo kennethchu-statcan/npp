@@ -69,8 +69,8 @@ test.nppCART.AIC_do.one.simulation <- function(
     DF.population   = NULL,
     prob.selection  = NULL,
     n.replicates    = NULL,
-    n.simulations   = NULL
-    # CSV.output      = paste0("DF-",population.flag,"-simulations.csv")
+    n.simulations   = NULL,
+    CSV.output      = paste0("DF-",population.flag,"-one-simulation.csv")
     ) {
 
     thisFunctionName <- "test.nppCART.AIC_do.one.simulation";
@@ -120,6 +120,12 @@ test.nppCART.AIC_do.one.simulation <- function(
     DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity();
     cat("\nstr(DF.npdata.with.propensity)\n");
     print( str(DF.npdata.with.propensity)   );
+
+    write.csv(
+        file      = CSV.output,
+        x         = DF.npdata.with.propensity,
+        row.names = FALSE
+        );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.ggplot.fully.grown <- test.nppCART.AIC_do.one.simulation_scatter(
