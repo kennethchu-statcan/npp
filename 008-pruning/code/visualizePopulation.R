@@ -10,12 +10,12 @@ visualizePopulation <- function(
     require(ggplot2);
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-    FILE.output <- paste0('plot-population-',population.flag,'-propensity-density.png');
+    FILE.output <- paste0('plot-population-',population.flag,'-y-density.png');
 
     my.ggplot <- ggplot(data = NULL) + theme_bw();
     my.ggplot <- my.ggplot + theme(
         title            = element_text(size = textsize.title, face = "bold"),
-        axis.title.x     = element_blank(),
+        axis.title.x     = element_text(size = textsize.axis,  face = "bold"),
         axis.title.y     = element_blank(),
         axis.text.x      = element_text(size = textsize.axis,  face = "bold"),
         axis.text.y      = element_text(size = textsize.axis,  face = "bold"),
@@ -28,6 +28,46 @@ visualizePopulation <- function(
         title    = NULL,
         subtitle = paste0("Population ",population.flag)
         );
+
+    my.ggplot <- my.ggplot + xlab("y (target variable)");
+
+    my.ggplot <- my.ggplot + scale_x_continuous(limits=c(-5,165),breaks=seq(0,160,20));
+
+    my.ggplot <- my.ggplot + geom_density(
+        data    = population,
+        mapping = aes(x = y)
+        );
+
+    ggsave(
+        file   = FILE.output,
+        plot   = my.ggplot,
+        dpi    = 300,
+        height =   8,
+        width  =  12,
+        units  = 'in'
+        );
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+    FILE.output <- paste0('plot-population-',population.flag,'-propensity-density.png');
+
+    my.ggplot <- ggplot(data = NULL) + theme_bw();
+    my.ggplot <- my.ggplot + theme(
+        title            = element_text(size = textsize.title, face = "bold"),
+        axis.title.x     = element_text(size = textsize.axis,  face = "bold"),
+        axis.title.y     = element_blank(),
+        axis.text.x      = element_text(size = textsize.axis,  face = "bold"),
+        axis.text.y      = element_text(size = textsize.axis,  face = "bold"),
+        panel.grid.major = element_line(colour="gray", linetype=2, size=0.25),
+        panel.grid.minor = element_line(colour="gray", linetype=2, size=0.25),
+        legend.title     = element_text(size = textsize.axis,  face = "bold")
+        );
+
+    my.ggplot <- my.ggplot + labs(
+        title    = NULL,
+        subtitle = paste0("Population ",population.flag)
+        );
+
+    my.ggplot <- my.ggplot + xlab("true propensity");
 
     my.ggplot <- my.ggplot + scale_x_continuous(limits=c(-0.05,1.05),breaks=seq(0,1,0.2));
 
