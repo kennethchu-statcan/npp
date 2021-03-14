@@ -72,7 +72,7 @@ test.nppCART.AIC(
     );
 
 test.nppCART.AIC(
-    seed            = 1234567,
+    seed            = 7654321, # 1234567,
     population.flag = "03",
     population.size = population.size,
     prob.selection  = as.numeric(pi/20), # 0.1570796,
