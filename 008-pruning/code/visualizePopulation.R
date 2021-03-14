@@ -175,8 +175,8 @@ visualizePopulation <- function(
         file   = FILE.output,
         plot   = my.ggplot,
         dpi    = 300,
-        height =   9,
-        width  =   8,
+        height =  11,
+        width  =  10,
         units  = 'in'
         );
 
