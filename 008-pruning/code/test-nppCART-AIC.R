@@ -326,6 +326,13 @@ test.nppCART.AIC_do.one.simulation_hex <- function(
         binwidth = c(0.02,0.02)
         );
 
+    my.ggplot <- my.ggplot + geom_abline(
+        slope     = 1,
+        intercept = 0,
+        colour    = "gray",
+        size      = 0.75
+        );
+
     return(my.ggplot);
 
     }
