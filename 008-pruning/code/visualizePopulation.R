@@ -92,41 +92,43 @@ visualizePopulation <- function(
 
     } else {
 
-        x1.levels <- levels(population$x1)
-        x2.levels <- levels(population$x2)
+        x1.levels <- levels(population$x1);
+        x2.levels <- levels(population$x2);
 
         my.ggplot <- my.ggplot + scale_x_continuous(
-            labels = function(x) {
-                return(lapply(
-                    X   = x,
-                    FUN = function(y) {
-                        if(y == 0 | y == length(x1.levels)+1) {
-                            return("")
-                        } else {
-                            return(x1.levels[y])
-                            }
-                        }
-                    ))
-                },
+            # labels = function(x) {
+            #     return(lapply(
+            #         X   = x,
+            #         FUN = function(y) {
+            #             if(y == 0 | y == length(x1.levels)+1) {
+            #                 return("")
+            #             } else {
+            #                 return(x1.levels[y])
+            #                 }
+            #             }
+            #         ))
+            #     },
             limits = c(  0,length(x1.levels)+1),
-            breaks = seq(0,length(x1.levels)+1,1)
+            breaks = seq(0,length(x1.levels)+1,1),
+            labels = c("",x1.levels,"")
             );
 
         my.ggplot <- my.ggplot + scale_y_continuous(
-            labels = function(x) {
-                return(lapply(
-                    X   = x,
-                    FUN = function(y) {
-                        if(y == 0 | y == length(x2.levels)+1) {
-                            return("")
-                        } else {
-                            return(x2.levels[y])
-                            }
-                        }
-                    ))
-                },
+            # labels = function(x) {
+            #     return(lapply(
+            #         X   = x,
+            #         FUN = function(y) {
+            #             if(y == 0 | y == length(x2.levels)+1) {
+            #                 return("")
+            #             } else {
+            #                 return(x2.levels[y])
+            #                 }
+            #             }
+            #         ))
+            #     },
             limits = c(  0,length(x2.levels)+1),
-            breaks = seq(0,length(x2.levels)+1,1)
+            breaks = seq(0,length(x2.levels)+1,1),
+            labels = c("",x2.levels,"")
             );
 
         my.ggplot <- my.ggplot + scale_colour_gradient(
