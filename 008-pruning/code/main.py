@@ -96,8 +96,6 @@ DF_nppCART = pandas.read_csv(filepath_or_buffer = "DF-sanity-nppCART-impurity-al
 max_diff_alpha = max(abs(df2['ccp_alpha'] - DF_nppCART['alpha']))
 print("max_absolute_difference(alpha): %s",max_diff_alpha)
 
-print(max_diff_alpha)
-
 max_diff_impurity = max(abs(df2['impurity'] - DF_nppCART['tree.impurity']))
 print("max_absolute_difference(impurity): %s",max_diff_impurity)
 

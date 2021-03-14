@@ -39,22 +39,22 @@ test.nppCART.AIC <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # DF.simulations <- test.nppCART.AIC_do.simulations(
-    #     seed            = seed,
-    #     population.flag = population.flag,
-    #     DF.population   = DF.population,
-    #     prob.selection  = prob.selection,
-    #     n.replicates    = n.replicates,
-    #     n.simulations   = n.simulations
-    #     );
-    #
-    # test.nppCART.AIC_plot.simulations(
-    #     DF.simulations   = DF.simulations,
-    #     vline.xintercept = sum(DF.population[,'y']),
-    #     bin.width        = 3000,
-    #     PNG.output       = paste0("plot-population-",population.flag,"-histograms.png")
-    #     );
-    #
+    DF.simulations <- test.nppCART.AIC_do.simulations(
+        seed            = seed,
+        population.flag = population.flag,
+        DF.population   = DF.population,
+        prob.selection  = prob.selection,
+        n.replicates    = n.replicates,
+        n.simulations   = n.simulations
+        );
+
+    test.nppCART.AIC_plot.simulations(
+        DF.simulations   = DF.simulations,
+        vline.xintercept = sum(DF.population[,'y']),
+        bin.width        = 3000,
+        PNG.output       = paste0("plot-population-",population.flag,"-histograms.png")
+        );
+
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
