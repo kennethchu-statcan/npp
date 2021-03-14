@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier, export_graphviz, export_text, plot_tree
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-DF_population = pandas.read_csv(filepath_or_buffer = "DF-sanity-population-python.csv")
+DF_population = pandas.read_csv(filepath_or_buffer = "DF-sanity-population-with-self-selection.csv")
 
 DF_population['x1'] = DF_population['x1'].str.replace(pat = 'small.1',  repl = '0.5')
 DF_population['x1'] = DF_population['x1'].str.replace(pat = 'small.2',  repl = '1.5')
@@ -77,17 +77,29 @@ print(impurities)
 temp = numpy.array([ccp_alphas, impurities])
 
 df2 = pandas.DataFrame(numpy.transpose(numpy.array([ccp_alphas, impurities])), columns = ['ccp_alpha','impurity'])
-df2.to_csv(path_or_buf = 'complexity-impurity.csv')
+df2.to_csv(path_or_buf = 'DF-sanity-sklearn-alpha-impurity.csv')
 print(df2)
 
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 fig, ax = plt.subplots()
 ax.plot(ccp_alphas[:-1], impurities[:-1], marker = 'o', drawstyle = "steps-post")
 ax.set_xlabel("effective alpha")
 ax.set_ylabel("total impurity of leaves")
 ax.set_title("Total Impurity vs effective alpha for training set")
 
-outputFILE = 'plot-impurity-vs-complexity.png'
+outputFILE = 'plot-sanity-sklearn-impurity-vs-alpha.png'
 plt.savefig(fname = outputFILE, dpi = 100)
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+DF_nppCART = pandas.read_csv(filepath_or_buffer = "DF-sanity-nppCART-impurity-alpha-AIC.csv")
+
+max_diff_alpha = max(abs(df2['ccp_alpha'] - DF_nppCART['alpha']))
+print("max_absolute_difference(alpha): %s",max_diff_alpha)
+
+print(max_diff_alpha)
+
+max_diff_impurity = max(abs(df2['impurity'] - DF_nppCART['tree.impurity']))
+print("max_absolute_difference(impurity): %s",max_diff_impurity)
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 

@@ -57,6 +57,12 @@ test.nppCART.sanity <- function(
     cat("\nDF.impurity.alpha.AIC\n");
     print( DF.impurity.alpha.AIC   );
 
+    write.csv(
+        x         = DF.impurity.alpha.AIC,
+        file      = "DF-sanity-nppCART-impurity-alpha-AIC.csv",
+        row.names = FALSE
+        );
+
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     is.self.selected <- (DF.population[,'unit.ID'] %in% list.samples[['DF.non.probability']][,'unit.ID']);
     DF.population[                ,'self.selected'] <- FALSE;
@@ -64,7 +70,7 @@ test.nppCART.sanity <- function(
 
     write.csv(
         x         = DF.population,
-        file      = "DF-sanity-population-python.csv",
+        file      = "DF-sanity-population-with-self-selection.csv",
         row.names = FALSE
         );
 
@@ -82,7 +88,7 @@ test.nppCART.sanity <- function(
     # cat("\nresults.rpart\n");
     # print( results.rpart   );
 
-    png("plot-rpart.png");
+    png("plot-sanity-rpart.png");
     rpart.plot(x = results.rpart);
     dev.off();
 
