@@ -55,24 +55,24 @@ population.size <- 10000;
 n.replicates    <-   500;
 n.simulations   <- ifelse(test = is.macOS, yes = 10, no = 200);
 
-test.nppCART.sanity(
-    seed            = 1234567,
-    population.flag = "sanity",
-    population.size = population.size,
-    n.replicates    = n.replicates
-    );
+#test.nppCART.sanity(
+#    seed            = 1234567,
+#    population.flag = "sanity",
+#    population.size = population.size,
+#    n.replicates    = n.replicates
+#    );
 
 test.nppCART.AIC(
-    seed            = 1234567,
-    population.flag = "02",
-    population.size = population.size,
-    prob.selection  = as.numeric(pi/20), # 0.1570796,
-    n.replicates    = n.replicates,
-    n.simulations   = n.simulations
-    );
+   seed            = 1234567,
+   population.flag = "02",
+   population.size = population.size,
+   prob.selection  = as.numeric(pi/20), # 0.1570796,
+   n.replicates    = n.replicates,
+   n.simulations   = n.simulations
+   );
 
 test.nppCART.AIC(
-    seed            = 7654321, # 1234567,
+    seed            = 7777777, # 7654321, # 1234567,
     population.flag = "03",
     population.size = population.size,
     prob.selection  = as.numeric(pi/20), # 0.1570796,
