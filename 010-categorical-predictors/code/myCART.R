@@ -322,8 +322,20 @@ myCART  <- R6Class(
                     currentRowIDs  = currentRowIDs,
                     input.colnames = self$predictors_factor
                     ));
+
+                if ( 216 == length(currentRowIDs) ) {
+                    cat("\nget_best_split(), length(currentRowIDs) = 216, temp.list:\n");
+                    print( temp.list );
+                    }
+
                 if (length(temp.list) > 0) {
                     for ( temp.name in names(temp.list) ) {
+
+                        if ( 216 == length(currentRowIDs) ) {
+                            cat("\nget_best_split(), length(currentRowIDs) = 216, sort(table(temp.list[[temp.name]])):\n");
+                            print( sort(table(temp.list[[temp.name]])) );
+                            }
+
                         # temp.labels <- names(sort(table(temp.list[[temp.name]]),decreasing=TRUE));
                         temp.labels <- names(sort(table(temp.list[[temp.name]])));
                         for ( temp.length in seq(1,length(temp.labels)-1) ) {
@@ -403,11 +415,17 @@ myCART  <- R6Class(
                 );
             #print(impurities)
 
+            if ( 216 == length(currentRowIDs) ) {
+                cat("\nget_best_split(), length(currentRowIDs) = 216, impurities:\n");
+                print( uniqueVarValuePairs );
+                print( impurities );
+                }
+
             # checks for NULL cases (no best split):
             #   -   uniqueVarValuePairs is empty (no available splits)
             #   -   all impurities are NaN (no meaningful splits)
             if(length(uniqueVarValuePairs) < 1 | all(lapply(X = impurities, FUN = function(x) { return( is.nan(x) ) }))) {
-                output <- NULL
+                output <- NULL;
             } else {
                 output <- uniqueVarValuePairs[[ which.min(impurities) ]];
             }
