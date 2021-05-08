@@ -8,8 +8,9 @@ test.myCART.categorical.predictors <- function(
     cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    require(titanic);
     require(rpart);
+    require(titanic);
+    require(tree);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.titanic <- test.myCART.categorical.predictors_get.titanic();
@@ -32,6 +33,26 @@ test.myCART.categorical.predictors <- function(
     myCART.object$grow();
     cat("\nmyCART.object$print()\n");
     print( myCART.object$print()   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    results.tree <- tree(
+        # formula = survived ~ .,
+        formula = survived ~ pclass + embarked,
+        data    = DF.titanic,
+        split   = "gini",
+        control = tree.control(
+            nobs    = nrow(DF.titanic),
+            mincut  = 1,
+            minsize = 2,
+            mindev  = 1e-50
+            )
+        );
+
+    cat("\nresults.tree\n");
+    print( results.tree   );
+
+    cat("\nstr(results.tree)\n");
+    print( str(results.tree)   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     results.rpart <- rpart(
