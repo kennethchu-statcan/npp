@@ -317,8 +317,9 @@ myCART  <- R6Class(
             uniqueVarValuePairs_ordered_factor <- list();
             uniqueVarValuePairs_numeric        <- list();
             if (length(self$predictors_factor) > 0) {
-                uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor(    currentRowIDs = currentRowIDs);
-              # uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV(currentRowIDs = currentRowIDs);
+              # uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor(    currentRowIDs = currentRowIDs);
+              # uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV1(currentRowIDs = currentRowIDs);
+                uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV2(currentRowIDs = currentRowIDs);
                 }
             if (length(self$predictors_ordered_factor) > 0) {
                 temp.list <- as.list(private$get_non_constant_columns(
@@ -443,7 +444,7 @@ myCART  <- R6Class(
                 }
             return( uniqueVarValuePairs_factor );
             },
-        get_uniqueVarValuePairs_factor_DEV = function(currentRowIDs = NULL) {
+        get_uniqueVarValuePairs_factor_DEV1 = function(currentRowIDs = NULL) {
             uniqueVarValuePairs_factor <- list();
             DF.non.constant <- private$get_non_constant_columns_factor(
                 DF.input       = self$data,
@@ -491,6 +492,79 @@ myCART  <- R6Class(
                                 )
                             );
                         }
+                    }
+                }
+            return( uniqueVarValuePairs_factor );
+            },
+        get_uniqueVarValuePairs_factor_DEV2 = function(currentRowIDs = NULL) {
+            uniqueVarValuePairs_factor <- list();
+            DF.non.constant <- private$get_non_constant_columns_factor(
+                DF.input       = self$data,
+                currentRowIDs  = currentRowIDs,
+                input.colnames = self$predictors_factor
+                );
+
+            if ( 216 == length(currentRowIDs) ) {
+                cat("\nget_best_split(), length(currentRowIDs) = 216, str(DF.non.constant):\n");
+                print( str(DF.non.constant) );
+                cat("\nget_best_split(), length(currentRowIDs) = 216, summary(DF.non.constant):\n");
+                print( summary(DF.non.constant) );
+                }
+
+            max.response    <- sort(x = unique(self$data[,self$response]), decreasing = TRUE)[1];
+            DF.non.constant <- as.data.frame(DF.non.constant);
+            DF.non.constant <- as.data.frame(DF.non.constant[DF.non.constant[,self$response] == max.response,]);
+
+            if ( ncol(DF.non.constant) > 1 ) {
+                for ( temp.colname in colnames(DF.non.constant)[2:ncol(DF.non.constant)] ) {
+
+                    cat(paste0("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", table(self$data[self$data[,self$syntheticID] %in% currentRowIDs,c(self$response,temp.colname)]):\n"));
+                    print( table(self$data[self$data[,self$syntheticID] %in% currentRowIDs,c(self$response,temp.colname)]) );
+
+                    DF.table <- as.data.frame(table( DF.non.constant[,c(self$response,temp.colname)] ));
+                    cat("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", DF.table:\n");
+                    print( DF.table );
+
+                    ### ~~~~~~~~~~~~~~~~~~~~~~ ###
+                    # temp.labels <- names(sort(table(temp.list[[temp.name]]),decreasing=TRUE));
+                    # temp.labels <- names(sort(table(temp.list[[temp.name]])));
+
+                    temp.labels <- as.character(DF.table[order(DF.table[,'Freq']),temp.colname]);
+                    cat("\nget_best_split(), temp.labels:\n");
+                    print( temp.labels );
+
+                    ### ~~~~~~~~~~~~~~~~~~~~~~ ###
+                    # for ( temp.length in seq(1,length(temp.labels)-1) ) {
+                    #     uniqueVarValuePairs_factor <- private$push(
+                    #         list = uniqueVarValuePairs_factor,
+                    #         x    = private$splitCriterion$new(
+                    #             varname    = temp.colname,
+                    #             threshold  = temp.labels[seq(1,temp.length)],
+                    #             comparison = private$is_element_of
+                    #             )
+                    #         );
+                    #     }
+
+                    ### ~~~~~~~~~~~~~~~~~~~~~~ ###
+                    temp.list <- list();
+                    for ( temp.label in temp.labels ) { temp.list[[ temp.label ]] <- c(TRUE,FALSE); }
+                    DF.grid <- expand.grid(temp.list);
+
+                    cat("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", DF.grid:\n");
+                    print( DF.grid );
+
+                    for ( temp.row.index in seq(2,nrow(DF.grid)-1) ) {
+                        uniqueVarValuePairs_factor <- private$push(
+                            list = uniqueVarValuePairs_factor,
+                            x    = private$splitCriterion$new(
+                                varname    = temp.colname,
+                                threshold  = colnames(DF.grid)[as.logical(DF.grid[temp.row.index,])],
+                                comparison = private$is_element_of
+                                )
+                            );
+                        }
+                    base::remove("DF.grid");
+
                     }
                 }
             return( uniqueVarValuePairs_factor );
