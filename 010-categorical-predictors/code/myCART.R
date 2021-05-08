@@ -317,7 +317,8 @@ myCART  <- R6Class(
             uniqueVarValuePairs_ordered_factor <- list();
             uniqueVarValuePairs_numeric        <- list();
             if (length(self$predictors_factor) > 0) {
-                uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor(currentRowIDs = currentRowIDs);
+                uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor(    currentRowIDs = currentRowIDs);
+              # uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV(currentRowIDs = currentRowIDs);
                 }
             if (length(self$predictors_ordered_factor) > 0) {
                 temp.list <- as.list(private$get_non_constant_columns(
@@ -416,13 +417,18 @@ myCART  <- R6Class(
             if (length(temp.list) > 0) {
                 for ( temp.name in names(temp.list) ) {
 
-                    if ( 216 == length(currentRowIDs) ) {
-                        cat("\nget_best_split(), length(currentRowIDs) = 216, sort(table(temp.list[[temp.name]])):\n");
-                        print( sort(table(temp.list[[temp.name]])) );
-                        }
+                    cat(paste0("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", table(self$data[self$data[,self$syntheticID] %in% currentRowIDs,c(self$response,temp.name)]):\n"));
+                    print( table(self$data[self$data[,self$syntheticID] %in% currentRowIDs,c(self$response,temp.name)]) );
+
+                    cat(paste0("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", sort(table(temp.list[[temp.name]])):\n"));
+                    print( sort(table(temp.list[[temp.name]])) );
 
                     # temp.labels <- names(sort(table(temp.list[[temp.name]]),decreasing=TRUE));
                     temp.labels <- names(sort(table(temp.list[[temp.name]])));
+
+                    cat("\nget_best_split(), temp.labels:\n");
+                    print( temp.labels );
+
                     for ( temp.length in seq(1,length(temp.labels)-1) ) {
                         uniqueVarValuePairs_factor <- private$push(
                             list = uniqueVarValuePairs_factor,
@@ -459,16 +465,21 @@ myCART  <- R6Class(
             if ( ncol(DF.non.constant) > 1 ) {
                 for ( temp.colname in colnames(DF.non.constant)[2:ncol(DF.non.constant)] ) {
 
+                    cat(paste0("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", table(self$data[self$data[,self$syntheticID] %in% currentRowIDs,c(self$response,temp.colname)]):\n"));
+                    print( table(self$data[self$data[,self$syntheticID] %in% currentRowIDs,c(self$response,temp.colname)]) );
+
                     DF.table <- as.data.frame(table( DF.non.constant[,c(self$response,temp.colname)] ));
 
-                    if ( 216 == length(currentRowIDs) ) {
-                        cat("\nget_best_split(), length(currentRowIDs) = 216, DF.table:\n");
+                    # if ( 216 == length(currentRowIDs) ) {
+                        cat("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", DF.table:\n");
                         print( DF.table );
-                        }
+                        # }
 
                     # temp.labels <- names(sort(table(temp.list[[temp.name]]),decreasing=TRUE));
                     # temp.labels <- names(sort(table(temp.list[[temp.name]])));
                     temp.labels <- as.character(DF.table[order(DF.table[,'Freq']),temp.colname]);
+                    cat("\nget_best_split(), temp.labels:\n");
+                    print( temp.labels );
 
                     for ( temp.length in seq(1,length(temp.labels)-1) ) {
                         uniqueVarValuePairs_factor <- private$push(
