@@ -318,8 +318,8 @@ myCART  <- R6Class(
             uniqueVarValuePairs_numeric        <- list();
             if (length(self$predictors_factor) > 0) {
               # uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor(    currentRowIDs = currentRowIDs);
-              # uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV1(currentRowIDs = currentRowIDs);
-                uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV2(currentRowIDs = currentRowIDs);
+                uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV1(currentRowIDs = currentRowIDs);
+              # uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV2(currentRowIDs = currentRowIDs);
                 }
             if (length(self$predictors_ordered_factor) > 0) {
                 temp.list <- as.list(private$get_non_constant_columns(
@@ -459,9 +459,9 @@ myCART  <- R6Class(
                 print( summary(DF.non.constant) );
                 }
 
-            max.response    <- sort(x = unique(self$data[,self$response]), decreasing = TRUE)[1];
-            DF.non.constant <- as.data.frame(DF.non.constant);
-            DF.non.constant <- as.data.frame(DF.non.constant[DF.non.constant[,self$response] == max.response,]);
+            # max.response    <- sort(x = unique(self$data[,self$response]), decreasing = TRUE)[1];
+            # DF.non.constant <- as.data.frame(DF.non.constant);
+            # DF.non.constant <- as.data.frame(DF.non.constant[DF.non.constant[,self$response] == max.response,]);
 
             if ( ncol(DF.non.constant) > 1 ) {
                 for ( temp.colname in colnames(DF.non.constant)[2:ncol(DF.non.constant)] ) {
@@ -469,16 +469,19 @@ myCART  <- R6Class(
                     cat(paste0("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", table(self$data[self$data[,self$syntheticID] %in% currentRowIDs,c(self$response,temp.colname)]):\n"));
                     print( table(self$data[self$data[,self$syntheticID] %in% currentRowIDs,c(self$response,temp.colname)]) );
 
-                    DF.table <- as.data.frame(table( DF.non.constant[,c(self$response,temp.colname)] ));
+                    DF.table <- table( DF.non.constant[,c(self$response,temp.colname)] );
+                    cat("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", DF.table:\n");
+                    print( DF.table );
 
-                    # if ( 216 == length(currentRowIDs) ) {
-                        cat("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", DF.table:\n");
-                        print( DF.table );
-                        # }
+                    temp.totals        <- colSums(DF.table); # DF.table[1,] + DF.table[2,];
+                    temp.probabilities <- DF.table[1,temp.totals>0] / temp.totals[temp.totals>0];
+                    temp.probabilities <- sort(temp.probabilities);
+                    cat("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", temp.probabilities:\n");
+                    print( temp.probabilities );
+                    cat("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", names(temp.probabilities):\n");
+                    print( names(temp.probabilities) );
 
-                    # temp.labels <- names(sort(table(temp.list[[temp.name]]),decreasing=TRUE));
-                    # temp.labels <- names(sort(table(temp.list[[temp.name]])));
-                    temp.labels <- as.character(DF.table[order(DF.table[,'Freq']),temp.colname]);
+                    temp.labels <- names(temp.probabilities);
                     cat("\nget_best_split(), temp.labels:\n");
                     print( temp.labels );
 
