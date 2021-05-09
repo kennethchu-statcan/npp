@@ -23,8 +23,9 @@ test.myCART.categorical.predictors <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     myCART.object <- myCART$new(
+        formula = survived ~ pclass + embarked + sibsp,
         # formula = survived ~ .,
-        formula = survived ~ pclass + embarked,
+        # formula = survived ~ pclass + embarked,
         # formula = survived ~ age + pclass + embarked,
         # formula = survived ~ sex + pclass + embarked,
         data    = DF.titanic
@@ -36,8 +37,9 @@ test.myCART.categorical.predictors <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     results.tree <- tree(
+        formula = survived ~ pclass + embarked + sibsp,
         # formula = survived ~ .,
-        formula = survived ~ pclass + embarked,
+        # formula = survived ~ pclass + embarked,
         data    = DF.titanic,
         split   = "gini",
         control = tree.control(
@@ -56,8 +58,9 @@ test.myCART.categorical.predictors <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     results.rpart <- rpart(
+        formula = survived ~ pclass + embarked + sibsp,
         # formula = survived ~ .,
-        formula = survived ~ pclass + embarked,
+        # formula = survived ~ pclass + embarked,
         data    = DF.titanic,
         method  = "anova", # "class",
         control = list(
