@@ -47,9 +47,12 @@ for ( file.R in files.R ) {
 ###################################################
 # test.myCART.grow();
 # test.myCART.get.pruned.nodes();
-test.myCART.categorical.predictors();
+# test.myCART.categorical.predictors();
 
-# test.nppCART.iris(seed = 7654321);
+test.nppCART.sanity(
+    seed            = 7654321,
+    population.size = 200
+    );
 
 # is.macOS <- grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE);
 #

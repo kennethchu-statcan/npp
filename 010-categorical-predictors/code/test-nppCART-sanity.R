@@ -12,11 +12,20 @@ test.nppCART.sanity <- function(
     cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    require(rpart);
+    require(tree);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.population <- test.nppCART_get.population(
         seed            = seed,
         population.flag = population.flag,
-        population.size = population.size
+        population.size = population.size,
+        ordered.x1      = FALSE,
+        ordered.x2      = FALSE
         );
+
+    cat("\nstr(DF.population)\n");
+    print( str(DF.population)   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     list.samples  <- test.nppCART_get.samples(
@@ -34,12 +43,56 @@ test.nppCART.sanity <- function(
     print( summary(list.samples[['DF.probability']][,c('unit.ID','x1','x2','sampling.fraction','design.weight')])   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    is.self.selected <- (DF.population[,'unit.ID'] %in% list.samples[['DF.non.probability']][,'unit.ID']);
+    DF.population[                ,'self.selected'] <- FALSE;
+    DF.population[is.self.selected,'self.selected'] <- TRUE;
+
+    write.csv(
+        x         = DF.population,
+        file      = "DF-sanity-population-with-self-selection.csv",
+        row.names = FALSE
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    results.tree <- tree(
+        formula = self.selected ~ .,
+        data    = DF.population[,c('x1','x2','self.selected')],,
+        split   = "gini",
+        control = tree.control(
+            nobs    = nrow(DF.population),
+            mincut  = 1,
+            minsize = 2,
+            mindev  = 1e-50
+            )
+        );
+
+    cat("\nresults.tree\n");
+    print( results.tree   );
+
+    # cat("\nstr(results.tree)\n");
+    # print( str(results.tree)   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    results.rpart <- rpart(
+        formula = self.selected ~ .,
+        data    = DF.population[,c('x1','x2','self.selected')],
+        control = list(
+            minsplit  = 1,
+            minbucket = 1,
+            cp        = 0
+            )
+        );
+
+    cat("\nresults.rpart\n");
+    print( results.rpart   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.nppCART <- nppCART(
         np.data           = list.samples[['DF.non.probability']],
         p.data            = list.samples[['DF.probability'    ]], # DF.probability,
         predictors        = c("x1","x2"),
         sampling.weight   = "design.weight",
-        bootstrap.weights = paste0("repweight",seq(1,n.replicates)),
+      # bootstrap.weights = paste0("repweight",seq(1,n.replicates)),
         min.cell.size     = 1,
         min.impurity      = 1e-9,
         max.levels        = 10000
@@ -62,6 +115,16 @@ test.nppCART.sanity <- function(
         file      = "DF-sanity-nppCART-impurity-alpha-AIC.csv",
         row.names = FALSE
         );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat(paste0("\n# ",thisFunctionName,"() quits."));
+    cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
+    return( NULL );
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     is.self.selected <- (DF.population[,'unit.ID'] %in% list.samples[['DF.non.probability']][,'unit.ID']);
@@ -98,3 +161,5 @@ test.nppCART.sanity <- function(
     return( NULL );
 
     }
+
+##################################################

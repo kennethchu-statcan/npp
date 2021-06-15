@@ -88,6 +88,8 @@ test.nppCART_get.population <- function(
     seed            = 1234567,
     population.flag = NULL,
     population.size = NULL,
+    ordered.x1      = TRUE,
+    ordered.x2      = TRUE,
     CSV.population  = paste0("DF-",population.flag,"-population.csv")
     ) {
     if ( file.exists(CSV.population) ) {
@@ -97,22 +99,30 @@ test.nppCART_get.population <- function(
     if ( "01" == population.flag ) {
         DF.population <- test.nppCART_get.population.01(
             seed            = seed,
-            population.size = population.size
+            population.size = population.size,
+            ordered.x1      = ordered.x1,
+            ordered.x2      = ordered.x2
             );
     } else if ( "02" == population.flag ) {
         DF.population <- test.nppCART_get.population.02(
             seed            = seed,
-            population.size = population.size
+            population.size = population.size,
+            ordered.x1      = ordered.x1,
+            ordered.x2      = ordered.x2
             );
     } else if ( "sanity" == population.flag ) {
         DF.population <- test.nppCART_get.population.03(
             seed            = seed,
-            population.size = population.size
+            population.size = population.size,
+            ordered.x1      = ordered.x1,
+            ordered.x2      = ordered.x2
             );
     } else {
         DF.population <- test.nppCART_get.population.03(
             seed            = seed,
-            population.size = population.size
+            population.size = population.size,
+            ordered.x1      = ordered.x1,
+            ordered.x2      = ordered.x2
             );
         }
     write.csv(
@@ -125,7 +135,9 @@ test.nppCART_get.population <- function(
 
 test.nppCART_get.population.02 <- function(
     seed            = 1234567,
-    population.size = NULL
+    population.size = NULL,
+    ordered.x1      = TRUE,
+    ordered.x2      = TRUE
     ) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -139,8 +151,8 @@ test.nppCART_get.population.02 <- function(
     levels.x1 <- c("small","medium","large");
     levels.x2 <- c("petit","moyen", "grand");
 
-    x1 <- factor(x = sample(x = levels.x1, size = population.size, replace = TRUE), levels = levels.x1, ordered = TRUE);
-    x2 <- factor(x = sample(x = levels.x2, size = population.size, replace = TRUE), levels = levels.x2, ordered = TRUE);
+    x1 <- factor(x = sample(x = levels.x1, size = population.size, replace = TRUE), levels = levels.x1, ordered = ordered.x1);
+    x2 <- factor(x = sample(x = levels.x2, size = population.size, replace = TRUE), levels = levels.x2, ordered = ordered.x2);
 
     c1 <- as.numeric(x1) - 0.5;
     c2 <- as.numeric(x2) - 0.5;
@@ -174,7 +186,9 @@ test.nppCART_get.population.02 <- function(
 
 test.nppCART_get.population.03 <- function(
     seed            = 1234567,
-    population.size = NULL
+    population.size = NULL,
+    ordered.x1      = TRUE,
+    ordered.x2      = TRUE
     ) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -188,8 +202,8 @@ test.nppCART_get.population.03 <- function(
     levels.x1.hidden <- c("small","medium","large");
     levels.x2.hidden <- c("petit","moyen", "grand");
 
-    x1.hidden <- factor(x = sample(x = levels.x1.hidden, size = population.size, replace = TRUE), levels = levels.x1.hidden, ordered = TRUE);
-    x2.hidden <- factor(x = sample(x = levels.x2.hidden, size = population.size, replace = TRUE), levels = levels.x2.hidden, ordered = TRUE);
+    x1.hidden <- factor(x = sample(x = levels.x1.hidden, size = population.size, replace = TRUE), levels = levels.x1.hidden, ordered = ordered.x1);
+    x2.hidden <- factor(x = sample(x = levels.x2.hidden, size = population.size, replace = TRUE), levels = levels.x2.hidden, ordered = ordered.x2);
 
     c1 <- as.numeric(x1.hidden) - 0.5;
     c2 <- as.numeric(x2.hidden) - 0.5;
@@ -230,8 +244,8 @@ test.nppCART_get.population.03 <- function(
         FUN    = function(x) { return(paste(x,collapse=".")) }
         );
 
-    DF.population[,'x1'] <- factor(x = DF.population[,'x1'], levels = levels.x1, ordered = TRUE);
-    DF.population[,'x2'] <- factor(x = DF.population[,'x2'], levels = levels.x2, ordered = TRUE);
+    DF.population[,'x1'] <- factor(x = DF.population[,'x1'], levels = levels.x1, ordered = ordered.x1);
+    DF.population[,'x2'] <- factor(x = DF.population[,'x2'], levels = levels.x2, ordered = ordered.x2);
 
     DF.population[,"x1.jitter"] <- as.numeric(DF.population[,"x1"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
     DF.population[,"x2.jitter"] <- as.numeric(DF.population[,"x2"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);

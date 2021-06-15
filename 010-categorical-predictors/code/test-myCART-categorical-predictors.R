@@ -9,7 +9,6 @@ test.myCART.categorical.predictors <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     require(rpart);
-    require(titanic);
     require(tree);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -137,6 +136,8 @@ test.myCART.categorical.predictors <- function(
 
 ##################################################
 test.myCART.categorical.predictors_get.titanic <- function() {
+
+    require(titanic);
 
     DF.output <- titanic_train;
     colnames(DF.output) <- tolower(colnames(DF.output));
