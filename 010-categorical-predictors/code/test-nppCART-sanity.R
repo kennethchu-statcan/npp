@@ -117,6 +117,39 @@ test.nppCART.sanity <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.rpart.leaves <- results.rpart[['frame']][results.rpart[['frame']][,'var'] == '<leaf>',c('var','n','complexity')];
+    cat("\nDF.rpart.leaves\n");
+    print( DF.rpart.leaves   );
+
+    DF.nppCART.leaves <- unique(DF.npdata.with.propensity[,c('nodeID','propensity','np.count','p.weight','impurity')]);
+    cat("\nDF.nppCART.leaves\n");
+    print( DF.nppCART.leaves   );
+
+    leaf.sizes.rpart   <- sort(DF.rpart.leaves[,  'n'       ]);
+    leaf.sizes.nppCART <- sort(DF.nppCART.leaves[,'p.weight']);
+
+    cat("\nlength(leaf.sizes.rpart)\n");
+    print( length(leaf.sizes.rpart)   );
+
+    cat("\nlength(leaf.sizes.nppCART)\n");
+    print( length(leaf.sizes.nppCART)   );
+
+    cat("\nsummary(leaf.sizes.rpart)\n");
+    print( summary(leaf.sizes.rpart)   );
+
+    cat("\nsummary(leaf.sizes.nppCART)\n");
+    print( summary(leaf.sizes.nppCART)   );
+
+    if ( length(leaf.sizes.rpart) == length(leaf.sizes.nppCART) ) {
+        DF.leaf.sizes <- data.frame(leaf.sizes.rpart = leaf.sizes.rpart, leaf.sizes.nppCART = leaf.sizes.nppCART);
+        DF.leaf.sizes[,'abs.diff'] <- abs(DF.leaf.sizes[,'leaf.sizes.rpart'] - DF.leaf.sizes[,'leaf.sizes.nppCART']);
+        cat("\nDF.leaf.sizes\n");
+        print( DF.leaf.sizes   );
+        cat("\nmax(DF.leaf.sizes[,'abs.diff'])\n");
+        print( max(DF.leaf.sizes[,'abs.diff'])   );
+        }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
