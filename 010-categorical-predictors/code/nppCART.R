@@ -961,8 +961,13 @@ R6_nppCART <- R6::R6Class(
             if ( 2 == length(np.currentRowIDs) & 5 == length(p.currentRowIDs)  ) {
                 cat("\n##########  LOOK  HERE  ##########\n")
                 cat(paste0("\nget_best_split(), length(np.currentRowIDs) = ",length(np.currentRowIDs),", length(p.currentRowIDs) = ",length(p.currentRowIDs),"\n"));
+
                 cat("\nprivate$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,]\n");
                 print( private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,]   );
+
+                cat("\nprivate$p.data[private$p.data[,private$p.syntheticID] %in% p.currentRowIDs,setdiff(colnames(private$p.data),private$bootstrap.weights)]\n");
+                print( private$p.data[private$p.data[,private$p.syntheticID] %in% p.currentRowIDs,setdiff(colnames(private$p.data),private$bootstrap.weights)]   );
+
                 cat("\nDF.non.constant\n");
                 print( DF.non.constant   );
                 }
@@ -1038,7 +1043,15 @@ R6_nppCART <- R6::R6Class(
         get_non_constant_columns_factor = function(DF.input = NULL, currentRowIDs = NULL, input.colnames = NULL) {
             DF.output             <- as.data.frame(DF.input[DF.input[,private$np.syntheticID] %in% currentRowIDs,input.colnames]);
             colnames(DF.output)   <- input.colnames;
+
+            cat("\nget_non_constant_columns_factor(): DF.output\n");
+            print( DF.output );
+
             nUniqueValues         <- apply(X = DF.output, MARGIN = 2, FUN = function(x) { return(length(unique(x))) } );
+
+            cat("\nget_non_constant_columns_factor(): nUniqueValues\n");
+            print( nUniqueValues );
+
             is.nonconstant.column <- (nUniqueValues > 1);
             DF.output             <- as.data.frame(DF.output[,is.nonconstant.column]);
             colnames(DF.output)   <- input.colnames[is.nonconstant.column];
