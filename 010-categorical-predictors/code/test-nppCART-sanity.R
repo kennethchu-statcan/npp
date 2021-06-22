@@ -94,7 +94,7 @@ test.nppCART.sanity <- function(
         sampling.weight   = "design.weight",
       # bootstrap.weights = paste0("repweight",seq(1,n.replicates)),
         min.cell.size     = 1,
-        min.impurity      = 1e-9,
+        min.impurity      = 1e-300, # 1e-9,
         max.levels        = 10000
         );
 
