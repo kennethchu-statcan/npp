@@ -911,7 +911,7 @@ R6_nppCART <- R6::R6Class(
             # DF.non.constant <- as.data.frame(DF.non.constant);
             # DF.non.constant <- as.data.frame(DF.non.constant[DF.non.constant[,self$response] == max.response,]);
 
-            if ( base::ncol(DF.non.constant) > 1 ) {
+            if ( base::ncol(DF.non.constant) > 0 ) {
                 for ( temp.colname in base::colnames(DF.non.constant) ) {
 
                     cat(paste0("\nget_best_split(), length(np.currentRowIDs) = ",base::length(np.currentRowIDs),", table(private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,temp.colname]):\n"));
@@ -958,7 +958,16 @@ R6_nppCART <- R6::R6Class(
                 input.colnames = private$predictors_factor
                 );
 
-            if ( base::ncol(DF.non.constant) > 1 ) {
+            if ( 2 == length(np.currentRowIDs) & 5 == length(p.currentRowIDs)  ) {
+                cat("\n##########  LOOK  HERE  ##########\n")
+                cat(paste0("\nget_best_split(), length(np.currentRowIDs) = ",length(np.currentRowIDs),", length(p.currentRowIDs) = ",length(p.currentRowIDs),"\n"));
+                cat("\nprivate$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,]\n");
+                print( private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,]   );
+                cat("\nDF.non.constant\n");
+                print( DF.non.constant   );
+                }
+
+            if ( base::ncol(DF.non.constant) > 0 ) {
                 for ( temp.colname in base::colnames(DF.non.constant) ) {
 
                     cat(paste0("\nget_best_split(), length(np.currentRowIDs) = ",length(np.currentRowIDs),", table(private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,temp.colname]):\n"));
