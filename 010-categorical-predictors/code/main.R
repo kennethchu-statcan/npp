@@ -51,7 +51,7 @@ for ( file.R in files.R ) {
 
 test.nppCART.sanity(
     seed            = 7654321,
-    population.size = 200
+    population.size = 10000 # 200
     );
 
 # is.macOS <- grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE);
