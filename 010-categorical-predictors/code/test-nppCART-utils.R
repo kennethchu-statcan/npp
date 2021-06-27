@@ -17,7 +17,7 @@ test.nppCART_get.samples <- function(
         );
     DF.non.probability <- DF.population;
     DF.non.probability[,"self.selected"] <- is.self.selected;
-    DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("unit.ID","y","x1","x2","x1.jitter","x2.jitter")];
+    DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("unit.ID","y","x1","x2","x3","x1.jitter","x2.jitter","x3.hidden")];
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     is.selected <- sample(
@@ -27,7 +27,7 @@ test.nppCART_get.samples <- function(
         prob    = c(prob.selection, 1 - prob.selection)
         );
 
-    DF.probability <- DF.population[is.selected,c("unit.ID","x1","x2")];
+    DF.probability <- DF.population[is.selected,c("unit.ID","x1","x2","x3")];
     DF.probability[,"sampling.fraction"] <- prob.selection;
     DF.probability[,"design.weight"    ] <- 1 / prob.selection;
 
@@ -96,8 +96,8 @@ test.nppCART_get.population <- function(
         DF.population <- read.csv(file = CSV.population);
         return( DF.population );
         }
-    if ( "01" == population.flag ) {
-        DF.population <- test.nppCART_get.population.01(
+    if ( "mixed" == population.flag ) {
+        DF.population <- test.nppCART_get.population.mixed(
             seed            = seed,
             population.size = population.size,
             ordered.x1      = ordered.x1,
@@ -131,6 +131,91 @@ test.nppCART_get.population <- function(
         row.names = FALSE
         );
     return( DF.population );
+    }
+
+test.nppCART_get.population.mixed <- function(
+    seed            = 1234567,
+    population.size = NULL,
+    ordered.x1      = TRUE,
+    ordered.x2      = TRUE
+    ) {
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat(paste0("\n# randomization seed: ",seed,"\n"));
+    set.seed(seed = seed);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    require(survey);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    levels.x1.hidden <- c("small","medium","large");
+    levels.x2.hidden <- c("petit","moyen", "grand");
+    levels.x3.hidden <- c("A",    "B",     "C"    );
+
+    x1.hidden <- factor(x = sample(x = levels.x1.hidden, size = population.size, replace = TRUE), levels = levels.x1.hidden, ordered = ordered.x1);
+    x2.hidden <- factor(x = sample(x = levels.x2.hidden, size = population.size, replace = TRUE), levels = levels.x2.hidden, ordered = ordered.x2);
+    x3.hidden <- factor(x = sample(x = levels.x3.hidden, size = population.size, replace = TRUE), levels = levels.x3.hidden, ordered = FALSE     );
+
+    c1 <- as.numeric(x1.hidden) - 0.5;
+    c2 <- as.numeric(x2.hidden) - 0.5;
+    c3 <- as.numeric(x3.hidden) - 0.5;
+    is.off.diagonals <- (c2 - c1 == 1 | c2 - c1 == -1);
+
+    is.high.propensity.A <- ( (x3.hidden == "A") &   is.off.diagonals  );
+    is.high.propensity.B <- ( (x3.hidden == "B") & (!is.off.diagonals) );
+    is.high.propensity.C <- ( (x3.hidden == "C") &   is.off.diagonals  );
+    is.high.propensity   <- ( is.high.propensity.A | is.high.propensity.B | is.high.propensity.C );
+
+    true.propensity                     <- rnorm(n = population.size,         mean = 0.25, sd = 0.025);
+    true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 0.75, sd = 0.025);
+
+    y0 <- rep(x = 30, times = population.size);
+    y0[is.high.propensity] <- 110;
+
+    epsilon <- rnorm(n = population.size, mean = 0, sd = 1.0)
+    y <- y0 + epsilon^2;
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    levels.x1 <- as.vector(sapply( X = levels.x1.hidden, FUN = function(x) {return(paste(x,1:3,sep="."))} ));
+    levels.x2 <- as.vector(sapply( X = levels.x2.hidden, FUN = function(x) {return(paste(x,1:3,sep="."))} ));
+
+    DF.population <- data.frame(
+        unit.ID         = seq(1,population.size),
+        y               = y,
+        x1.hidden       = x1.hidden,
+        x2.hidden       = x2.hidden,
+        subgroup.1      = sample(x = 1:3, size = population.size, replace = TRUE),
+        subgroup.2      = sample(x = 1:3, size = population.size, replace = TRUE),
+        x3              = x3.hidden,
+        x3.hidden       = x3.hidden,
+        true.propensity = true.propensity
+        );
+
+    DF.population[,'x1'] <- apply(
+        X      = DF.population[,c('x1.hidden','subgroup.1')],
+        MARGIN = 1,
+        FUN    = function(x) { return(paste(x,collapse=".")) }
+        );
+
+    DF.population[,'x2'] <- apply(
+        X      = DF.population[,c('x2.hidden','subgroup.2')],
+        MARGIN = 1,
+        FUN    = function(x) { return(paste(x,collapse=".")) }
+        );
+
+    DF.population[,'x1'] <- factor(x = DF.population[,'x1'], levels = levels.x1, ordered = ordered.x1);
+    DF.population[,'x2'] <- factor(x = DF.population[,'x2'], levels = levels.x2, ordered = ordered.x2);
+
+    DF.population[,"x1.jitter"] <- as.numeric(DF.population[,"x1"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+    DF.population[,"x2.jitter"] <- as.numeric(DF.population[,"x2"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+
+  # DF.population[,"x3"] <- as.numeric(DF.population[,"x3"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+    DF.population[,"x3"] <- as.numeric(DF.population[,"x3"]) + sample(x = c(-0.2,0,0.2), size = nrow(DF.population), replace = TRUE);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.population <- DF.population[,c('unit.ID','y','x1','x2','x3','true.propensity','x1.jitter','x2.jitter','x3.hidden')];
+    return( DF.population );
+
     }
 
 test.nppCART_get.population.02 <- function(

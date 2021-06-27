@@ -21,7 +21,7 @@ test.nppCART.sanity <- function(
         population.flag = population.flag,
         population.size = population.size,
         ordered.x1      = FALSE,
-        ordered.x2      = FALSE
+        ordered.x2      = TRUE
         );
 
     cat("\nstr(DF.population)\n");
@@ -54,20 +54,20 @@ test.nppCART.sanity <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    results.tree <- tree(
-        formula = self.selected ~ .,
-        data    = DF.population[,c('x1','x2','self.selected')],,
-        split   = "gini",
-        control = tree.control(
-            nobs    = nrow(DF.population),
-            mincut  = 1,
-            minsize = 2,
-            mindev  = 1e-50
-            )
-        );
-
-    cat("\nresults.tree\n");
-    print( results.tree   );
+    # results.tree <- tree(
+    #     formula = self.selected ~ .,
+    #     data    = DF.population[,c('x1','x2','x3','self.selected')],,
+    #     split   = "gini",
+    #     control = tree.control(
+    #         nobs    = nrow(DF.population),
+    #         mincut  = 1,
+    #         minsize = 2,
+    #         mindev  = 1e-50
+    #         )
+    #     );
+    #
+    # cat("\nresults.tree\n");
+    # print( results.tree   );
 
     # cat("\nstr(results.tree)\n");
     # print( str(results.tree)   );
@@ -75,7 +75,7 @@ test.nppCART.sanity <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     results.rpart <- rpart(
         formula = self.selected ~ .,
-        data    = DF.population[,c('x1','x2','self.selected')],
+        data    = DF.population[,c('x1','x2','x3','self.selected')],
         control = list(
             minsplit  = 1,
             minbucket = 1,
@@ -89,8 +89,8 @@ test.nppCART.sanity <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.nppCART <- nppCART(
         np.data                   = list.samples[['DF.non.probability']],
-        p.data                    = list.samples[['DF.probability'    ]], # DF.probability,
-        predictors                = c("x1","x2"),
+        p.data                    = list.samples[['DF.probability'    ]],
+        predictors                = c("x1","x2","x3"),
         sampling.weight           = "design.weight",
       # bootstrap.weights         = paste0("repweight",seq(1,n.replicates)),
         min.cell.size             = 1,
@@ -112,7 +112,7 @@ test.nppCART.sanity <- function(
 
     write.csv(
         x         = DF.impurity.alpha.AIC,
-        file      = "DF-sanity-nppCART-impurity-alpha-AIC.csv",
+        file      = paste0("DF-",population.flag,"-nppCART-impurity-alpha-AIC.csv"),
         row.names = FALSE
         );
 
@@ -125,6 +125,19 @@ test.nppCART.sanity <- function(
     cat("\nDF.nppCART.leaves\n");
     print( DF.nppCART.leaves   );
 
+    write.csv(
+        x         = DF.rpart.leaves,
+        file      = paste0("DF-",population.flag,"-leaves-rpart.csv"),
+        row.names = FALSE
+        );
+
+    write.csv(
+        x         = DF.nppCART.leaves,
+        file      = paste0("DF-",population.flag,"-leaves-nppCART.csv"),
+        row.names = FALSE
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     leaf.sizes.rpart   <- sort(DF.rpart.leaves[,  'n'       ]);
     leaf.sizes.nppCART <- sort(DF.nppCART.leaves[,'p.weight']);
 
