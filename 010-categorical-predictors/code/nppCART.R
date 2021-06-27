@@ -783,32 +783,10 @@ R6_nppCART <- R6::R6Class(
             uniqueVarValuePairs_factor  <- list();
             uniqueVarValuePairs_numeric <- list();
             if (base::length(private$predictors_factor) > 0) {
-                # temp.list <- base::as.list(private$get_non_constant_columns(
-                #     DF.input       = private$np.data,
-                #     currentRowIDs  = np.currentRowIDs,
-                #     input.colnames = private$predictors_factor
-                #     ));
-                # if (base::length(temp.list) > 0) {
-                #     uniqueVarValuePairs_factor <- private$get_var_value_pairs(
-                #         x = base::lapply(
-                #             X   = temp.list,
-                #             FUN = function(x) { return( private$get_midpoints(x) ); }
-                #             ),
-                #         comparison = private$is_equal_to
-                #         );
-                #     }
-                uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV0(
+                uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor(
                     np.currentRowIDs = np.currentRowIDs,
                      p.currentRowIDs =  p.currentRowIDs
                     );
-                # uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV1(
-                #     np.currentRowIDs = np.currentRowIDs,
-                #      p.currentRowIDs =  p.currentRowIDs
-                #     );
-                # uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV2(
-                #     np.currentRowIDs = np.currentRowIDs,
-                #      p.currentRowIDs =  p.currentRowIDs
-                #     );
                 }
             if (base::length(private$predictors_numeric) > 0) {
                 temp.list <- base::as.list(private$get_non_constant_columns(
@@ -827,8 +805,6 @@ R6_nppCART <- R6::R6Class(
                     }
                 }
             uniqueVarValuePairs <- base::c(uniqueVarValuePairs_factor,uniqueVarValuePairs_numeric);
-            #print(private$np.data)
-            #print(private$p.data)
             impurities <- base::lapply(
                 X   = uniqueVarValuePairs,
                 FUN = function(x) {
@@ -900,7 +876,7 @@ R6_nppCART <- R6::R6Class(
             return( output );
             },
 
-        get_uniqueVarValuePairs_factor_DEV0 = function(np.currentRowIDs = NULL, p.currentRowIDs = NULL) {
+        get_uniqueVarValuePairs_factor = function(np.currentRowIDs = NULL, p.currentRowIDs = NULL) {
 
             uniqueVarValuePairs_factor <- base::list();
 
@@ -915,18 +891,14 @@ R6_nppCART <- R6::R6Class(
 
                     DF.table.np <- base::table(DF.non.constant[,temp.colname]);
                     if ( sum(as.integer(DF.table.np) > 0) > private$n.levels.approx.threshold ) {
-
                         cat("\nget_uniqueVarValuePairs_factor_DEV0(): approximate\n");
-
                         DF.table.np <- base::as.data.frame(DF.table.np);
                         base::colnames(DF.table.np) <- base::c(temp.colname,"freq");
-
                         DF.table.p <- stats::aggregate(
                             formula = stats::as.formula(base::paste0(private$sampling.weight," ~ ",temp.colname)),
                             data    = private$p.data[private$p.data[,private$p.syntheticID] %in% p.currentRowIDs,base::c(temp.colname,private$sampling.weight)],
                             FUN     = base::sum
                             );
-
                         DF.table <- base::merge(
                             x     = DF.table.np,
                             y     = DF.table.p,
@@ -935,10 +907,9 @@ R6_nppCART <- R6::R6Class(
                             all.y = FALSE
                             );
                         DF.table[,'prob'] <- DF.table[,'freq'] / DF.table[,private$sampling.weight];
-                        DF.table <- DF.table[DF.table[,'freq'] > 0,];
+                        DF.table          <- DF.table[DF.table[,'freq'] > 0,];
                         DF.table[DF.table[,'prob'] > 1,'prob'] <- 1;
-                        DF.table <- DF.table[base::order(DF.table[,'prob']),];
-
+                        DF.table    <- DF.table[base::order(DF.table[,'prob']),];
                         temp.labels <- DF.table[,temp.colname];
                         for ( temp.length in base::seq(1,base::length(temp.labels)-1) ) {
                             uniqueVarValuePairs_factor <- private$push(
@@ -950,21 +921,12 @@ R6_nppCART <- R6::R6Class(
                                     )
                                 );
                             }
-
                     } else { # if ( sum(as.integer(DF.table.np) > 0) > private$n.levels.approx.threshold )
-
                         cat("\nget_uniqueVarValuePairs_factor_DEV0(): exact\n");
-
                         temp.labels <- base::names(DF.table.np)[DF.table.np > 0];
-                        # cat("\nget_uniqueVarValuePairs_factor_DEV0(), temp.labels:\n");
-                        # print( temp.labels );
-
                         temp.list <- base::list();
                         for ( temp.label in temp.labels ) { temp.list[[ temp.label ]] <- c(TRUE,FALSE); }
                         DF.grid <- base::expand.grid(temp.list);
-                        # cat("\nget_uniqueVarValuePairs_factor_DEV0(), length(np.currentRowIDs) = ",length(np.currentRowIDs),", DF.grid:\n");
-                        # print( DF.grid );
-
                         for ( temp.row.index in base::seq(2,base::nrow(DF.grid)-1) ) {
                             uniqueVarValuePairs_factor <- private$push(
                                 list = uniqueVarValuePairs_factor,
@@ -976,7 +938,6 @@ R6_nppCART <- R6::R6Class(
                                 );
                             }
                         base::remove("DF.grid");
-
                         } # if ( sum(as.integer(DF.table.np) > 0) > 6 ) {} else {}
 
                     } # for ( temp.colname in base::colnames(DF.non.constant) )
@@ -984,168 +945,10 @@ R6_nppCART <- R6::R6Class(
             return( uniqueVarValuePairs_factor );
             },
 
-        get_uniqueVarValuePairs_factor_DEV1 = function(np.currentRowIDs = NULL, p.currentRowIDs = NULL) {
-
-            uniqueVarValuePairs_factor <- list();
-
-            DF.non.constant <- private$get_non_constant_columns_factor(
-                DF.input       = private$np.data,
-                currentRowIDs  = np.currentRowIDs,
-                input.colnames = private$predictors_factor
-                );
-
-            if ( base::ncol(DF.non.constant) > 0 ) {
-                for ( temp.colname in base::colnames(DF.non.constant) ) {
-
-                    # cat(paste0("\nget_uniqueVarValuePairs_factor_DEV1(), length(np.currentRowIDs) = ",base::length(np.currentRowIDs),", table(private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,temp.colname]):\n"));
-                    # print( base::table(private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,temp.colname]) );
-
-                    DF.table.np <- base::table( DF.non.constant[,temp.colname] );
-                    DF.table.np <- base::as.data.frame(DF.table.np);
-                    base::colnames(DF.table.np) <- base::c(temp.colname,"freq");
-                    # cat("\nget_uniqueVarValuePairs_factor_DEV1(), length(np.currentRowIDs) = ",base::length(np.currentRowIDs),", DF.table.np:\n");
-                    # print( DF.table.np );
-
-                    DF.table.p <- stats::aggregate(
-                        formula = stats::as.formula(base::paste0(private$sampling.weight," ~ ",temp.colname)),
-                        data    = private$p.data[private$p.data[,private$p.syntheticID] %in% p.currentRowIDs,base::c(temp.colname,private$sampling.weight)],
-                        FUN     = base::sum
-                        );
-                    # cat("\nget_uniqueVarValuePairs_factor_DEV1(), length(p.currentRowIDs) = ",base::length(p.currentRowIDs),", DF.table.p:\n");
-                    # print( DF.table.p );
-
-                    DF.table <- base::merge(
-                        x     = DF.table.np,
-                        y     = DF.table.p,
-                        by    = temp.colname,
-                        all.x = TRUE,
-                        all.y = FALSE
-                        );
-                    DF.table[,'prob'] <- DF.table[,'freq'] / DF.table[,private$sampling.weight];
-                    DF.table <- DF.table[DF.table[,'freq'] > 0,];
-                    DF.table[DF.table[,'prob'] > 1,'prob'] <- 1;
-                    DF.table <- DF.table[base::order(DF.table[,'prob']),];
-                    # cat("\nget_uniqueVarValuePairs_factor_DEV1(), length(np.currentRowIDs) = ",base::length(np.currentRowIDs),", DF.table:\n");
-                    # print( DF.table );
-
-                    temp.labels <- DF.table[,temp.colname];
-                    # cat("\nget_uniqueVarValuePairs_factor_DEV1(), temp.labels:\n");
-                    # print( temp.labels );
-                    for ( temp.length in base::seq(1,base::length(temp.labels)-1) ) {
-                        uniqueVarValuePairs_factor <- private$push(
-                            list = uniqueVarValuePairs_factor,
-                            x    = private$splitCriterion$new(
-                                varname    = temp.colname,
-                                threshold  = temp.labels[base::seq(1,temp.length)],
-                                comparison = private$is_element_of
-                                )
-                            );
-                        }
-                    }
-                }
-            return( uniqueVarValuePairs_factor );
-            },
-
-        get_uniqueVarValuePairs_factor_DEV2 = function(np.currentRowIDs = NULL, p.currentRowIDs = NULL) {
-
-            uniqueVarValuePairs_factor <- list();
-
-            DF.non.constant <- private$get_non_constant_columns_factor(
-                DF.input       = private$np.data,
-                currentRowIDs  = np.currentRowIDs,
-                input.colnames = private$predictors_factor
-                );
-
-            if ( 2 == length(np.currentRowIDs) & 5 == length(p.currentRowIDs)  ) {
-                cat("\n##########  LOOK  HERE  ##########\n")
-                cat(paste0("\nget_best_split(), length(np.currentRowIDs) = ",length(np.currentRowIDs),", length(p.currentRowIDs) = ",length(p.currentRowIDs),"\n"));
-
-                cat("\nprivate$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,]\n");
-                print( private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,]   );
-
-                cat("\nprivate$p.data[private$p.data[,private$p.syntheticID] %in% p.currentRowIDs,setdiff(colnames(private$p.data),private$bootstrap.weights)]\n");
-                print( private$p.data[private$p.data[,private$p.syntheticID] %in% p.currentRowIDs,setdiff(colnames(private$p.data),private$bootstrap.weights)]   );
-
-                cat("\nDF.non.constant\n");
-                print( DF.non.constant   );
-                }
-
-            if ( base::ncol(DF.non.constant) > 0 ) {
-                for ( temp.colname in base::colnames(DF.non.constant) ) {
-
-                    cat(paste0("\nget_best_split(), length(np.currentRowIDs) = ",length(np.currentRowIDs),", table(private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,temp.colname]):\n"));
-                    print( table(private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,temp.colname]) );
-
-                    temp.table <- base::table(DF.non.constant[,temp.colname]);
-                    cat("\nget_best_split(), length(np.currentRowIDs) = ",length(np.currentRowIDs),", temp.table:\n");
-                    print( temp.table );
-
-                    ### ~~~~~~~~~~~~~~~~~~~~~~ ###
-                    # temp.labels <- names(sort(table(temp.list[[temp.name]]),decreasing=TRUE));
-                    # temp.labels <- names(sort(table(temp.list[[temp.name]])));
-                    # temp.labels <- as.character(DF.table[order(DF.table[,'Freq']),temp.colname]);
-
-                    temp.labels <- base::names(temp.table)[temp.table > 0];
-                    cat("\nget_best_split(), temp.labels:\n");
-                    print( temp.labels );
-
-                    ### ~~~~~~~~~~~~~~~~~~~~~~ ###
-                    # for ( temp.length in seq(1,length(temp.labels)-1) ) {
-                    #     uniqueVarValuePairs_factor <- private$push(
-                    #         list = uniqueVarValuePairs_factor,
-                    #         x    = private$splitCriterion$new(
-                    #             varname    = temp.colname,
-                    #             threshold  = temp.labels[seq(1,temp.length)],
-                    #             comparison = private$is_element_of
-                    #             )
-                    #         );
-                    #     }
-
-                    ### ~~~~~~~~~~~~~~~~~~~~~~ ###
-                    temp.list <- list();
-                    for ( temp.label in temp.labels ) { temp.list[[ temp.label ]] <- c(TRUE,FALSE); }
-                    DF.grid <- base::expand.grid(temp.list);
-
-                    cat("\nget_best_split(), length(np.currentRowIDs) = ",length(np.currentRowIDs),", DF.grid:\n");
-                    print( DF.grid );
-
-                    for ( temp.row.index in base::seq(2,base::nrow(DF.grid)-1) ) {
-                        uniqueVarValuePairs_factor <- private$push(
-                            list = uniqueVarValuePairs_factor,
-                            x    = private$splitCriterion$new(
-                                varname    = temp.colname,
-                                threshold  = base::colnames(DF.grid)[base::as.logical(DF.grid[temp.row.index,])],
-                                comparison = private$is_element_of
-                                )
-                            );
-                        }
-                    base::remove("DF.grid");
-
-                    }
-                }
-            return( uniqueVarValuePairs_factor );
-            },
-
-        # get_non_constant_columns_factor.myCART = function(DF.input = NULL, currentRowIDs = NULL, input.colnames = NULL) {
-        #     retained.colnames        <- c(self$response,input.colnames);
-        #     DF.output                <- as.data.frame(DF.input[DF.input[,self$syntheticID] %in% currentRowIDs,retained.colnames]);
-        #     colnames(DF.output)      <- retained.colnames;
-        #     nUniqueValues            <- apply(X = DF.output, MARGIN = 2, FUN = function(x) { return(length(unique(x))) } );
-        #     is.nonconstant.column    <- (nUniqueValues > 1);
-        #     is.nonconstant.column[1] <- TRUE; # retain the response variable regardless
-        #     DF.output                <- as.data.frame(DF.output[,is.nonconstant.column]);
-        #     colnames(DF.output)      <- retained.colnames[is.nonconstant.column];
-        #     return( DF.output );
-        #     },
-
         get_non_constant_columns_factor = function(DF.input = NULL, currentRowIDs = NULL, input.colnames = NULL) {
             DF.output             <- as.data.frame(DF.input[DF.input[,private$np.syntheticID] %in% currentRowIDs,input.colnames]);
             colnames(DF.output)   <- input.colnames;
             nUniqueValues         <- apply(X = DF.output, MARGIN = 2, FUN = function(x) { return(length(unique(x))) } );
-            # cat("\nget_non_constant_columns_factor(): DF.output\n");
-            # print( DF.output );
-            # cat("\nget_non_constant_columns_factor(): nUniqueValues\n");
-            # print( nUniqueValues );
             is.nonconstant.column <- (nUniqueValues > 1);
             DF.output             <- as.data.frame(DF.output[,is.nonconstant.column]);
             colnames(DF.output)   <- input.colnames[is.nonconstant.column];
