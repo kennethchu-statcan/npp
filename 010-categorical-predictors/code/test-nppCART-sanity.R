@@ -88,14 +88,14 @@ test.nppCART.sanity <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.nppCART <- nppCART(
-        np.data           = list.samples[['DF.non.probability']],
-        p.data            = list.samples[['DF.probability'    ]], # DF.probability,
-        predictors        = c("x1","x2"),
-        sampling.weight   = "design.weight",
-      # bootstrap.weights = paste0("repweight",seq(1,n.replicates)),
-        min.cell.size     = 1,
-        min.impurity      = 1e-300, # 1e-9,
-        max.levels        = 10000
+        np.data                   = list.samples[['DF.non.probability']],
+        p.data                    = list.samples[['DF.probability'    ]], # DF.probability,
+        predictors                = c("x1","x2"),
+        sampling.weight           = "design.weight",
+      # bootstrap.weights         = paste0("repweight",seq(1,n.replicates)),
+        min.cell.size             = 1,
+        min.impurity              = 1e-300, # 1e-9,
+        n.levels.approx.threshold = 4
         );
 
     my.nppCART$grow();
