@@ -891,7 +891,7 @@ R6_nppCART <- R6::R6Class(
 
                     DF.table.np <- base::table(DF.non.constant[,temp.colname]);
                     if ( sum(as.integer(DF.table.np) > 0) > private$n.levels.approx.threshold ) {
-                        cat("\nget_uniqueVarValuePairs_factor_DEV0(): approximate\n");
+                        # cat("\nget_uniqueVarValuePairs_factor_DEV0(): approximate\n");
                         DF.table.np <- base::as.data.frame(DF.table.np);
                         base::colnames(DF.table.np) <- base::c(temp.colname,"freq");
                         DF.table.p <- stats::aggregate(
@@ -922,7 +922,7 @@ R6_nppCART <- R6::R6Class(
                                 );
                             }
                     } else { # if ( sum(as.integer(DF.table.np) > 0) > private$n.levels.approx.threshold )
-                        cat("\nget_uniqueVarValuePairs_factor_DEV0(): exact\n");
+                        # cat("\nget_uniqueVarValuePairs_factor_DEV0(): exact\n");
                         temp.labels <- base::names(DF.table.np)[DF.table.np > 0];
                         temp.list <- base::list();
                         for ( temp.label in temp.labels ) { temp.list[[ temp.label ]] <- c(TRUE,FALSE); }
