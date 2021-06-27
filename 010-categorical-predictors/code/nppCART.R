@@ -133,7 +133,7 @@
 #' @param predictors This parameter corresponds to the auxillary variables on which the partitioning is performed. The input must be a string or vector of strings that contain column names shared by both np.data and p.data. If no value is specified, predictors will be set to all the column names in np.data.
 #' @param min.cell.size This parameter corresponds to the minimum number of rows remaining in the probability sample and non-probabilty sample to continue partitioning. The input must be a positive integer. If no value is specified, min.cell.size will be set to 10.
 #' @param min.impurity This parameter corresponds to the minimum impurity calculated in each leaf node to continue partitioning. The input must be a positive number. If no value is specified, min.impurity will be set to 0.095.
-#' @param max.levels This parameter corresponds to the maximum number of levels allowed by each factor in the predictor variables. The input must be a number that is greater than or equal to zero. If no value is specified, max.levels will be set to 10.
+#' @param n.levels.approx.threshold For each node and for each categorical (i.e. non-ordered factor) predictor variable, if the number of levels of the given categorical predictor variable is less than or equal to n.levels.approx.threshold, then all possible splits by the given categorical variable are considered; otherwse (i.e. if the number of levels of the given categorical predictor variable in the given node strictly exceeds n.levels.approx.threshold), then an approximate procedure is used. The input must be an integer greater than or equal to zero. If no value is specified, n.levels.approx.threshold is set to 10.
 #'
 #' @field predictors_factor This field contains the inputted predictors that are unordered factors. It is used for internal calcuations.
 #' @field predictors_ordered_factor This field contains the inputted predictors that are ordered factors. It is used for internal calcuations.
@@ -155,26 +155,26 @@
 #' @export
 
 nppCART <- function(
-    np.data           = NULL,
-    p.data            = NULL,
-    sampling.weight   = NULL,
-    bootstrap.weights = NULL,
-    predictors        = base::setdiff(base::colnames(p.data),c(weight,bootstrap.weights)),
-    min.cell.size     = 10,
-    min.impurity      = 0.095,
-    max.levels        = 10
+    np.data                   = NULL,
+    p.data                    = NULL,
+    sampling.weight           = NULL,
+    bootstrap.weights         = NULL,
+    predictors                = base::setdiff(base::colnames(p.data),c(weight,bootstrap.weights)),
+    min.cell.size             = 10,
+    min.impurity              = 0.095,
+    n.levels.approx.threshold = 10
     ) {
 
     return(
         R6_nppCART$new(
-            np.data           = np.data,
-            p.data            = p.data,
-            sampling.weight   = sampling.weight,
-            bootstrap.weights = bootstrap.weights,
-            predictors        = predictors,
-            min.cell.size     = min.cell.size,
-            min.impurity      = min.impurity,
-            max.levels        = max.levels
+            np.data                   = np.data,
+            p.data                    = p.data,
+            sampling.weight           = sampling.weight,
+            bootstrap.weights         = bootstrap.weights,
+            predictors                = predictors,
+            min.cell.size             = min.cell.size,
+            min.impurity              = min.impurity,
+            n.levels.approx.threshold = n.levels.approx.threshold
             )
         );
     }
@@ -185,14 +185,14 @@ R6_nppCART <- R6::R6Class(
     public = list(
 
         initialize = function(
-            np.data           = NULL,
-            p.data            = NULL,
-            sampling.weight   = NULL,
-            bootstrap.weights = NULL,
-            predictors        = base::colnames(np.data),
-            min.cell.size     = 10,
-            min.impurity      = 0.095,
-            max.levels        = 10
+            np.data                   = NULL,
+            p.data                    = NULL,
+            sampling.weight           = NULL,
+            bootstrap.weights         = NULL,
+            predictors                = base::colnames(np.data),
+            min.cell.size             = 10,
+            min.impurity              = 0.095,
+            n.levels.approx.threshold = 10
             ) {
 
             ############################################
@@ -254,21 +254,21 @@ R6_nppCART <- R6::R6Class(
                 min.impurity > 0 # must be positive
                 );
 
-            # test max.levels
+            # test n.levels.approx.threshold
             base::stopifnot(
-                !base::is.null(max.levels), # must not be NULL
-                base::is.numeric(max.levels) & (base::length(max.levels) == 1), # must be single number
-                (max.levels %% 1 == 0) & (max.levels >= 0)  # must be an integer greater than or equal to zero
+                !base::is.null(n.levels.approx.threshold), # must not be NULL
+                base::is.numeric(n.levels.approx.threshold) & (base::length(n.levels.approx.threshold) == 1), # must be single number
+                (n.levels.approx.threshold == as.integer(n.levels.approx.threshold)) & (n.levels.approx.threshold > -1) # must be an integer greater than or equal to zero
                 );
 
-            private$predictors        <- predictors;
-            private$np.data           <- np.data;
-            private$p.data            <-  p.data;
-            private$sampling.weight   <- sampling.weight;
-            private$bootstrap.weights <- bootstrap.weights;
-            private$min.cell.size     <- min.cell.size;
-            private$min.impurity      <- min.impurity;
-            private$max.levels        <- max.levels;
+            private$predictors                <- predictors;
+            private$np.data                   <- np.data;
+            private$p.data                    <-  p.data;
+            private$sampling.weight           <- sampling.weight;
+            private$bootstrap.weights         <- bootstrap.weights;
+            private$min.cell.size             <- min.cell.size;
+            private$min.impurity              <- min.impurity;
+            private$n.levels.approx.threshold <- n.levels.approx.threshold;
 
             # add synthetic row ID:
             private$np.syntheticID <- base::paste0(base::sample(x=letters,size=10,replace=TRUE),collapse="");
@@ -302,16 +302,11 @@ R6_nppCART <- R6::R6Class(
             private$predictors_factor  <- private$predictors[base::sapply(X = private$np.data[1,private$predictors], FUN = function(x) { return( base::is.factor(x) & !base::is.ordered(x) ) } )]
             private$predictors_numeric <- private$predictors[base::sapply(X = private$np.data[1,private$predictors], FUN = base::is.numeric)]
 
-            #str(private$np.data)
-            #print(private$predictors_ordered_factor)
-            #print(private$predictors_factor)
-            #print(private$predictors_numeric)
-
             # test if the max number of levels has been exceeded
-            if( base::length(private$predictors_factor) > 0 ) {
-                base::stopifnot( base::max(base::unlist(base::lapply(X = private$np.data[,private$predictors_factor], FUN = function(x) { return( base::length(base::levels(x)) ) }))) <= private$max.levels ) # testing factors in np.data
-                base::stopifnot( base::max(base::unlist(base::lapply(X = private$p.data[, private$predictors_factor], FUN = function(x) { return( base::length(base::levels(x)) ) }))) <= private$max.levels ) # testing factors in p.data
-            }
+            # if( base::length(private$predictors_factor) > 0 ) {
+            #     base::stopifnot( base::max(base::unlist(base::lapply(X = private$np.data[,private$predictors_factor], FUN = function(x) { return( base::length(base::levels(x)) ) }))) <= private$n.levels.approx.threshold ) # testing factors in np.data
+            #     base::stopifnot( base::max(base::unlist(base::lapply(X = private$p.data[, private$predictors_factor], FUN = function(x) { return( base::length(base::levels(x)) ) }))) <= private$n.levels.approx.threshold ) # testing factors in p.data
+            # }
 
             private$estimatedPopulationSize <- base::sum(private$p.data[,private$sampling.weight]);
 
@@ -319,14 +314,14 @@ R6_nppCART <- R6::R6Class(
 
         get_instantiation_data = function() {
             return(list(
-                predictors        = private$predictors,
-                np.data           = private$np.data,
-                p.data            = private$p.data,
-                sampling.weight   = private$sampling.weight,
-                bootstrap.weights = private$bootstrap.weights,
-                min.cell.size     = private$min.cell.size,
-                min.impurity      = private$min.impurity,
-                max.levels        = private$max.levels
+                predictors                = private$predictors,
+                np.data                   = private$np.data,
+                p.data                    = private$p.data,
+                sampling.weight           = private$sampling.weight,
+                bootstrap.weights         = private$bootstrap.weights,
+                min.cell.size             = private$min.cell.size,
+                min.impurity              = private$min.impurity,
+                n.levels.approx.threshold = private$n.levels.approx.threshold
                 ));
             },
 
@@ -607,15 +602,15 @@ R6_nppCART <- R6::R6Class(
     private = list(
 
         # instantiation data
-        predictors        = NULL,
-        np.data           = NULL,
-        np.data.original  = NULL,
-         p.data           = NULL,
-        sampling.weight   = NULL,
-        bootstrap.weights = NULL,
-        min.cell.size     = NULL,
-        min.impurity      = NULL,
-        max.levels        = NULL,
+        predictors                = NULL,
+        np.data                   = NULL,
+        np.data.original          = NULL,
+         p.data                   = NULL,
+        sampling.weight           = NULL,
+        bootstrap.weights         = NULL,
+        min.cell.size             = NULL,
+        min.impurity              = NULL,
+        n.levels.approx.threshold = NULL,
 
         # attributes
         predictors_factor         = NULL,
@@ -802,10 +797,14 @@ R6_nppCART <- R6::R6Class(
                 #         comparison = private$is_equal_to
                 #         );
                 #     }
-                uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV1(
+                uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV0(
                     np.currentRowIDs = np.currentRowIDs,
                      p.currentRowIDs =  p.currentRowIDs
                     );
+                # uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV1(
+                #     np.currentRowIDs = np.currentRowIDs,
+                #      p.currentRowIDs =  p.currentRowIDs
+                #     );
                 # uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV2(
                 #     np.currentRowIDs = np.currentRowIDs,
                 #      p.currentRowIDs =  p.currentRowIDs
@@ -899,6 +898,90 @@ R6_nppCART <- R6::R6Class(
             if( length(check.np.satisfied) < 1 | length(check.np.notSatisfied) < 1 ) { return(NULL) }
 
             return( output );
+            },
+
+        get_uniqueVarValuePairs_factor_DEV0 = function(np.currentRowIDs = NULL, p.currentRowIDs = NULL) {
+
+            uniqueVarValuePairs_factor <- base::list();
+
+            DF.non.constant <- private$get_non_constant_columns_factor(
+                DF.input       = private$np.data,
+                currentRowIDs  = np.currentRowIDs,
+                input.colnames = private$predictors_factor
+                );
+
+            if ( base::ncol(DF.non.constant) > 0 ) {
+                for ( temp.colname in base::colnames(DF.non.constant) ) {
+
+                    DF.table.np <- base::table(DF.non.constant[,temp.colname]);
+                    if ( sum(as.integer(DF.table.np) > 0) > private$n.levels.approx.threshold ) {
+
+                        cat("\nget_uniqueVarValuePairs_factor_DEV0(): approximate\n");
+
+                        DF.table.np <- base::as.data.frame(DF.table.np);
+                        base::colnames(DF.table.np) <- base::c(temp.colname,"freq");
+
+                        DF.table.p <- stats::aggregate(
+                            formula = stats::as.formula(base::paste0(private$sampling.weight," ~ ",temp.colname)),
+                            data    = private$p.data[private$p.data[,private$p.syntheticID] %in% p.currentRowIDs,base::c(temp.colname,private$sampling.weight)],
+                            FUN     = base::sum
+                            );
+
+                        DF.table <- base::merge(
+                            x     = DF.table.np,
+                            y     = DF.table.p,
+                            by    = temp.colname,
+                            all.x = TRUE,
+                            all.y = FALSE
+                            );
+                        DF.table[,'prob'] <- DF.table[,'freq'] / DF.table[,private$sampling.weight];
+                        DF.table <- DF.table[DF.table[,'freq'] > 0,];
+                        DF.table[DF.table[,'prob'] > 1,'prob'] <- 1;
+                        DF.table <- DF.table[base::order(DF.table[,'prob']),];
+
+                        temp.labels <- DF.table[,temp.colname];
+                        for ( temp.length in base::seq(1,base::length(temp.labels)-1) ) {
+                            uniqueVarValuePairs_factor <- private$push(
+                                list = uniqueVarValuePairs_factor,
+                                x    = private$splitCriterion$new(
+                                    varname    = temp.colname,
+                                    threshold  = temp.labels[base::seq(1,temp.length)],
+                                    comparison = private$is_element_of
+                                    )
+                                );
+                            }
+
+                    } else { # if ( sum(as.integer(DF.table.np) > 0) > private$n.levels.approx.threshold )
+
+                        cat("\nget_uniqueVarValuePairs_factor_DEV0(): exact\n");
+
+                        temp.labels <- base::names(DF.table.np)[DF.table.np > 0];
+                        # cat("\nget_uniqueVarValuePairs_factor_DEV0(), temp.labels:\n");
+                        # print( temp.labels );
+
+                        temp.list <- base::list();
+                        for ( temp.label in temp.labels ) { temp.list[[ temp.label ]] <- c(TRUE,FALSE); }
+                        DF.grid <- base::expand.grid(temp.list);
+                        # cat("\nget_uniqueVarValuePairs_factor_DEV0(), length(np.currentRowIDs) = ",length(np.currentRowIDs),", DF.grid:\n");
+                        # print( DF.grid );
+
+                        for ( temp.row.index in base::seq(2,base::nrow(DF.grid)-1) ) {
+                            uniqueVarValuePairs_factor <- private$push(
+                                list = uniqueVarValuePairs_factor,
+                                x    = private$splitCriterion$new(
+                                    varname    = temp.colname,
+                                    threshold  = base::colnames(DF.grid)[base::as.logical(DF.grid[temp.row.index,])],
+                                    comparison = private$is_element_of
+                                    )
+                                );
+                            }
+                        base::remove("DF.grid");
+
+                        } # if ( sum(as.integer(DF.table.np) > 0) > 6 ) {} else {}
+
+                    } # for ( temp.colname in base::colnames(DF.non.constant) )
+                } # if ( base::ncol(DF.non.constant) > 0 )
+            return( uniqueVarValuePairs_factor );
             },
 
         get_uniqueVarValuePairs_factor_DEV1 = function(np.currentRowIDs = NULL, p.currentRowIDs = NULL) {
