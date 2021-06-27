@@ -802,10 +802,14 @@ R6_nppCART <- R6::R6Class(
                 #         comparison = private$is_equal_to
                 #         );
                 #     }
-                uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV2(
+                uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV1(
                     np.currentRowIDs = np.currentRowIDs,
                      p.currentRowIDs =  p.currentRowIDs
                     );
+                # uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor_DEV2(
+                #     np.currentRowIDs = np.currentRowIDs,
+                #      p.currentRowIDs =  p.currentRowIDs
+                #     );
                 }
             if (base::length(private$predictors_numeric) > 0) {
                 temp.list <- base::as.list(private$get_non_constant_columns(
@@ -907,32 +911,43 @@ R6_nppCART <- R6::R6Class(
                 input.colnames = private$predictors_factor
                 );
 
-            # max.response    <- sort(x = unique(self$data[,self$response]), decreasing = TRUE)[1];
-            # DF.non.constant <- as.data.frame(DF.non.constant);
-            # DF.non.constant <- as.data.frame(DF.non.constant[DF.non.constant[,self$response] == max.response,]);
-
             if ( base::ncol(DF.non.constant) > 0 ) {
                 for ( temp.colname in base::colnames(DF.non.constant) ) {
 
-                    cat(paste0("\nget_best_split(), length(np.currentRowIDs) = ",base::length(np.currentRowIDs),", table(private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,temp.colname]):\n"));
-                    print( base::table(private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,temp.colname]) );
+                    # cat(paste0("\nget_uniqueVarValuePairs_factor_DEV1(), length(np.currentRowIDs) = ",base::length(np.currentRowIDs),", table(private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,temp.colname]):\n"));
+                    # print( base::table(private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,temp.colname]) );
 
-                    DF.table <- base::table( DF.non.constant[,temp.colname] );
-                    cat("\nget_best_split(), length(currentRowIDs) = ",base::length(currentRowIDs),", DF.table:\n");
-                    print( DF.table );
+                    DF.table.np <- base::table( DF.non.constant[,temp.colname] );
+                    DF.table.np <- base::as.data.frame(DF.table.np);
+                    base::colnames(DF.table.np) <- base::c(temp.colname,"freq");
+                    # cat("\nget_uniqueVarValuePairs_factor_DEV1(), length(np.currentRowIDs) = ",base::length(np.currentRowIDs),", DF.table.np:\n");
+                    # print( DF.table.np );
 
-                    temp.totals        <- base::colSums(DF.table); # DF.table[1,] + DF.table[2,];
-                    temp.probabilities <- DF.table[1,temp.totals>0] / temp.totals[temp.totals>0];
-                    temp.probabilities <- base::sort(temp.probabilities);
-                    cat("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", temp.probabilities:\n");
-                    print( temp.probabilities );
-                    cat("\nget_best_split(), length(currentRowIDs) = ",length(currentRowIDs),", names(temp.probabilities):\n");
-                    print( names(temp.probabilities) );
+                    DF.table.p <- stats::aggregate(
+                        formula = stats::as.formula(base::paste0(private$sampling.weight," ~ ",temp.colname)),
+                        data    = private$p.data[private$p.data[,private$p.syntheticID] %in% p.currentRowIDs,base::c(temp.colname,private$sampling.weight)],
+                        FUN     = base::sum
+                        );
+                    # cat("\nget_uniqueVarValuePairs_factor_DEV1(), length(p.currentRowIDs) = ",base::length(p.currentRowIDs),", DF.table.p:\n");
+                    # print( DF.table.p );
 
-                    temp.labels <- base::names(temp.probabilities);
-                    cat("\nget_best_split(), temp.labels:\n");
-                    print( temp.labels );
+                    DF.table <- base::merge(
+                        x     = DF.table.np,
+                        y     = DF.table.p,
+                        by    = temp.colname,
+                        all.x = TRUE,
+                        all.y = FALSE
+                        );
+                    DF.table[,'prob'] <- DF.table[,'freq'] / DF.table[,private$sampling.weight];
+                    DF.table <- DF.table[DF.table[,'freq'] > 0,];
+                    DF.table[DF.table[,'prob'] > 1,'prob'] <- 1;
+                    DF.table <- DF.table[base::order(DF.table[,'prob']),];
+                    # cat("\nget_uniqueVarValuePairs_factor_DEV1(), length(np.currentRowIDs) = ",base::length(np.currentRowIDs),", DF.table:\n");
+                    # print( DF.table );
 
+                    temp.labels <- DF.table[,temp.colname];
+                    # cat("\nget_uniqueVarValuePairs_factor_DEV1(), temp.labels:\n");
+                    # print( temp.labels );
                     for ( temp.length in base::seq(1,base::length(temp.labels)-1) ) {
                         uniqueVarValuePairs_factor <- private$push(
                             list = uniqueVarValuePairs_factor,
@@ -1043,15 +1058,11 @@ R6_nppCART <- R6::R6Class(
         get_non_constant_columns_factor = function(DF.input = NULL, currentRowIDs = NULL, input.colnames = NULL) {
             DF.output             <- as.data.frame(DF.input[DF.input[,private$np.syntheticID] %in% currentRowIDs,input.colnames]);
             colnames(DF.output)   <- input.colnames;
-
-            cat("\nget_non_constant_columns_factor(): DF.output\n");
-            print( DF.output );
-
             nUniqueValues         <- apply(X = DF.output, MARGIN = 2, FUN = function(x) { return(length(unique(x))) } );
-
-            cat("\nget_non_constant_columns_factor(): nUniqueValues\n");
-            print( nUniqueValues );
-
+            # cat("\nget_non_constant_columns_factor(): DF.output\n");
+            # print( DF.output );
+            # cat("\nget_non_constant_columns_factor(): nUniqueValues\n");
+            # print( nUniqueValues );
             is.nonconstant.column <- (nUniqueValues > 1);
             DF.output             <- as.data.frame(DF.output[,is.nonconstant.column]);
             colnames(DF.output)   <- input.colnames[is.nonconstant.column];
