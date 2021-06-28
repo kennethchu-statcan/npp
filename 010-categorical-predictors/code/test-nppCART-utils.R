@@ -176,16 +176,17 @@ test.nppCART_get.population.mixed <- function(
     y <- y0 + epsilon^2;
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    levels.x1 <- as.vector(sapply( X = levels.x1.hidden, FUN = function(x) {return(paste(x,1:3,sep="."))} ));
-    levels.x2 <- as.vector(sapply( X = levels.x2.hidden, FUN = function(x) {return(paste(x,1:3,sep="."))} ));
+    n.subgroups <- 2;
+    levels.x1   <- as.vector(sapply( X = levels.x1.hidden, FUN = function(x) {return(paste(x,1:n.subgroups,sep="."))} ));
+    levels.x2   <- as.vector(sapply( X = levels.x2.hidden, FUN = function(x) {return(paste(x,1:n.subgroups,sep="."))} ));
 
     DF.population <- data.frame(
         unit.ID         = seq(1,population.size),
         y               = y,
         x1.hidden       = x1.hidden,
         x2.hidden       = x2.hidden,
-        subgroup.1      = sample(x = 1:3, size = population.size, replace = TRUE),
-        subgroup.2      = sample(x = 1:3, size = population.size, replace = TRUE),
+        subgroup.1      = sample(x = 1:n.subgroups, size = population.size, replace = TRUE),
+        subgroup.2      = sample(x = 1:n.subgroups, size = population.size, replace = TRUE),
         x3              = x3.hidden,
         x3.hidden       = x3.hidden,
         true.propensity = true.propensity
@@ -210,7 +211,7 @@ test.nppCART_get.population.mixed <- function(
     DF.population[,"x2.jitter"] <- as.numeric(DF.population[,"x2"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
 
   # DF.population[,"x3"] <- as.numeric(DF.population[,"x3"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
-    DF.population[,"x3"] <- as.numeric(DF.population[,"x3"]) + sample(x = c(-0.2,0,0.2), size = nrow(DF.population), replace = TRUE);
+    DF.population[,"x3"] <- as.numeric(DF.population[,"x3"]) + sample(x = c(-0.1,0.1), size = nrow(DF.population), replace = TRUE);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.population <- DF.population[,c('unit.ID','y','x1','x2','x3','true.propensity','x1.jitter','x2.jitter','x3.hidden')];
