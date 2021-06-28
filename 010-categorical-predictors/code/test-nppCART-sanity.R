@@ -100,7 +100,7 @@ test.nppCART.sanity <- function(
 
     my.nppCART$grow();
     cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
-    my.nppCART$print( FUN.format = function(x) {return(round(x,digits=6))} );
+    my.nppCART$print( FUN.format = function(x) {return(round(x,digits=10))} );
 
     DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity();
     cat("\nstr(DF.npdata.with.propensity)\n");
