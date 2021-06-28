@@ -156,9 +156,9 @@ test.nppCART_get.population.mixed <- function(
     x2.hidden <- factor(x = sample(x = levels.x2.hidden, size = population.size, replace = TRUE), levels = levels.x2.hidden, ordered = ordered.x2);
     x3.hidden <- factor(x = sample(x = levels.x3.hidden, size = population.size, replace = TRUE), levels = levels.x3.hidden, ordered = FALSE     );
 
-    c1 <- as.numeric(x1.hidden) - 0.5;
-    c2 <- as.numeric(x2.hidden) - 0.5;
-    c3 <- as.numeric(x3.hidden) - 0.5;
+    c1 <- as.double(x1.hidden) - 0.5;
+    c2 <- as.double(x2.hidden) - 0.5;
+    c3 <- as.double(x3.hidden) - 0.5;
     is.off.diagonals <- (c2 - c1 == 1 | c2 - c1 == -1);
 
     is.high.propensity.A <- ( (x3.hidden == "A") &   is.off.diagonals  );
@@ -207,11 +207,11 @@ test.nppCART_get.population.mixed <- function(
     DF.population[,'x1'] <- factor(x = DF.population[,'x1'], levels = levels.x1, ordered = ordered.x1);
     DF.population[,'x2'] <- factor(x = DF.population[,'x2'], levels = levels.x2, ordered = ordered.x2);
 
-    DF.population[,"x1.jitter"] <- as.numeric(DF.population[,"x1"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
-    DF.population[,"x2.jitter"] <- as.numeric(DF.population[,"x2"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+    DF.population[,"x1.jitter"] <- as.double(DF.population[,"x1"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+    DF.population[,"x2.jitter"] <- as.double(DF.population[,"x2"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
 
-  # DF.population[,"x3"] <- as.numeric(DF.population[,"x3"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
-    DF.population[,"x3"] <- as.numeric(DF.population[,"x3"]) + sample(x = c(-0.1,0.1), size = nrow(DF.population), replace = TRUE);
+  # DF.population[,"x3"] <- as.double(DF.population[,"x3"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+    DF.population[,"x3"] <- as.double(DF.population[,"x3"]) + sample(x = c(-0.1,0.1), size = nrow(DF.population), replace = TRUE);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.population <- DF.population[,c('unit.ID','y','x1','x2','x3','true.propensity','x1.jitter','x2.jitter','x3.hidden')];
@@ -240,8 +240,8 @@ test.nppCART_get.population.02 <- function(
     x1 <- factor(x = sample(x = levels.x1, size = population.size, replace = TRUE), levels = levels.x1, ordered = ordered.x1);
     x2 <- factor(x = sample(x = levels.x2, size = population.size, replace = TRUE), levels = levels.x2, ordered = ordered.x2);
 
-    c1 <- as.numeric(x1) - 0.5;
-    c2 <- as.numeric(x2) - 0.5;
+    c1 <- as.double(x1) - 0.5;
+    c2 <- as.double(x2) - 0.5;
     is.high.propensity <- (c2 - c1 == 1 | c2 - c1 == -1);
 
     true.propensity <- rnorm(n = population.size, mean = 0.25, sd = 0.025);
@@ -262,8 +262,8 @@ test.nppCART_get.population.02 <- function(
         true.propensity = true.propensity
         );
 
-    DF.population[,"x1.jitter"] <- as.numeric(DF.population[,"x1"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
-    DF.population[,"x2.jitter"] <- as.numeric(DF.population[,"x2"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+    DF.population[,"x1.jitter"] <- as.double(DF.population[,"x1"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+    DF.population[,"x2.jitter"] <- as.double(DF.population[,"x2"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     return( DF.population );
@@ -291,8 +291,8 @@ test.nppCART_get.population.03 <- function(
     x1.hidden <- factor(x = sample(x = levels.x1.hidden, size = population.size, replace = TRUE), levels = levels.x1.hidden, ordered = ordered.x1);
     x2.hidden <- factor(x = sample(x = levels.x2.hidden, size = population.size, replace = TRUE), levels = levels.x2.hidden, ordered = ordered.x2);
 
-    c1 <- as.numeric(x1.hidden) - 0.5;
-    c2 <- as.numeric(x2.hidden) - 0.5;
+    c1 <- as.double(x1.hidden) - 0.5;
+    c2 <- as.double(x2.hidden) - 0.5;
     is.high.propensity <- (c2 - c1 == 1 | c2 - c1 == -1);
 
     true.propensity <- rnorm(n = population.size, mean = 0.25, sd = 0.025);
@@ -333,8 +333,8 @@ test.nppCART_get.population.03 <- function(
     DF.population[,'x1'] <- factor(x = DF.population[,'x1'], levels = levels.x1, ordered = ordered.x1);
     DF.population[,'x2'] <- factor(x = DF.population[,'x2'], levels = levels.x2, ordered = ordered.x2);
 
-    DF.population[,"x1.jitter"] <- as.numeric(DF.population[,"x1"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
-    DF.population[,"x2.jitter"] <- as.numeric(DF.population[,"x2"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+    DF.population[,"x1.jitter"] <- as.double(DF.population[,"x1"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+    DF.population[,"x2.jitter"] <- as.double(DF.population[,"x2"]) + runif(n = nrow(DF.population), min = -0.3, max = 0.3);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.population <- DF.population[,setdiff(colnames(DF.population),c('x1.hidden','x2.hidden','subgroup.1','subgroup.2'))];
