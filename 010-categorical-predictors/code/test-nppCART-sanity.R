@@ -49,7 +49,7 @@ test.nppCART.sanity <- function(
 
     write.csv(
         x         = DF.population,
-        file      = "DF-sanity-population-with-self-selection.csv",
+        file      = paste0("DF-",population.flag,"-population-with-self-selection.csv"),
         row.names = FALSE
         );
 
@@ -68,7 +68,7 @@ test.nppCART.sanity <- function(
     #
     # cat("\nresults.tree\n");
     # print( results.tree   );
-
+    #
     # cat("\nstr(results.tree)\n");
     # print( str(results.tree)   );
 
