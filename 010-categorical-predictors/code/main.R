@@ -52,7 +52,7 @@ for ( file.R in files.R ) {
 test.nppCART.sanity(
     seed            = 1234567, # 7654321,
     population.flag = "mixed", # "sanity"
-    population.size = 100000 # 200
+    population.size = 10000 # 200
     );
 
 # is.macOS <- grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE);
