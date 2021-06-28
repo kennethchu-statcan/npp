@@ -845,14 +845,30 @@ R6_nppCART <- R6::R6Class(
                     ##########
                     p1 <- sum(private$p.data[private$p.data[,private$p.syntheticID] %in% p.satisfied,   private$sampling.weight]);
                     p2 <- sum(private$p.data[private$p.data[,private$p.syntheticID] %in% p.notSatisfied,private$sampling.weight]);
-                    p1 <- p1 / private$estimatedPopulationSize;
-                    p2 <- p2 / private$estimatedPopulationSize;
+
+                  # p1 <- p1 / private$estimatedPopulationSize;
+                  # p2 <- p2 / private$estimatedPopulationSize;
+                    p1.plus.p2 <- base::sum( c(p1,p2) , na.rm = TRUE );
+                    p1 <- p1 / p1.plus.p2;
+                    p2 <- p2 / p1.plus.p2;
+
                     g1 <- private$npp_impurity(np.rowIDs = np.satisfied,    p.rowIDs =  p.satisfied   );
                     g2 <- private$npp_impurity(np.rowIDs = np.notSatisfied, p.rowIDs =  p.notSatisfied);
                     impurity.reduction <- current.impurity - p1 * g1 - p2 * g2;
+
                     # cat("\ncurrent.impurity\n");   print( current.impurity   );
                     # cat("\np1 * g1 + p2 * g2\n");  print( p1 * g1 + p2 * g2  );
                     # cat("\nimpurity.reduction\n"); print( impurity.reduction );
+
+                    if ( (abs(g1 - 0.4105029592) < 1e-6) & (abs(g2 - 0.4105029592) < 1e-6) ) {
+                        cat("\nAAA\n");
+                        cat("\ncurrent.impurity: ",current.impurity,"\n");
+                        cat("\np1: ",p1,"\n");
+                        cat("\np2: ",p2,"\n");
+                        cat("\np1 * g1 + p2 * g2: ",p1 * g1 + p2 * g2,"\n");
+                        cat("\nimpurity.reduction: ",impurity.reduction,"\n");
+                        }
+
                     if ( is.na(impurity.reduction) | (impurity.reduction < 1e-99) ) { impurity.reduction <- -Inf; }
                     return( impurity.reduction );
                     }
