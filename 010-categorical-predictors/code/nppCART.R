@@ -865,7 +865,7 @@ R6_nppCART <- R6::R6Class(
             if (
                 base::length(uniqueVarValuePairs) < 1 |
                 base::length(impurity.reductions[!base::is.na(impurity.reductions)]) == 0 |
-                -Inf == base::max(base::unique(base::as.numeric(impurity.reductions[!base::is.na(impurity.reductions)])))
+                -Inf == base::max(base::unique(base::as.double(impurity.reductions[!base::is.na(impurity.reductions)])))
                 ) { return(NULL); }
 
             # returns split that corresponds to the maximum impurity reduction (exluding NA values)
@@ -1093,7 +1093,7 @@ R6_nppCART <- R6::R6Class(
 
         impurity = function(x) {
             # Gini impurity
-            p <- base::as.numeric(base::table(x) / base::length(x));
+            p <- base::as.double(base::table(x) / base::length(x));
             return( base::sum(p * (1 - p)) );
             },
 
