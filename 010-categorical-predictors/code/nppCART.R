@@ -336,7 +336,11 @@ R6_nppCART <- R6::R6Class(
                     nodeID    = lastNodeID,
                     depth     = 0,
                     np.rowIDs = private$np.data[,private$np.syntheticID],
-                     p.rowIDs =  private$p.data[, private$p.syntheticID]
+                     p.rowIDs =  private$p.data[, private$p.syntheticID],
+                    impurity  = private$npp_impurity(
+                        np.rowIDs = private$np.data[,private$np.syntheticID],
+                         p.rowIDs = private$p.data[, private$p.syntheticID ]
+                         )
                     )
                 );
 
@@ -349,6 +353,7 @@ R6_nppCART <- R6::R6Class(
                 currentDepth           <- currentNode$depth;
                 np.currentRowIDs       <- currentNode$np.rowIDs;
                  p.currentRowIDs       <- currentNode$p.rowIDs;
+                currentImpurity        <- currentNode$impurity;
                 current_birthCriterion <- currentNode$birthCriterion;
 
                 if (private$stoppingCriterionSatisfied(np.rowIDs = np.currentRowIDs,p.rowIDs = p.currentRowIDs)) {
@@ -383,7 +388,8 @@ R6_nppCART <- R6::R6Class(
 
                     bestSplit <- private$get_best_split(
                         np.currentRowIDs = np.currentRowIDs,
-                         p.currentRowIDs =  p.currentRowIDs
+                         p.currentRowIDs =  p.currentRowIDs,
+                         current.impurity = currentImpurity
                         );
 
                     if ( base::is.null(bestSplit) ) {
@@ -431,6 +437,7 @@ R6_nppCART <- R6::R6Class(
                                 depth     = currentDepth + 1,
                                 np.rowIDs = np.notSatisfied,
                                  p.rowIDs =  p.notSatisfied,
+                                impurity  = private$npp_impurity(np.rowIDs = np.notSatisfied, p.rowIDs = p.notSatisfied),
                                 birthCriterion = private$birthCriterion$new(
                                     varname    = bestSplit$varname,
                                     threshold  = bestSplit$threshold,
@@ -450,6 +457,7 @@ R6_nppCART <- R6::R6Class(
                                 depth     = currentDepth + 1,
                                 np.rowIDs = np.satisfied,
                                  p.rowIDs =  p.satisfied,
+                                impurity  = private$npp_impurity(np.rowIDs = np.satisfied, p.rowIDs = p.satisfied),
                                 birthCriterion = private$birthCriterion$new(
                                     varname    = bestSplit$varname,
                                     threshold  = bestSplit$threshold,
@@ -779,7 +787,7 @@ R6_nppCART <- R6::R6Class(
             return( DF.output );
             },
 
-        get_best_split = function(np.currentRowIDs,p.currentRowIDs) {
+        get_best_split = function(np.currentRowIDs,p.currentRowIDs,current.impurity) {
             uniqueVarValuePairs_factor  <- list();
             uniqueVarValuePairs_numeric <- list();
             if (base::length(private$predictors_factor) > 0) {
@@ -805,7 +813,7 @@ R6_nppCART <- R6::R6Class(
                     }
                 }
             uniqueVarValuePairs <- base::c(uniqueVarValuePairs_factor,uniqueVarValuePairs_numeric);
-            impurities <- base::lapply(
+            impurity.reductions <- base::lapply(
                 X   = uniqueVarValuePairs,
                 FUN = function(x) {
 
@@ -841,31 +849,34 @@ R6_nppCART <- R6::R6Class(
                     p2 <- p2 / private$estimatedPopulationSize;
                     g1 <- private$npp_impurity(np.rowIDs = np.satisfied,    p.rowIDs =  p.satisfied   );
                     g2 <- private$npp_impurity(np.rowIDs = np.notSatisfied, p.rowIDs =  p.notSatisfied);
-                    temp.impurity <- p1 * g1 + p2 * g2;
-                    if ( is.na(temp.impurity) ) { temp.impurity <- Inf; }
-                    return( temp.impurity );
-
+                    impurity.reduction <- current.impurity - p1 * g1 - p2 * g2;
+                    # cat("\ncurrent.impurity\n");   print( current.impurity   );
+                    # cat("\np1 * g1 + p2 * g2\n");  print( p1 * g1 + p2 * g2  );
+                    # cat("\nimpurity.reduction\n"); print( impurity.reduction );
+                    if ( is.na(impurity.reduction) | (impurity.reduction < 1e-99) ) { impurity.reduction <- -Inf; }
+                    return( impurity.reduction );
                     }
                 );
 
             # checks for first 3 NULL cases (no best split):
             #   -   uniqueVarValuePairs is empty (no available splits)
-            #   -   all impurities are NA/NaN (no meaningful splits)
+            #   -   all impurity.reductions are NA/NaN (no meaningful splits)
             #   -   minimum impurity is Inf (no meaningful splits)
-            if (    base::length(uniqueVarValuePairs) < 1 |
-                    base::length(impurities[!base::is.na(impurities)]) == 0 |
-                    Inf == base::min(base::unique(base::as.numeric(impurities[!base::is.na(impurities)])))  )
-                { return(NULL); }
+            if (
+                base::length(uniqueVarValuePairs) < 1 |
+                base::length(impurity.reductions[!base::is.na(impurity.reductions)]) == 0 |
+                -Inf == base::max(base::unique(base::as.numeric(impurity.reductions[!base::is.na(impurity.reductions)])))
+                ) { return(NULL); }
 
-            # returns split that corresponds to the minimum impurity (exluding NA values)
-            output <- uniqueVarValuePairs[[ base::which.min(impurities[!base::is.na(impurities)]) ]];
+            # returns split that corresponds to the maximum impurity reduction (exluding NA values)
+            output <- uniqueVarValuePairs[[ base::which.max(impurity.reductions[!base::is.na(impurity.reductions)]) ]];
 
             check.np.satisfied <- private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,private$np.syntheticID][
-                        output$comparison(
-                            private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,output$varname],
-                            output$threshold
-                            )
-                        ];
+                output$comparison(
+                    private$np.data[private$np.data[,private$np.syntheticID] %in% np.currentRowIDs,output$varname],
+                    output$threshold
+                    )
+                ];
             check.np.notSatisfied <- base::sort(base::setdiff(np.currentRowIDs,check.np.satisfied));
 
             # checks for last NULL case (no best split):
