@@ -1,4 +1,53 @@
 
+test.nppCART_get.population <- function(
+    seed            = 1234567,
+    population.flag = NULL,
+    population.size = NULL,
+    ordered.x1      = TRUE,
+    ordered.x2      = TRUE,
+    CSV.population  = paste0("DF-",population.flag,"-population.csv")
+    ) {
+    if ( file.exists(CSV.population) ) {
+        DF.population <- read.csv(file = CSV.population);
+        return( DF.population );
+        }
+    if ( "mixed" == population.flag ) {
+        DF.population <- test.nppCART_get.population.mixed(
+            seed            = seed,
+            population.size = population.size,
+            ordered.x1      = ordered.x1,
+            ordered.x2      = ordered.x2
+            );
+    } else if ( "02" == population.flag ) {
+        DF.population <- test.nppCART_get.population.02(
+            seed            = seed,
+            population.size = population.size,
+            ordered.x1      = ordered.x1,
+            ordered.x2      = ordered.x2
+            );
+    } else if ( "sanity" == population.flag ) {
+        DF.population <- test.nppCART_get.population.03(
+            seed            = seed,
+            population.size = population.size,
+            ordered.x1      = ordered.x1,
+            ordered.x2      = ordered.x2
+            );
+    } else {
+        DF.population <- test.nppCART_get.population.03(
+            seed            = seed,
+            population.size = population.size,
+            ordered.x1      = ordered.x1,
+            ordered.x2      = ordered.x2
+            );
+        }
+    write.csv(
+        x         = DF.population,
+        file      = CSV.population,
+        row.names = FALSE
+        );
+    return( DF.population );
+    }
+
 test.nppCART_get.samples <- function(
     DF.population         = NULL,
     prob.selection        = 0.1,
@@ -84,55 +133,7 @@ test.nppCART_get.samples <- function(
 
     }
 
-test.nppCART_get.population <- function(
-    seed            = 1234567,
-    population.flag = NULL,
-    population.size = NULL,
-    ordered.x1      = TRUE,
-    ordered.x2      = TRUE,
-    CSV.population  = paste0("DF-",population.flag,"-population.csv")
-    ) {
-    if ( file.exists(CSV.population) ) {
-        DF.population <- read.csv(file = CSV.population);
-        return( DF.population );
-        }
-    if ( "mixed" == population.flag ) {
-        DF.population <- test.nppCART_get.population.mixed(
-            seed            = seed,
-            population.size = population.size,
-            ordered.x1      = ordered.x1,
-            ordered.x2      = ordered.x2
-            );
-    } else if ( "02" == population.flag ) {
-        DF.population <- test.nppCART_get.population.02(
-            seed            = seed,
-            population.size = population.size,
-            ordered.x1      = ordered.x1,
-            ordered.x2      = ordered.x2
-            );
-    } else if ( "sanity" == population.flag ) {
-        DF.population <- test.nppCART_get.population.03(
-            seed            = seed,
-            population.size = population.size,
-            ordered.x1      = ordered.x1,
-            ordered.x2      = ordered.x2
-            );
-    } else {
-        DF.population <- test.nppCART_get.population.03(
-            seed            = seed,
-            population.size = population.size,
-            ordered.x1      = ordered.x1,
-            ordered.x2      = ordered.x2
-            );
-        }
-    write.csv(
-        x         = DF.population,
-        file      = CSV.population,
-        row.names = FALSE
-        );
-    return( DF.population );
-    }
-
+##################################################
 test.nppCART_get.population.mixed <- function(
     seed            = 1234567,
     population.size = NULL,
