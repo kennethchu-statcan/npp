@@ -55,12 +55,12 @@ test.nppCART.sanity(
     population.size = 10000    # 200
     );
 
-# is.macOS <- grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE);
-#
-# population.size <- 10000;
-# n.replicates    <-   500;
-# n.simulations   <- ifelse(test = is.macOS, yes = 10, no = 200);
-#
+is.macOS <- grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE);
+
+population.size <- 10000;
+n.replicates    <-   500;
+n.simulations   <- ifelse(test = is.macOS, yes = 10, no = 200);
+
 # test.nppCART.sanity(
 #    seed            = 1234567,
 #    population.flag = "sanity",
@@ -85,6 +85,15 @@ test.nppCART.sanity(
 #     n.replicates    = n.replicates,
 #     n.simulations   = n.simulations
 #     );
+
+test.nppCART.AIC(
+    seed            = 7777777, # 7654321, # 1234567,
+    population.flag = "mixed",
+    population.size = population.size,
+    prob.selection  = as.numeric(pi/20), # 0.1570796,
+    n.replicates    = n.replicates,
+    n.simulations   = n.simulations
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 # test.svyrepdesign();
