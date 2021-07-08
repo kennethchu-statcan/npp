@@ -57,9 +57,9 @@ test.nppCART.sanity(
 
 is.macOS <- grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE);
 
-population.size <- 10000;
-n.replicates    <-   500;
-n.simulations   <- ifelse(test = is.macOS, yes = 10, no = 200);
+population.size <- ifelse(test = is.macOS, yes = 10000, no = 20000); # 10000;
+n.simulations   <- ifelse(test = is.macOS, yes =    10, no =   200);
+n.replicates    <- 500;
 
 # test.nppCART.sanity(
 #    seed            = 1234567,
