@@ -152,42 +152,6 @@ test.nppCART.AIC_do.one.simulation <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.ggplot.fully.grown <- test.nppCART.AIC_do.one.simulation_scatter(
-        DF.input            = DF.npdata.with.propensity,
-        DF.population       = DF.population,
-        population.flag     = population.flag,
-        propensity.variable = "propensity"
-        );
-
-    PNG.output <- paste0("plot-simulation-",population.flag,"-propensity-scatter-fully-grown.png");
-    ggsave(
-        filename = PNG.output,
-        plot     = my.ggplot.fully.grown,
-        dpi      = 300,
-        height   =  11,
-        width    =  10,
-        units    = 'in'
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.ggplot.pruned <- test.nppCART.AIC_do.one.simulation_scatter(
-        DF.input            = DF.npdata.with.propensity,
-        DF.population       = DF.population,
-        population.flag     = population.flag,
-        propensity.variable = "propensity.pruned"
-        );
-
-    PNG.output <- paste0("plot-simulation-",population.flag,"-propensity-scatter-pruned.png");
-    ggsave(
-        filename = PNG.output,
-        plot     = my.ggplot.pruned,
-        dpi      = 300,
-        height   =  11,
-        width    =  10,
-        units    = 'in'
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.ggplot.fully.grown <- test.nppCART.AIC_do.one.simulation_hex(
         DF.input            = DF.npdata.with.propensity,
         DF.population       = DF.population,
@@ -224,6 +188,49 @@ test.nppCART.AIC_do.one.simulation <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    levels.x3.hidden <- unique(as.character(DF.population[,'x3.hidden']));
+    for ( temp.level.x3.hidden in levels.x3.hidden ) {
+
+        DF.temp <- DF.npdata.with.propensity[DF.npdata.with.propensity[,'x3.hidden'] == temp.level.x3.hidden,];
+
+        my.ggplot.fully.grown <- test.nppCART.AIC_do.one.simulation_scatter(
+            DF.input            = DF.temp, # DF.npdata.with.propensity,
+            DF.population       = DF.population,
+            subtitle            = paste0("Simulation ",population.flag," (x3.hidden = ",temp.level.x3.hidden,")"),
+            propensity.variable = "propensity"
+            );
+
+        PNG.output <- paste0("plot-simulation-",population.flag,"-propensity-scatter-fully-grown-x3-",temp.level.x3.hidden,".png");
+        ggsave(
+            filename = PNG.output,
+            plot     = my.ggplot.fully.grown,
+            dpi      = 300,
+            height   =  11,
+            width    =  10,
+            units    = 'in'
+            );
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        my.ggplot.pruned <- test.nppCART.AIC_do.one.simulation_scatter(
+            DF.input            = DF.temp, # DF.npdata.with.propensity,
+            DF.population       = DF.population,
+            subtitle            = paste0("Simulation ",population.flag," (x3.hidden = ",temp.level.x3.hidden,")"),
+            propensity.variable = "propensity.pruned"
+            );
+
+        PNG.output <- paste0("plot-simulation-",population.flag,"-propensity-scatter-pruned-x3-",temp.level.x3.hidden,".png");
+        ggsave(
+            filename = PNG.output,
+            plot     = my.ggplot.pruned,
+            dpi      = 300,
+            height   =  11,
+            width    =  10,
+            units    = 'in'
+            );
+
+        }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     setwd(original.directory);
     cat(paste0("\n# ",thisFunctionName,"() quits."));
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
@@ -234,7 +241,7 @@ test.nppCART.AIC_do.one.simulation <- function(
 test.nppCART.AIC_do.one.simulation_scatter <- function(
     DF.input            = NULL,
     DF.population       = NULL,
-    population.flag     = NULL,
+    subtitle            = NULL,
     propensity.variable = NULL,
     textsize.axis       = 20
     ) {
@@ -287,7 +294,7 @@ test.nppCART.AIC_do.one.simulation_scatter <- function(
 
     my.ggplot <- my.ggplot + labs(
         title    = NULL,
-        subtitle = paste0("Simulation ",population.flag),
+        subtitle = subtitle,
         colour   = ifelse("propensity" == propensity.variable,"estd. propensity (fully grown)   ","estd. propensity (pruned)   ")
         );
 
