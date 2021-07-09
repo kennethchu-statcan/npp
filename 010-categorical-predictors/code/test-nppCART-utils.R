@@ -11,7 +11,14 @@ test.nppCART_get.population <- function(
         DF.population <- read.csv(file = CSV.population);
         return( DF.population );
         }
-    if ( "mixed" == population.flag ) {
+    if ( "sanity" == population.flag ) {
+        DF.population <- test.nppCART_get.population.mixed(
+            seed            = seed,
+            population.size = population.size,
+            ordered.x1      = ordered.x1,
+            ordered.x2      = ordered.x2
+            );
+    } else if ( "mixed" == population.flag ) {
         DF.population <- test.nppCART_get.population.mixed(
             seed            = seed,
             population.size = population.size,
@@ -20,13 +27,6 @@ test.nppCART_get.population <- function(
             );
     } else if ( "02" == population.flag ) {
         DF.population <- test.nppCART_get.population.02(
-            seed            = seed,
-            population.size = population.size,
-            ordered.x1      = ordered.x1,
-            ordered.x2      = ordered.x2
-            );
-    } else if ( "sanity" == population.flag ) {
-        DF.population <- test.nppCART_get.population.03(
             seed            = seed,
             population.size = population.size,
             ordered.x1      = ordered.x1,
@@ -149,9 +149,19 @@ test.nppCART_get.population.mixed <- function(
     require(survey);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    levels.x1.hidden <- c("small","medium","large");
-    levels.x2.hidden <- c("petit","moyen", "grand");
-    levels.x3.hidden <- c("A",    "B",     "C"    );
+    if ( ordered.x1 ) {
+        levels.x1.hidden <- c("small","medium","large");
+    } else {
+        levels.x1.hidden <- c("apple","orange","banana");
+        }
+
+    if ( ordered.x2 ) {
+        levels.x2.hidden <- c("petit","moyen", "grand");
+    } else {
+        levels.x2.hidden <- c("pomme","orange","banane");
+        }
+
+    levels.x3.hidden <- c("A","B","C");
 
     x1.hidden <- factor(x = sample(x = levels.x1.hidden, size = population.size, replace = TRUE), levels = levels.x1.hidden, ordered = ordered.x1);
     x2.hidden <- factor(x = sample(x = levels.x2.hidden, size = population.size, replace = TRUE), levels = levels.x2.hidden, ordered = ordered.x2);
@@ -167,8 +177,8 @@ test.nppCART_get.population.mixed <- function(
     is.high.propensity.C <- ( (x3.hidden == "C") &   is.off.diagonals  );
     is.high.propensity   <- ( is.high.propensity.A | is.high.propensity.B | is.high.propensity.C );
 
-    true.propensity                     <- rnorm(n = population.size,         mean = 0.25, sd = 0.025);
-    true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 0.75, sd = 0.025);
+    true.propensity                     <- rnorm(n = population.size,         mean = 0.20, sd = 0.015);
+    true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 0.80, sd = 0.015);
 
     y0 <- rep(x = 30, times = population.size);
     y0[is.high.propensity] <- 110;
@@ -235,8 +245,17 @@ test.nppCART_get.population.02 <- function(
     require(survey);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    levels.x1 <- c("small","medium","large");
-    levels.x2 <- c("petit","moyen", "grand");
+    if ( ordered.x1 ) {
+        levels.x1.hidden <- c("small","medium","large");
+    } else {
+        levels.x1.hidden <- c("apple","orange","banana");
+        }
+
+    if ( ordered.x2 ) {
+        levels.x2.hidden <- c("petit","moyen", "grand");
+    } else {
+        levels.x2.hidden <- c("pomme","orange","banane");
+        }
 
     x1 <- factor(x = sample(x = levels.x1, size = population.size, replace = TRUE), levels = levels.x1, ordered = ordered.x1);
     x2 <- factor(x = sample(x = levels.x2, size = population.size, replace = TRUE), levels = levels.x2, ordered = ordered.x2);
@@ -286,8 +305,17 @@ test.nppCART_get.population.03 <- function(
     require(survey);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    levels.x1.hidden <- c("small","medium","large");
-    levels.x2.hidden <- c("petit","moyen", "grand");
+    if ( ordered.x1 ) {
+        levels.x1.hidden <- c("small","medium","large");
+    } else {
+        levels.x1.hidden <- c("apple","orange","banana");
+        }
+
+    if ( ordered.x2 ) {
+        levels.x2.hidden <- c("petit","moyen", "grand");
+    } else {
+        levels.x2.hidden <- c("pomme","orange","banane");
+        }
 
     x1.hidden <- factor(x = sample(x = levels.x1.hidden, size = population.size, replace = TRUE), levels = levels.x1.hidden, ordered = ordered.x1);
     x2.hidden <- factor(x = sample(x = levels.x2.hidden, size = population.size, replace = TRUE), levels = levels.x2.hidden, ordered = ordered.x2);

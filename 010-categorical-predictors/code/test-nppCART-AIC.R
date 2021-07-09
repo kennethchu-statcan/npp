@@ -17,8 +17,16 @@ test.nppCART.AIC <- function(
     DF.population <- test.nppCART_get.population(
         seed            = seed,
         population.flag = population.flag,
-        population.size = population.size
+        population.size = population.size,
+        ordered.x1      = FALSE,
+        ordered.x2      = TRUE
         );
+
+    cat("\nstr(DF.population)\n");
+    print( str(DF.population)   );
+
+    cat("\ntable(DF.population[,c('x1','x2','x3.hidden')])\n");
+    print( table(DF.population[,c('x1','x2','x3.hidden')])   );
 
     visualizePopulation(
         population.flag = population.flag,
@@ -27,6 +35,16 @@ test.nppCART.AIC <- function(
         textsize.axis   = 20,
         inputIsNumeric  = FALSE
         );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat(paste0("\n# ",thisFunctionName,"() quits."));
+    cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
+    return( NULL );
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
     ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     test.nppCART.AIC_do.one.simulation(
