@@ -7,8 +7,9 @@ test.nppCART_get.population <- function(
     ordered.x2      = TRUE,
     CSV.population  = paste0("DF-",population.flag,"-population.csv")
     ) {
-    if ( file.exists(CSV.population) ) {
-        DF.population <- read.csv(file = CSV.population);
+    RData.population <- gsub(x = CSV.population, pattern = "\\.csv$", replacement = ".RData");
+    if ( file.exists(RData.population) ) {
+        DF.population <- readRDS(file = RData.population);
         return( DF.population );
         }
     if ( "sanity" == population.flag ) {
@@ -40,6 +41,7 @@ test.nppCART_get.population <- function(
             ordered.x2      = ordered.x2
             );
         }
+    saveRDS(file = RData.population, object = DF.population);
     write.csv(
         x         = DF.population,
         file      = CSV.population,
@@ -199,7 +201,7 @@ test.nppCART_get.population.mixed <- function(
         subgroup.1      = sample(x = 1:n.subgroups, size = population.size, replace = TRUE),
         subgroup.2      = sample(x = 1:n.subgroups, size = population.size, replace = TRUE),
         x3              = x3.hidden,
-        x3.hidden       = x3.hidden,
+        x3.hidden       = factor(x = as.character(x3.hidden), levels = levels.x3.hidden, ordered = FALSE),
         true.propensity = true.propensity
         );
 

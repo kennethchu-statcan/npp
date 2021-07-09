@@ -12,6 +12,12 @@ test.nppCART.sanity <- function(
     cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    original.directory <- getwd();
+    temp.directory     <- normalizePath(file.path(original.directory,'sanity'));
+    if ( !dir.exists(temp.directory) ) { dir.create(temp.directory); }
+    setwd(temp.directory);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     require(rpart);
     require(tree);
 
@@ -26,6 +32,14 @@ test.nppCART.sanity <- function(
 
     cat("\nstr(DF.population)\n");
     print( str(DF.population)   );
+
+    visualizePopulation(
+        population.flag = population.flag,
+        population      = DF.population,
+        textsize.title  = 30,
+        textsize.axis   = 20,
+        inputIsNumeric  = FALSE
+        );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     list.samples  <- test.nppCART_get.samples(
@@ -165,6 +179,7 @@ test.nppCART.sanity <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    setwd(original.directory);
     cat(paste0("\n# ",thisFunctionName,"() quits."));
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
     return( NULL );
@@ -202,6 +217,7 @@ test.nppCART.sanity <- function(
     dev.off();
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    setwd(original.directory);
     cat(paste0("\n# ",thisFunctionName,"() quits."));
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
     return( NULL );
