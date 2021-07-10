@@ -1,9 +1,8 @@
 
 test.nppCART.sanity <- function(
     seed            = 1234567,
-    population.flag = "sanity",
-    population.size = 10000,
-    n.replicates    =   500
+    population.size =   10000,
+    n.replicates    =     500
     ) {
 
     thisFunctionName <- "test.nppCART.sanity";
@@ -13,7 +12,7 @@ test.nppCART.sanity <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     original.directory <- getwd();
-    temp.directory     <- normalizePath(file.path(original.directory,'sanity'));
+    temp.directory     <- file.path(normalizePath(original.directory),'output-sanity');
     if ( !dir.exists(temp.directory) ) { dir.create(temp.directory); }
     setwd(temp.directory);
 
@@ -24,7 +23,7 @@ test.nppCART.sanity <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.population <- test.nppCART_get.population(
         seed            = seed,
-        population.flag = population.flag,
+        population.flag = "sanity",
         population.size = population.size,
         ordered.x1      = FALSE,
         ordered.x2      = TRUE
@@ -34,11 +33,10 @@ test.nppCART.sanity <- function(
     print( str(DF.population)   );
 
     visualizePopulation(
-        population.flag = population.flag,
-        population      = DF.population,
-        textsize.title  = 30,
-        textsize.axis   = 20,
-        inputIsNumeric  = FALSE
+        population     = DF.population,
+        textsize.title = 30,
+        textsize.axis  = 20,
+        inputIsNumeric = FALSE
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -46,8 +44,8 @@ test.nppCART.sanity <- function(
         DF.population         = DF.population,
         prob.selection        = 0.999999999,
         n.replicates          = n.replicates,
-        RData.non.probability = paste0("DF-",population.flag,"-non-probability.RData"),
-        RData.probability     = paste0("DF-",population.flag,"-probability.RData")
+        RData.non.probability = paste0("DF-sanity-non-probability.RData"),
+        RData.probability     = paste0("DF-sanity-probability.RData")
         );
 
     cat("\nstr(list.samples[['DF.probability']])\n");
@@ -63,7 +61,7 @@ test.nppCART.sanity <- function(
 
     write.csv(
         x         = DF.population,
-        file      = paste0("DF-",population.flag,"-population-with-self-selection.csv"),
+        file      = paste0("DF-sanity-population-with-self-selection.csv"),
         row.names = FALSE
         );
 
@@ -126,7 +124,7 @@ test.nppCART.sanity <- function(
 
     write.csv(
         x         = DF.impurity.alpha.AIC,
-        file      = paste0("DF-",population.flag,"-nppCART-impurity-alpha-AIC.csv"),
+        file      = paste0("DF-sanity-nppCART-impurity-alpha-AIC.csv"),
         row.names = FALSE
         );
 
@@ -141,13 +139,13 @@ test.nppCART.sanity <- function(
 
     write.csv(
         x         = DF.rpart.leaves,
-        file      = paste0("DF-",population.flag,"-leaves-rpart.csv"),
+        file      = paste0("DF-sanity-leaves-rpart.csv"),
         row.names = FALSE
         );
 
     write.csv(
         x         = DF.nppCART.leaves,
-        file      = paste0("DF-",population.flag,"-leaves-nppCART.csv"),
+        file      = paste0("DF-sanity-leaves-nppCART.csv"),
         row.names = FALSE
         );
 
@@ -175,46 +173,6 @@ test.nppCART.sanity <- function(
         cat("\nmax(DF.leaf.sizes[,'abs.diff'])\n");
         print( max(DF.leaf.sizes[,'abs.diff'])   );
         }
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    setwd(original.directory);
-    cat(paste0("\n# ",thisFunctionName,"() quits."));
-    cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
-    return( NULL );
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    is.self.selected <- (DF.population[,'unit.ID'] %in% list.samples[['DF.non.probability']][,'unit.ID']);
-    DF.population[                ,'self.selected'] <- FALSE;
-    DF.population[is.self.selected,'self.selected'] <- TRUE;
-
-    write.csv(
-        x         = DF.population,
-        file      = "DF-sanity-population-with-self-selection.csv",
-        row.names = FALSE
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    results.rpart <- rpart(
-        formula = self.selected ~ .,
-        data    = DF.population[,c('x1','x2','self.selected')],
-        control = list(
-            minsplit  = 1,
-            minbucket = 1,
-            cp        = 0
-            )
-        );
-
-    # cat("\nresults.rpart\n");
-    # print( results.rpart   );
-
-    png("plot-sanity-rpart.png");
-    rpart.plot(x = results.rpart);
-    dev.off();
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     setwd(original.directory);

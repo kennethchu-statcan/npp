@@ -1,13 +1,12 @@
 
 test.nppCART_get.population <- function(
-    seed            = 1234567,
-    population.flag = NULL,
-    population.size = NULL,
-    ordered.x1      = TRUE,
-    ordered.x2      = TRUE,
-    CSV.population  = paste0("DF-",population.flag,"-population.csv")
+    seed             = 1234567,
+    population.flag  = NULL,
+    population.size  = NULL,
+    ordered.x1       = TRUE,
+    ordered.x2       = TRUE,
+    RData.population = paste0("DF-",population.flag,"-population.RData")
     ) {
-    RData.population <- gsub(x = CSV.population, pattern = "\\.csv$", replacement = ".RData");
     if ( file.exists(RData.population) ) {
         DF.population <- readRDS(file = RData.population);
         return( DF.population );
@@ -42,11 +41,6 @@ test.nppCART_get.population <- function(
             );
         }
     saveRDS(file = RData.population, object = DF.population);
-    write.csv(
-        x         = DF.population,
-        file      = CSV.population,
-        row.names = FALSE
-        );
     return( DF.population );
     }
 

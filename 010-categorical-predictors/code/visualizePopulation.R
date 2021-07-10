@@ -1,16 +1,16 @@
 
 visualizePopulation <- function(
-    population.flag = NULL,
-    population      = NULL,
-    textsize.title  = 30,
-    textsize.axis   = 20,
-    inputIsNumeric  = FALSE
+    population     = NULL,
+    textsize.title = 30,
+    textsize.axis  = 20,
+    addDiagonal    = FALSE,
+    inputIsNumeric = FALSE
     ) {
 
     require(ggplot2);
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-    FILE.output <- paste0('plot-population-',population.flag,'-y-density.png');
+    FILE.output <- paste0('plot-population-y-density.png');
 
     my.ggplot <- ggplot(data = NULL) + theme_bw();
     my.ggplot <- my.ggplot + theme(
@@ -26,7 +26,7 @@ visualizePopulation <- function(
 
     my.ggplot <- my.ggplot + labs(
         title    = NULL,
-        subtitle = paste0("Population ",population.flag)
+        subtitle = "Population"
         );
 
     my.ggplot <- my.ggplot + xlab("y (target variable)");
@@ -48,7 +48,7 @@ visualizePopulation <- function(
         );
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-    FILE.output <- paste0('plot-population-',population.flag,'-propensity-density.png');
+    FILE.output <- paste0('plot-population-propensity-density.png');
 
     my.ggplot <- ggplot(data = NULL) + theme_bw();
     my.ggplot <- my.ggplot + theme(
@@ -64,7 +64,7 @@ visualizePopulation <- function(
 
     my.ggplot <- my.ggplot + labs(
         title    = NULL,
-        subtitle = paste0("Population ",population.flag)
+        subtitle = "Population"
         );
 
     my.ggplot <- my.ggplot + xlab("true propensity");
@@ -89,7 +89,7 @@ visualizePopulation <- function(
     levels.x3.hidden <- levels(population[,'x3.hidden']);
     for ( temp.level.x3.hidden in levels.x3.hidden ) {
 
-        FILE.output <- paste0('plot-population-',population.flag,'-propensity-scatter-x3-',temp.level.x3.hidden,'.png');
+        FILE.output <- paste0('plot-population-propensity-scatter-x3-',temp.level.x3.hidden,'.png');
 
         DF.temp <- population[population[,'x3.hidden'] == temp.level.x3.hidden,];
 
@@ -110,7 +110,7 @@ visualizePopulation <- function(
 
         my.ggplot <- my.ggplot + labs(
             title    = NULL,
-            subtitle = paste0("Population ",population.flag," (x3.hidden = ",temp.level.x3.hidden,")"),
+            subtitle = paste0("Population (x3.hidden = ",temp.level.x3.hidden,")"),
             colour   = "true propensity   "
             );
 
@@ -160,14 +160,14 @@ visualizePopulation <- function(
                 );
 
             my.ggplot <- my.ggplot + geom_point(
-                data    = DF.temp, # population,
+                data    = DF.temp,
                 mapping = aes(x = x1.jitter, y = x2.jitter, colour = true.propensity),
                 alpha   = 0.2
                 );
 
             }
 
-        if ( population.flag %in% c("01") ) {
+        if ( addDiagonal ) {
             my.ggplot <- my.ggplot + geom_abline(
                 slope     = 1,
                 intercept = 0,
