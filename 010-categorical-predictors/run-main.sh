@@ -15,7 +15,16 @@ cp -r ${codeDIR} ${outputDIR}
 cp    $0         ${outputDIR}/code
 
 ##################################################
-myRscript=${codeDIR}/main.R
+globalSeed=1234567
+
+### ~~~~~ ###
+# myRscript=${codeDIR}/main-00-sanity.R
+# stdoutFile=${outputDIR}/stdout.R.`basename ${myRscript} .R`
+# stderrFile=${outputDIR}/stderr.R.`basename ${myRscript} .R`
+# R --no-save --args ${codeDIR} ${outputDIR} < ${myRscript} > ${stdoutFile} 2> ${stderrFile}
+
+### ~~~~~ ###
+myRscript=${codeDIR}/main-01-simulations.R
 stdoutFile=${outputDIR}/stdout.R.`basename ${myRscript} .R`
 stderrFile=${outputDIR}/stderr.R.`basename ${myRscript} .R`
 R --no-save --args ${codeDIR} ${outputDIR} < ${myRscript} > ${stdoutFile} 2> ${stderrFile}
@@ -28,3 +37,4 @@ R --no-save --args ${codeDIR} ${outputDIR} < ${myRscript} > ${stdoutFile} 2> ${s
 
 ##################################################
 exit
+
