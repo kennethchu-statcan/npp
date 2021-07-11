@@ -3,7 +3,8 @@ test.nppCART.AIC_do.one.simulation <- function(
     seed           = NULL,
     DF.population  = NULL,
     prob.selection = NULL,
-    n.replicates   = NULL
+    n.replicates   = NULL,
+    save.nppCART   = FALSE
     ) {
 
     thisFunctionName <- "test.nppCART.AIC_do.one.simulation";
@@ -107,10 +108,12 @@ test.nppCART.AIC_do.one.simulation <- function(
             object = DF.impurity.alpha.AIC
             );
 
-        saveRDS(
-            file   = RData.my.nppCART,
-            object = my.nppCART
-            );
+        if ( save.nppCART ) {
+            saveRDS(
+                file   = RData.my.nppCART,
+                object = my.nppCART
+                );
+            }
 
         }
 
@@ -145,10 +148,12 @@ test.nppCART.AIC_do.one.simulation <- function(
             object = DF.current
             );
 
-        saveRDS(
-            file   = RData.current.nppCART,
-            object = current.nppCART
-            );
+        if ( save.nppCART ) {
+            saveRDS(
+                file   = RData.current.nppCART,
+                object = current.nppCART
+                );
+            }
 
         }
 
