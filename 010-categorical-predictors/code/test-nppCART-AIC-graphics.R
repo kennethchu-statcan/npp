@@ -147,7 +147,7 @@ test.nppCART.AIC_graphics_inner <- function(
             propensity.variable = "propensity.pruned"
             );
 
-        PNG.output <- paste0("plot-simulation-propensity-scatter-pruned-x3-",temp.level.x3.hidden,".png");
+        PNG.output <- paste0("plot-propensity-scatter-pruned-x3-",temp.level.x3.hidden,".png");
         ggsave(
             filename = PNG.output,
             plot     = my.ggplot.pruned,
