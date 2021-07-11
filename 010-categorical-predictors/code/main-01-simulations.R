@@ -108,31 +108,31 @@ setwd(original.directory);
 remove(list = "DF.population");
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# if ( !dir.exists(simulations.directory) ) { dir.create(simulations.directory) }
-# setwd(simulations.directory);
-#
-# n.cores <- parallel::detectCores();
-# cat("\nn.cores\n");
-# print( n.cores   );
-#
-# doParallel::registerDoParallel(n.cores);
-#
-# foreach ( iteration.index = seq(1,n.simulations) ) %dopar% {
-#     iteration.seed <- global.seed + iteration.index;
-#     DF.population  <- readRDS(file.path(population.directory,RData.population));
-#     test.nppCART.AIC_do.one.simulation(
-#         seed           = iteration.seed,
-#         DF.population  = DF.population,
-#         prob.selection = prob.selection,
-#         n.replicates   = n.replicates
-#         );
-#     remove(list = "DF.population");
-#     }
-#
-# stopImplicitCluster();
-#
-# setwd(original.directory);
-# Sys.sleep(time = 5);
+if ( !dir.exists(simulations.directory) ) { dir.create(simulations.directory) }
+setwd(simulations.directory);
+
+n.cores <- parallel::detectCores();
+cat("\nn.cores\n");
+print( n.cores   );
+
+doParallel::registerDoParallel(n.cores);
+
+foreach ( iteration.index = seq(1,n.simulations) ) %dopar% {
+    iteration.seed <- global.seed + iteration.index;
+    DF.population  <- readRDS(file.path(population.directory,RData.population));
+    test.nppCART.AIC_do.one.simulation(
+        seed           = iteration.seed,
+        DF.population  = DF.population,
+        prob.selection = prob.selection,
+        n.replicates   = n.replicates
+        );
+    remove(list = "DF.population");
+    }
+
+stopImplicitCluster();
+
+setwd(original.directory);
+Sys.sleep(time = 5);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 DF.population <- readRDS(file.path(population.directory,RData.population));
