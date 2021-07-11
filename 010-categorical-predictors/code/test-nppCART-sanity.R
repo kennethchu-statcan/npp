@@ -12,7 +12,7 @@ test.nppCART.sanity <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     original.directory <- getwd();
-    temp.directory     <- file.path(normalizePath(original.directory),'output-sanity');
+    temp.directory     <- file.path(normalizePath(original.directory),'output-00-sanity');
     if ( !dir.exists(temp.directory) ) { dir.create(temp.directory); }
     setwd(temp.directory);
 
