@@ -23,7 +23,7 @@ test.nppCART.AIC_aggregate <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     n.simulations  <- length(seed.directories);
     DF.simulations <- data.frame(
-        index.simulation     = seq(1,n.simulations),
+        simulation.index     = seq(1,n.simulations),
         seed.directory       = character(n.simulations),
         estimate.current     = rep(NA,times=n.simulations),
         estimate.fully.grown = rep(NA,times=n.simulations),
@@ -36,12 +36,19 @@ test.nppCART.AIC_aggregate <- function(
         DF.temp <- test.nppCART.AIC_aggregate_inner(
             seed.directory = file.path(normalizePath(simulations.directory),seed.directory)
             );
-        DF.simulations[index.simulation,'index.simulation']     <- index.simulation;
-        DF.simulations[index.simulation,'seed.directory']       <- seed.directory;
-        DF.simulations[index.simulation,'estimate.current']     <- DF.temp[1,'estimate.current'];
-        DF.simulations[index.simulation,'estimate.fully.grown'] <- DF.temp[1,'estimate.fully.grown'];
-        DF.simulations[index.simulation,'estimate.pruned']      <- DF.temp[1,'estimate.pruned'];
+        DF.simulations[simulation.index,'simulation.index']     <- simulation.index;
+        DF.simulations[simulation.index,'seed.directory']       <- seed.directory;
+        DF.simulations[simulation.index,'estimate.current']     <- DF.temp[1,'estimate.current'];
+        DF.simulations[simulation.index,'estimate.fully.grown'] <- DF.temp[1,'estimate.fully.grown'];
+        DF.simulations[simulation.index,'estimate.pruned']      <- DF.temp[1,'estimate.pruned'];
         }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    write.csv(
+        file      = "DF-simulations.csv",
+        x         = DF.simulations,
+        row.names = FALSE
+        );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     test.nppCART.AIC_aggregate_histograms(
