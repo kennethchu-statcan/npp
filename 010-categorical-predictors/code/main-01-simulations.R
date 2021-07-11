@@ -34,6 +34,8 @@ files.R <- c(
     'test-myCART-grow.R',
     'test-myCART-get-pruned-nodes.R',
     'test-nppCART-AIC.R',
+    'test-nppCART-AIC-aggregate.R',
+    'test-nppCART-AIC-graphics.R',
     'test-nppCART-sanity.R',
     'test-nppCART-utils.R',
     'test-svyrepdesign.R',
@@ -70,18 +72,19 @@ cat("\nn.replicates\n");
 print( n.replicates   );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-original.directory <- getwd();
-    temp.directory <- file.path(normalizePath(original.directory),"output-population");
-if ( !dir.exists(temp.directory) ) { dir.create(temp.directory) }
-setwd(temp.directory);
+  original.directory <- getwd();
+population.directory <- file.path(normalizePath(original.directory),"output-population");
+if ( !dir.exists(population.directory) ) { dir.create(population.directory) }
+setwd(population.directory);
 
-DF.population <- test.nppCART_get.population(
+RData.population <- "DF-population.RData";
+DF.population    <- test.nppCART_get.population(
     seed             = global.seed,
     population.flag  = "mixed",
     population.size  = population.size,
     ordered.x1       = FALSE,
     ordered.x2       = TRUE,
-    RData.population = "DF-population.RData"
+    RData.population = RData.population
     );
 
 cat("\nstr(DF.population)\n");
@@ -98,12 +101,13 @@ visualizePopulation(
     );
 
 setwd(original.directory);
+remove(list = "DF.population");
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-original.directory <- getwd();
-    temp.directory <- file.path(normalizePath(original.directory),"output-simulations");
-if ( !dir.exists(temp.directory) ) { dir.create(temp.directory) }
-setwd(temp.directory);
+   original.directory <- getwd();
+simulations.directory <- file.path(normalizePath(original.directory),"output-simulations");
+if ( !dir.exists(simulations.directory) ) { dir.create(simulations.directory) }
+setwd(simulations.directory);
 
 n.cores <- parallel::detectCores();
 cat("\nn.cores\n");
@@ -113,12 +117,14 @@ doParallel::registerDoParallel(n.cores);
 
 foreach ( iteration.index = seq(1,n.simulations) ) %dopar% {
     iteration.seed <- global.seed + iteration.index;
+    DF.population  <- readRDS(file.path(population.directory,RData.population));
     test.nppCART.AIC_do.one.simulation(
         seed           = iteration.seed,
         DF.population  = DF.population,
         prob.selection = prob.selection,
         n.replicates   = n.replicates
         );
+    remove(list = "DF.population");
     }
 
 stopImplicitCluster();
@@ -126,16 +132,31 @@ stopImplicitCluster();
 setwd(original.directory);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# original.directory <- getwd();
-#     temp.directory <- file.path(normalizePath(original.directory),"output-aggregate");
-# if ( !dir.exists(temp.directory) ) { dir.create(temp.directory) }
-# setwd(temp.directory);
-#
-# test.nppCART.AIC_aggregate(
-#     simulation.directory = simulation.directory
-#     );
-#
-# setwd(original.directory);
+Sys.sleep(time = 5);
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+DF.population <- readRDS(file.path(population.directory,RData.population));
+
+test.nppCART.AIC_graphics(
+    simulations.directory = simulations.directory,
+    DF.population         = DF.population
+    );
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+Sys.sleep(time = 5);
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+original.directory <- getwd();
+    temp.directory <- file.path(normalizePath(original.directory),"output-aggregate");
+if ( !dir.exists(temp.directory) ) { dir.create(temp.directory) }
+setwd(temp.directory);
+
+test.nppCART.AIC_aggregate(
+    simulations.directory = simulations.directory,
+    DF.population         = DF.population
+    );
+
+setwd(original.directory);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 

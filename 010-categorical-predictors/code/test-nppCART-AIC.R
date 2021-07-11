@@ -9,8 +9,8 @@ test.nppCART.AIC_do.one.simulation <- function(
     thisFunctionName <- "test.nppCART.AIC_do.one.simulation";
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    original.directory <- getwd();
-    temp.directory     <- file.path(normalizePath(original.directory),paste0('seed-',seed));
+    original.directory <- normalizePath(getwd());
+    temp.directory     <- file.path(original.directory,paste0('seed-',seed));
     if ( !dir.exists(temp.directory) ) { dir.create(temp.directory); }
     setwd(temp.directory);
 
@@ -22,7 +22,7 @@ test.nppCART.AIC_do.one.simulation <- function(
     sink(file = file.message, type = "message");
 
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
-    cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
+    cat(paste0("\n# ",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     require(ggplot2);
@@ -38,10 +38,20 @@ test.nppCART.AIC_do.one.simulation <- function(
     set.seed(seed = seed);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    list.samples  <- test.nppCART_get.samples(
+    list.samples <- test.nppCART_get.samples(
         DF.population  = DF.population,
         prob.selection = prob.selection, # 0.1, 1 - 1e-8, # 1.0,
         n.replicates   = n.replicates
+        );
+
+    saveRDS(
+        file   = "DF-non-probability.RData",
+        object = list.samples[['DF.non.probability']]
+        );
+
+    saveRDS(
+        file   = "DF-probability.RData",
+        object = list.samples[['DF.probability']]
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -52,134 +62,92 @@ test.nppCART.AIC_do.one.simulation <- function(
     cat("\nstr(list.samples[['DF.non.probability']])\n");
     print( str(list.samples[['DF.non.probability']])   );
 
-    DF.probability <- list.samples[['DF.probability']];
-    cat("\nstr(DF.probability)\n");
-    print( str(DF.probability)   )
+    # DF.probability <- list.samples[['DF.probability']];
+    cat("\nstr(list.samples[['DF.probability']])\n");
+    print( str(list.samples[['DF.probability']])   )
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.nppCART <- nppCART(
-        np.data                   = list.samples[['DF.non.probability']],
-        p.data                    = DF.probability,
-        predictors                = c("x1","x2","x3"),
-        sampling.weight           = "design.weight",
-        bootstrap.weights         = paste0("repweight",seq(1,n.replicates)),
-        min.cell.size             = 1,
-        min.impurity              = 1e-50,
-        n.levels.approx.threshold = 4
-        );
+    RData.my.nppCART <- "nppCART-my.RData";
+    if ( file.exists(RData.my.nppCART) ) {
 
-    my.nppCART$grow();
-    cat("\nmy.nppCART$print()\n");
-    my.nppCART$print( FUN.format = function(x) { return(format(x = x, digits = 3)) } );
+        my.nppCART <- readRDS(file = RData.my.nppCART);
 
-    DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity();
-    cat("\nstr(DF.npdata.with.propensity)\n");
-    print( str(DF.npdata.with.propensity)   );
+    } else {
 
-    write.csv(
-        file      = "DF-npdata-with-propensity.csv",
-        x         = DF.npdata.with.propensity,
-        row.names = FALSE
-        );
-
-    DF.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
-    cat("\nDF.impurity.alpha.AIC\n");
-    print( DF.impurity.alpha.AIC   );
-
-    write.csv(
-        file      = "DF-impurity-alpha-AIC.csv",
-        x         = DF.impurity.alpha.AIC,
-        row.names = FALSE
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.ggplot.fully.grown <- test.nppCART.AIC_do.one.simulation_hex(
-        DF.input            = DF.npdata.with.propensity,
-        DF.population       = DF.population,
-        propensity.variable = "propensity"
-        );
-
-    PNG.output <- paste0("plot-propensity-hex-fully-grown.png");
-    ggsave(
-        filename = PNG.output,
-        plot     = my.ggplot.fully.grown,
-        dpi      = 300,
-        height   =  11,
-        width    =  10,
-        units    = 'in'
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.ggplot.pruned <- test.nppCART.AIC_do.one.simulation_hex(
-        DF.input            = DF.npdata.with.propensity,
-        DF.population       = DF.population,
-        propensity.variable = "propensity.pruned"
-        );
-
-    PNG.output <- paste0("plot-propensity-hex-pruned.png");
-    ggsave(
-        filename = PNG.output,
-        plot     = my.ggplot.pruned,
-        dpi      = 300,
-        height   =  11,
-        width    =  10,
-        units    = 'in'
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.ggplot.impurity.alpha.AIC <- test.nppCART.AIC_do.one.simulation_plot.impurity.alpha.AIC(
-        DF.input = DF.impurity.alpha.AIC
-        );
-
-    PNG.output <- paste0("plot-impurity-alpha-AIC.png");
-    ggsave(
-        filename = PNG.output,
-        plot     = my.ggplot.impurity.alpha.AIC,
-        dpi      = 300,
-        height   =   5,
-        width    =  20,
-        units    = 'in'
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    levels.x3.hidden <- unique(as.character(DF.population[,'x3.hidden']));
-    for ( temp.level.x3.hidden in levels.x3.hidden ) {
-
-        DF.temp <- DF.npdata.with.propensity[DF.npdata.with.propensity[,'x3.hidden'] == temp.level.x3.hidden,];
-
-        my.ggplot.fully.grown <- test.nppCART.AIC_do.one.simulation_scatter(
-            DF.input            = DF.temp, # DF.npdata.with.propensity,
-            DF.population       = DF.population,
-            subtitle            = paste0("Simulation (x3.hidden = ",temp.level.x3.hidden,")"),
-            propensity.variable = "propensity"
+        my.nppCART <- nppCART(
+            np.data                   = list.samples[['DF.non.probability']],
+            p.data                    = list.samples[['DF.probability']],
+            predictors                = c("x1","x2","x3"),
+            sampling.weight           = "design.weight",
+            bootstrap.weights         = paste0("repweight",seq(1,n.replicates)),
+            min.cell.size             = 1,
+            min.impurity              = 1e-50,
+            n.levels.approx.threshold = 4
             );
 
-        PNG.output <- paste0("plot-propensity-scatter-fully-grown-x3-",temp.level.x3.hidden,".png");
-        ggsave(
-            filename = PNG.output,
-            plot     = my.ggplot.fully.grown,
-            dpi      = 300,
-            height   =  11,
-            width    =  10,
-            units    = 'in'
+        my.nppCART$grow();
+        cat("\nmy.nppCART$print()\n");
+        my.nppCART$print( FUN.format = function(x) { return(format(x = x, digits = 3)) } );
+
+        DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity();
+        cat("\nstr(DF.npdata.with.propensity)\n");
+        print( str(DF.npdata.with.propensity)   );
+
+        DF.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
+        cat("\nDF.impurity.alpha.AIC\n");
+        print( DF.impurity.alpha.AIC   );
+
+        saveRDS(
+            file   = "DF-npdata-with-propensity.RData",
+            object = DF.npdata.with.propensity
             );
 
-        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        my.ggplot.pruned <- test.nppCART.AIC_do.one.simulation_scatter(
-            DF.input            = DF.temp, # DF.npdata.with.propensity,
-            DF.population       = DF.population,
-            subtitle            = paste0("Simulation (x3.hidden = ",temp.level.x3.hidden,")"),
-            propensity.variable = "propensity.pruned"
+        saveRDS(
+            file   = "DF-impurity-alpha-AIC.RData",
+            object = DF.impurity.alpha.AIC
             );
 
-        PNG.output <- paste0("plot-simulation-propensity-scatter-pruned-x3-",temp.level.x3.hidden,".png");
-        ggsave(
-            filename = PNG.output,
-            plot     = my.ggplot.pruned,
-            dpi      = 300,
-            height   =  11,
-            width    =  10,
-            units    = 'in'
+        saveRDS(
+            file   = RData.my.nppCART,
+            object = my.nppCART
+            );
+
+        }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    RData.current.nppCART <- "nppCART-current.RData";
+    if ( file.exists(RData.current.nppCART) ) {
+
+        current.nppCART <- readRDS(file = RData.current.nppCART);
+
+    } else {
+
+        current.nppCART <- nppR::nppCART(
+            np.data       = list.samples[['DF.non.probability']],
+            p.data        = list.samples[['DF.probability']],
+            predictors    = c("x1","x2","x3"),
+            weight        = "design.weight",
+            min.cell.size = 1,
+            min.impurity  = 1e-50,
+            max.levels    = 10000
+            );
+
+        current.nppCART$grow();
+        cat("\ncurrent.nppCART$print()\n");
+        current.nppCART$print( FUN.format = function(x) { return(format(x = x, digits = 3)) } );
+
+        DF.current <- current.nppCART$get_npdata_with_propensity();
+        cat("\nstr(DF.current)\n");
+        print( str(DF.current)   );
+
+        saveRDS(
+            file   = "DF-current-npdata-with-propensity.RData",
+            object = DF.current
+            );
+
+        saveRDS(
+            file   = RData.current.nppCART,
+            object = current.nppCART
             );
 
         }
@@ -324,7 +292,6 @@ test.nppCART.AIC_do.one.simulation_plot.impurity.alpha.AIC <- function(
 
     }
 
-
 test.nppCART.AIC_do.one.simulation_scatter <- function(
     DF.input            = NULL,
     DF.population       = NULL,
@@ -406,7 +373,7 @@ test.nppCART.AIC_do.one.simulation_hex <- function(
     my.ggplot <- my.ggplot + geom_vline(xintercept = 0,colour="gray",size=0.75);
 
     my.ggplot <- my.ggplot + xlab("true.propensity");
-    my.ggplot <- my.ggplot + ylab(ifelse(test = ("propensity" == propensity.variable),yes = "propensity.fully.grown", no = propensity.variable));
+    my.ggplot <- my.ggplot + ylab(ifelse(test = ("propensity" == propensity.variable), yes = "propensity.fully.grown", no = propensity.variable));
 
     my.ggplot <- my.ggplot + scale_x_continuous(limits = c(0,1), breaks = seq(0,1,0.2));
     my.ggplot <- my.ggplot + scale_y_continuous(limits = c(0,1), breaks = seq(0,1,0.2));
@@ -457,6 +424,7 @@ test.nppCART.AIC_do.one.simulation_hex <- function(
 
     }
 
+####################
 # test.nppCART.AIC_do.many.simulations <- function(
 #     seed            = NULL,
 #     population.flag = NULL,
@@ -697,223 +665,6 @@ test.nppCART.AIC_do.one.simulation_hex <- function(
 #
 #     }
 
-test.nppCART.AIC_plot.simulations <- function(
-    DF.simulations   = NULL,
-    vline.xintercept = NULL,
-    bin.width        = 6000,
-    PNG.output       = paste0("plot-histograms.png")
-    ) {
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.histogram.current <- initializePlot(title = NULL, subtitle = NULL);
-    my.histogram.current <- my.histogram.current + geom_vline(
-        xintercept = vline.xintercept,
-        colour     = "orange",
-        size       = 1.00
-        );
-    my.histogram.current <- my.histogram.current + geom_histogram(
-        data     = DF.simulations,
-        mapping  = aes(x = estimate.current),
-        binwidth = bin.width,
-        alpha    = 0.5
-        # fill     = "black",
-        # colour   = NULL
-        );
-    my.histogram.current <- my.histogram.current + scale_x_continuous(
-        limits = c(0,1e6),
-        breaks = seq(0,1e6,1e5)
-        );
-
-    target.variable <- "estimate.current";
-
-    MCRelBias <- NA;
-    MCRelBias <- (DF.simulations[,target.variable] - vline.xintercept) / vline.xintercept;
-    MCRelBias <- mean( MCRelBias, na.rm = TRUE );
-    MCRelBias <- round(MCRelBias,3);
-
-    MCRelRMSE <- NA;
-    temp.vect <- DF.simulations[!is.na(DF.simulations[,target.variable]),target.variable];
-    MCRelRMSE <- ((temp.vect - vline.xintercept)^2) / (vline.xintercept^2) ;
-    MCRelRMSE <- sqrt(mean( MCRelRMSE ));
-    MCRelRMSE <- round(MCRelRMSE,3);
-
-    temp.xmax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['x']]$get_limits())
-    temp.ymax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['y']]$get_limits())
-
-    temp.min  <- min(DF.simulations[,target.variable], na.rm = TRUE);
-    temp.min  <- format(temp.min, digits = 3, scientific = TRUE);
-
-    temp.max  <- max(DF.simulations[,target.variable], na.rm = TRUE);
-    temp.max  <- format(temp.max, digits = 3, scientific = TRUE);
-
-    temp.iter <- nrow( DF.simulations );
-    temp.NA   <- sum(is.na( DF.simulations[,target.variable] ));
-
-    my.histogram.current <- my.histogram.current + annotate(
-        geom  = "text",
-        label = c(
-            paste0("MC Rel.BIAS = ",MCRelBias),
-            paste0("MC Rel.RMSE = ",MCRelRMSE),
-            paste0("min(Ty_hat) = ",temp.min ),
-            paste0("max(Ty_hat) = ",temp.max ),
-            paste0("   #(iters) = ",temp.iter),
-            paste0("      #(NA) = ",temp.NA  )
-            ),
-        # x   = temp.xmax * 0.8 * c(1,1,1,1,1,1),
-        x     = temp.xmax * 0.3 * c(1,1,1,1,1,1),
-        y     = temp.ymax * c(0.98,0.91,0.81,0.74,0.64,0.57),
-        size  = 7.5,
-        color = "black"
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.histogram.fully.grown <- initializePlot(title = NULL, subtitle = NULL);
-    my.histogram.fully.grown <- my.histogram.fully.grown + geom_vline(
-        xintercept = vline.xintercept,
-        colour     = "orange",
-        size       = 1.00
-        );
-    my.histogram.fully.grown <- my.histogram.fully.grown + geom_histogram(
-        data     = DF.simulations,
-        mapping  = aes(x = estimate.fully.grown),
-        binwidth = bin.width,
-        alpha    = 0.5
-        # fill     = "black",
-        # colour   = NULL
-        );
-    my.histogram.fully.grown <- my.histogram.fully.grown + scale_x_continuous(
-        limits = c(0,1e6),
-        breaks = seq(0,1e6,1e5)
-        );
-
-    target.variable <- "estimate.fully.grown";
-
-    MCRelBias <- NA;
-    MCRelBias <- (DF.simulations[,target.variable] - vline.xintercept) / vline.xintercept;
-    MCRelBias <- mean( MCRelBias, na.rm = TRUE );
-    MCRelBias <- round(MCRelBias,3);
-
-    MCRelRMSE <- NA;
-    temp.vect <- DF.simulations[!is.na(DF.simulations[,target.variable]),target.variable];
-    MCRelRMSE <- ((temp.vect - vline.xintercept)^2) / (vline.xintercept^2) ;
-    MCRelRMSE <- sqrt(mean( MCRelRMSE ));
-    MCRelRMSE <- round(MCRelRMSE,3);
-
-    temp.xmax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['x']]$get_limits())
-    temp.ymax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['y']]$get_limits())
-
-    temp.min  <- min(DF.simulations[,target.variable], na.rm = TRUE);
-    temp.min  <- format(temp.min, digits = 3, scientific = TRUE);
-
-    temp.max  <- max(DF.simulations[,target.variable], na.rm = TRUE);
-    temp.max  <- format(temp.max, digits = 3, scientific = TRUE);
-
-    temp.iter <- nrow( DF.simulations );
-    temp.NA   <- sum(is.na( DF.simulations[,target.variable] ));
-
-    my.histogram.fully.grown <- my.histogram.fully.grown + annotate(
-        geom  = "text",
-        label = c(
-            paste0("MC Rel.BIAS = ",MCRelBias),
-            paste0("MC Rel.RMSE = ",MCRelRMSE),
-            paste0("min(Ty_hat) = ",temp.min ),
-            paste0("max(Ty_hat) = ",temp.max ),
-            paste0("   #(iters) = ",temp.iter),
-            paste0("      #(NA) = ",temp.NA  )
-            ),
-        # x   = temp.xmax * 0.8 * c(1,1,1,1,1,1),
-        x     = temp.xmax * 0.3 * c(1,1,1,1,1,1),
-        y     = temp.ymax * c(0.98,0.91,0.81,0.74,0.64,0.57),
-        size  = 7.5,
-        color = "black"
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.histogram.pruned <- initializePlot(title = NULL, subtitle = NULL);
-    my.histogram.pruned <- my.histogram.pruned + geom_vline(
-        xintercept = vline.xintercept,
-        colour     = "orange",
-        size       = 1.00
-        );
-    my.histogram.pruned <- my.histogram.pruned + geom_histogram(
-        data     = DF.simulations,
-        mapping  = aes(x = estimate.pruned),
-        binwidth = bin.width,
-        alpha    = 0.5
-        # fill     = "black",
-        # colour   = NULL
-        );
-    my.histogram.pruned <- my.histogram.pruned + scale_x_continuous(
-        limits = c(0,1e6),
-        breaks = seq(0,1e6,1e5)
-        );
-
-    target.variable <- "estimate.pruned";
-
-    MCRelBias <- NA;
-    MCRelBias <- (DF.simulations[,target.variable] - vline.xintercept) / vline.xintercept;
-    MCRelBias <- mean( MCRelBias, na.rm = TRUE );
-    MCRelBias <- round(MCRelBias,3);
-
-    MCRelRMSE <- NA;
-    temp.vect <- DF.simulations[!is.na(DF.simulations[,target.variable]),target.variable];
-    MCRelRMSE <- ((temp.vect - vline.xintercept)^2) / (vline.xintercept^2) ;
-    MCRelRMSE <- sqrt(mean( MCRelRMSE ));
-    MCRelRMSE <- round(MCRelRMSE,3);
-
-    temp.xmax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['x']]$get_limits())
-    temp.ymax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['y']]$get_limits())
-
-    temp.min  <- min(DF.simulations[,target.variable], na.rm = TRUE);
-    temp.min  <- format(temp.min, digits = 3, scientific = TRUE);
-
-    temp.max  <- max(DF.simulations[,target.variable], na.rm = TRUE);
-    temp.max  <- format(temp.max, digits = 3, scientific = TRUE);
-
-    temp.iter <- nrow( DF.simulations );
-    temp.NA   <- sum(is.na( DF.simulations[,target.variable] ));
-
-    my.histogram.pruned <- my.histogram.pruned + annotate(
-        geom  = "text",
-        label = c(
-            paste0("MC Rel.BIAS = ",MCRelBias),
-            paste0("MC Rel.RMSE = ",MCRelRMSE),
-            paste0("min(Ty_hat) = ",temp.min ),
-            paste0("max(Ty_hat) = ",temp.max ),
-            paste0("   #(iters) = ",temp.iter),
-            paste0("      #(NA) = ",temp.NA  )
-            ),
-        # x   = temp.xmax * 0.8 * c(1,1,1,1,1,1),
-        x     = temp.xmax * 0.3 * c(1,1,1,1,1,1),
-        y     = temp.ymax * c(0.98,0.91,0.81,0.74,0.64,0.57),
-        size  = 7.5,
-        color = "black"
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.cowplot <- cowplot::plot_grid(
-        my.histogram.current,
-        my.histogram.fully.grown,
-        my.histogram.pruned,
-        nrow       = 1,
-        align      = "h",
-        rel_widths = c(1,1)
-        );
-
-    cowplot::ggsave2(
-        file   = PNG.output,
-        plot   = my.cowplot,
-        dpi    = 300,
-        height =   6,
-        width  =  20,
-        units  = 'in'
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-
-    }
-
-####################
 # test.nppCART.AIC <- function(
 #     seed            = 1234567,
 #     population.flag = NULL,
