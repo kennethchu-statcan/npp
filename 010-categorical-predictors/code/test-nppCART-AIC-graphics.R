@@ -18,29 +18,29 @@ test.nppCART.AIC_graphics <- function(
     require(stringr);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # seed.directories <- list.files(path = simulations.directory, pattern = "seed-");
-    # for ( seed.directory in seed.directories ) {
-    #     test.nppCART.AIC_graphics_inner(
-    #         seed.directory = file.path(normalizePath(simulations.directory),seed.directory),
-    #         DF.population  = DF.population
-    #         );
-    #     }
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    n.cores <- parallel::detectCores();
-    cat("\nn.cores\n");
-    print( n.cores   );
-
-    doParallel::registerDoParallel(n.cores);
     seed.directories <- list.files(path = simulations.directory, pattern = "seed-");
-    foreach ( seed.directory.index = seq(1,length(seed.directories)) ) %dopar% {
-        seed.directory <- seed.directories[seed.directory.index];
+    for ( seed.directory in seed.directories ) {
         test.nppCART.AIC_graphics_inner(
             seed.directory = file.path(normalizePath(simulations.directory),seed.directory),
             DF.population  = DF.population
             );
         }
-    stopImplicitCluster();
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    # n.cores <- parallel::detectCores();
+    # cat("\nn.cores\n");
+    # print( n.cores   );
+    #
+    # doParallel::registerDoParallel(n.cores);
+    # seed.directories <- list.files(path = simulations.directory, pattern = "seed-");
+    # foreach ( seed.directory.index = seq(1,length(seed.directories)) ) %dopar% {
+    #     seed.directory <- seed.directories[seed.directory.index];
+    #     test.nppCART.AIC_graphics_inner(
+    #         seed.directory = file.path(normalizePath(simulations.directory),seed.directory),
+    #         DF.population  = DF.population
+    #         );
+    #     }
+    # stopImplicitCluster();
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
