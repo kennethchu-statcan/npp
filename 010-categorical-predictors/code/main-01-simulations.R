@@ -72,8 +72,12 @@ cat("\nn.replicates\n");
 print( n.replicates   );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-  original.directory <- getwd();
-population.directory <- file.path(normalizePath(original.directory),"output-population");
+  original.directory  <- getwd();
+population.directory  <- file.path(normalizePath(original.directory),"output-01-population" );
+simulations.directory <- file.path(normalizePath(original.directory),"output-02-simulations");
+aggregate.directory   <- file.path(normalizePath(original.directory),"output-03-aggregate"  );
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 if ( !dir.exists(population.directory) ) { dir.create(population.directory) }
 setwd(population.directory);
 
@@ -104,8 +108,6 @@ setwd(original.directory);
 remove(list = "DF.population");
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-   original.directory <- getwd();
-simulations.directory <- file.path(normalizePath(original.directory),"output-simulations");
 if ( !dir.exists(simulations.directory) ) { dir.create(simulations.directory) }
 setwd(simulations.directory);
 
@@ -130,26 +132,19 @@ foreach ( iteration.index = seq(1,n.simulations) ) %dopar% {
 stopImplicitCluster();
 
 setwd(original.directory);
-
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 Sys.sleep(time = 5);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 DF.population <- readRDS(file.path(population.directory,RData.population));
-
 test.nppCART.AIC_graphics(
     simulations.directory = simulations.directory,
     DF.population         = DF.population
     );
-
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 Sys.sleep(time = 5);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-original.directory <- getwd();
-    temp.directory <- file.path(normalizePath(original.directory),"output-aggregate");
-if ( !dir.exists(temp.directory) ) { dir.create(temp.directory) }
-setwd(temp.directory);
+if ( !dir.exists(aggregate.directory) ) { dir.create(aggregate.directory) }
+setwd(aggregate.directory);
 
 test.nppCART.AIC_aggregate(
     simulations.directory = simulations.directory,
