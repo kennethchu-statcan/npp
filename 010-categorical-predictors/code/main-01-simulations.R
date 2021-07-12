@@ -146,6 +146,7 @@ Sys.sleep(time = 5);
 if ( !dir.exists(aggregate.directory) ) { dir.create(aggregate.directory) }
 setwd(aggregate.directory);
 
+DF.population <- readRDS(file.path(population.directory,RData.population));
 test.nppCART.AIC_aggregate(
     simulations.directory = simulations.directory,
     DF.population         = DF.population,
