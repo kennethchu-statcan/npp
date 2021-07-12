@@ -110,6 +110,7 @@ if ( !dir.exists(population.directory) ) {
 
     setwd(original.directory);
     remove(list = "DF.population");
+    Sys.sleep(time = 5);
 
     }
 
