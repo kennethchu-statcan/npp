@@ -105,7 +105,7 @@ test.nppCART.AIC_aggregate_histograms <- function(
     vline.xintercept = NULL,
     bin.width        = 6000,
     limits           = c(  0,1e6),
-    breaks           = seq(0,1e6,1e5)
+    breaks           = seq(0,1e6,1e5),
     PNG.output       = paste0("plot-histograms.png")
     ) {
 
