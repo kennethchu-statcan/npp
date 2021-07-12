@@ -77,11 +77,12 @@ print( n.replicates   );
 simulations.directory <- file.path(normalizePath(original.directory),"output-02-simulations");
   aggregate.directory <- file.path(normalizePath(original.directory),"output-03-aggregate"  );
 
+RData.population <- "DF-population.RData";
+
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 if ( !dir.exists(population.directory) ) { dir.create(population.directory) }
 setwd(population.directory);
 
-RData.population <- "DF-population.RData";
 DF.population    <- test.nppCART_get.population(
     seed             = global.seed,
     population.flag  = "mixed",
