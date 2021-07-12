@@ -1,7 +1,10 @@
 
 test.nppCART.AIC_aggregate <- function(
     simulations.directory = NULL,
-    DF.population         = NULL
+    DF.population         = NULL,
+    bin.width             = 3000,
+    limits                = c(  0,1e6),
+    breaks                = seq(0,1e6,1e5)
     ) {
 
     thisFunctionName <- "test.nppCART.AIC_aggregate";
@@ -54,7 +57,9 @@ test.nppCART.AIC_aggregate <- function(
     test.nppCART.AIC_aggregate_histograms(
         DF.simulations   = DF.simulations,
         vline.xintercept = sum(DF.population[,'y']),
-        bin.width        = 3000,
+        bin.width        = bin.width,
+        limits           = limits,
+        breaks           = breaks,
         PNG.output       = paste0("plot-simulation-histograms.png")
         );
 
@@ -99,6 +104,8 @@ test.nppCART.AIC_aggregate_histograms <- function(
     DF.simulations   = NULL,
     vline.xintercept = NULL,
     bin.width        = 6000,
+    limits           = c(  0,1e6),
+    breaks           = seq(0,1e6,1e5)
     PNG.output       = paste0("plot-histograms.png")
     ) {
 
@@ -118,8 +125,8 @@ test.nppCART.AIC_aggregate_histograms <- function(
         # colour   = NULL
         );
     my.histogram.current <- my.histogram.current + scale_x_continuous(
-        limits = c(0,1e6),
-        breaks = seq(0,1e6,1e5)
+        limits = limits,
+        breaks = breaks
         );
 
     target.variable <- "estimate.current";
@@ -180,8 +187,8 @@ test.nppCART.AIC_aggregate_histograms <- function(
         # colour   = NULL
         );
     my.histogram.fully.grown <- my.histogram.fully.grown + scale_x_continuous(
-        limits = c(0,1e6),
-        breaks = seq(0,1e6,1e5)
+        limits = limits,
+        breaks = breaks
         );
 
     target.variable <- "estimate.fully.grown";
@@ -242,8 +249,8 @@ test.nppCART.AIC_aggregate_histograms <- function(
         # colour   = NULL
         );
     my.histogram.pruned <- my.histogram.pruned + scale_x_continuous(
-        limits = c(0,1e6),
-        breaks = seq(0,1e6,1e5)
+        limits = limits,
+        breaks = breaks
         );
 
     target.variable <- "estimate.pruned";
