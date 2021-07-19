@@ -151,8 +151,8 @@ DF.population <- readRDS(file.path(population.directory,RData.population));
 test.nppCART.AIC_graphics(
     simulations.directory      = simulations.directory,
     DF.population              = DF.population,
-    scale_fill_gradient_limits = c(  0,2200),
-    scale_fill_gradient_breaks = seq(0,2000,500)
+    scale_fill_gradient_limits = c(  0,550),
+    scale_fill_gradient_breaks = seq(0,500,100)
     );
 Sys.sleep(time = 5);
 
@@ -165,8 +165,8 @@ test.nppCART.AIC_aggregate(
     simulations.directory = simulations.directory,
     DF.population         = DF.population,
     bin.width             = 3000,
-    limits                = c(  0,4e6),
-    breaks                = seq(0,4e6,1e6)
+    limits                = c(  0,2e6),
+    breaks                = seq(0,2e6,5e5)
     );
 
 setwd(original.directory);
