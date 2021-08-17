@@ -165,8 +165,8 @@ test.nppCART.AIC_aggregate(
     simulations.directory = simulations.directory,
     DF.population         = DF.population,
     bin.width             = 3000,
-    limits                = c(  0,2e6),
-    breaks                = seq(0,2e6,5e5)
+    limits                = c(  0,6e6),    # c(  0,2e6),
+    breaks                = seq(0,6e6,1e6) # seq(0,2e6,5e5)
     );
 
 setwd(original.directory);
