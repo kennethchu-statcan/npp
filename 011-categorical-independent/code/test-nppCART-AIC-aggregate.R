@@ -50,7 +50,7 @@ test.nppCART.AIC_aggregate <- function(
         }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.simulations <- DF.simulations[!is.null(DF.simulations[,'simulation.index']),];
+    DF.simulations <- DF.simulations[!is.na(DF.simulations[,'simulation.index']),];
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     write.csv(
