@@ -12,3 +12,7 @@ This computational experiment is a modification of 010-categorical-predictors,
 in that the target variable (y) in the synthetic population is now independent
 of the self-selection propensity as well as the predictor variables..
 
+This computational experiment is designed to see whether pruning could be
+advantageous (reduce variance) when the target variable is independent of
+self-selection propensity as well as the predictor variables.
+
