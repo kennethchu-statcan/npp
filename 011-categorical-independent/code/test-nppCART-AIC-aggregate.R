@@ -104,7 +104,6 @@ test.nppCART.AIC_aggregate_inner <- function(
         file = "DF-npdata-with-propensity.RData"
         );
 
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.temp <- data.frame(
         estimate.current     = sum(               DF.current[,'y'] /                DF.current[,'propensity'       ]),
         estimate.fully.grown = sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity'       ]),
