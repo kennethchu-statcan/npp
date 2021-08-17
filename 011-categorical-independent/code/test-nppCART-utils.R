@@ -192,7 +192,7 @@ test.nppCART_get.population.independent <- function(
     ####################
     ###  Now, y is independent of the true self-selection propensity
     ###  as well as the predictor variables.
-    y <- rnorm(n = population.size, mean = 8e4, sd = 1.5e4);
+    y <- rnorm(n = population.size, mean = 80, sd = 15);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     n.subgroups <- 2;
