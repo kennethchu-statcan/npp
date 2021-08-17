@@ -67,81 +67,22 @@ test.nppCART.AIC_graphics_inner <- function(
     setwd(seed.directory);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.npdata.with.propensity <- readRDS(
-        file = "DF-npdata-with-propensity.RData"
-        );
+    if ( file.exists("DF-npdata-with-propensity.RData") ) {
 
-    DF.impurity.alpha.AIC <- readRDS(
-        file = "DF-impurity-alpha-AIC.RData"
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.ggplot.fully.grown <- test.nppCART.AIC_graphics_hex(
-        DF.input                   = DF.npdata.with.propensity,
-        DF.population              = DF.population,
-        propensity.variable        = "propensity",
-        scale_fill_gradient_limits = scale_fill_gradient_limits,
-        scale_fill_gradient_breaks = scale_fill_gradient_breaks
-        );
-
-    PNG.output <- paste0("plot-propensity-hex-fully-grown.png");
-    ggsave(
-        filename = PNG.output,
-        plot     = my.ggplot.fully.grown,
-        dpi      = 300,
-        height   =  11,
-        width    =  10,
-        units    = 'in'
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.ggplot.pruned <- test.nppCART.AIC_graphics_hex(
-        DF.input                   = DF.npdata.with.propensity,
-        DF.population              = DF.population,
-        propensity.variable        = "propensity.pruned",
-        scale_fill_gradient_limits = scale_fill_gradient_limits,
-        scale_fill_gradient_breaks = scale_fill_gradient_breaks
-        );
-
-    PNG.output <- paste0("plot-propensity-hex-pruned.png");
-    ggsave(
-        filename = PNG.output,
-        plot     = my.ggplot.pruned,
-        dpi      = 300,
-        height   =  11,
-        width    =  10,
-        units    = 'in'
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.ggplot.impurity.alpha.AIC <- test.nppCART.AIC_do.one.simulation_plot.impurity.alpha.AIC(
-        DF.input = DF.impurity.alpha.AIC
-        );
-
-    PNG.output <- paste0("plot-impurity-alpha-AIC.png");
-    ggsave(
-        filename = PNG.output,
-        plot     = my.ggplot.impurity.alpha.AIC,
-        dpi      = 300,
-        height   =   5,
-        width    =  20,
-        units    = 'in'
-        );
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    levels.x3.hidden <- unique(as.character(DF.population[,'x3.hidden']));
-    for ( temp.level.x3.hidden in levels.x3.hidden ) {
-
-        DF.temp <- DF.npdata.with.propensity[DF.npdata.with.propensity[,'x3.hidden'] == temp.level.x3.hidden,];
-
-        my.ggplot.fully.grown <- test.nppCART.AIC_graphics_scatter(
-            DF.input            = DF.temp, # DF.npdata.with.propensity,
-            DF.population       = DF.population,
-            subtitle            = paste0("Simulation (x3.hidden = ",temp.level.x3.hidden,")"),
-            propensity.variable = "propensity"
+        DF.npdata.with.propensity <- readRDS(
+            file = "DF-npdata-with-propensity.RData"
             );
 
-        PNG.output <- paste0("plot-propensity-scatter-fully-grown-x3-",temp.level.x3.hidden,".png");
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        my.ggplot.fully.grown <- test.nppCART.AIC_graphics_hex(
+            DF.input                   = DF.npdata.with.propensity,
+            DF.population              = DF.population,
+            propensity.variable        = "propensity",
+            scale_fill_gradient_limits = scale_fill_gradient_limits,
+            scale_fill_gradient_breaks = scale_fill_gradient_breaks
+            );
+
+        PNG.output <- paste0("plot-propensity-hex-fully-grown.png");
         ggsave(
             filename = PNG.output,
             plot     = my.ggplot.fully.grown,
@@ -152,14 +93,15 @@ test.nppCART.AIC_graphics_inner <- function(
             );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        my.ggplot.pruned <- test.nppCART.AIC_graphics_scatter(
-            DF.input            = DF.temp, # DF.npdata.with.propensity,
-            DF.population       = DF.population,
-            subtitle            = paste0("Simulation (x3.hidden = ",temp.level.x3.hidden,")"),
-            propensity.variable = "propensity.pruned"
+        my.ggplot.pruned <- test.nppCART.AIC_graphics_hex(
+            DF.input                   = DF.npdata.with.propensity,
+            DF.population              = DF.population,
+            propensity.variable        = "propensity.pruned",
+            scale_fill_gradient_limits = scale_fill_gradient_limits,
+            scale_fill_gradient_breaks = scale_fill_gradient_breaks
             );
 
-        PNG.output <- paste0("plot-propensity-scatter-pruned-x3-",temp.level.x3.hidden,".png");
+        PNG.output <- paste0("plot-propensity-hex-pruned.png");
         ggsave(
             filename = PNG.output,
             plot     = my.ggplot.pruned,
@@ -169,7 +111,74 @@ test.nppCART.AIC_graphics_inner <- function(
             units    = 'in'
             );
 
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        levels.x3.hidden <- unique(as.character(DF.population[,'x3.hidden']));
+        for ( temp.level.x3.hidden in levels.x3.hidden ) {
+
+            DF.temp <- DF.npdata.with.propensity[DF.npdata.with.propensity[,'x3.hidden'] == temp.level.x3.hidden,];
+
+            my.ggplot.fully.grown <- test.nppCART.AIC_graphics_scatter(
+                DF.input            = DF.temp, # DF.npdata.with.propensity,
+                DF.population       = DF.population,
+                subtitle            = paste0("Simulation (x3.hidden = ",temp.level.x3.hidden,")"),
+                propensity.variable = "propensity"
+                );
+
+            PNG.output <- paste0("plot-propensity-scatter-fully-grown-x3-",temp.level.x3.hidden,".png");
+            ggsave(
+                filename = PNG.output,
+                plot     = my.ggplot.fully.grown,
+                dpi      = 300,
+                height   =  11,
+                width    =  10,
+                units    = 'in'
+                );
+
+            ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+            my.ggplot.pruned <- test.nppCART.AIC_graphics_scatter(
+                DF.input            = DF.temp, # DF.npdata.with.propensity,
+                DF.population       = DF.population,
+                subtitle            = paste0("Simulation (x3.hidden = ",temp.level.x3.hidden,")"),
+                propensity.variable = "propensity.pruned"
+                );
+
+            PNG.output <- paste0("plot-propensity-scatter-pruned-x3-",temp.level.x3.hidden,".png");
+            ggsave(
+                filename = PNG.output,
+                plot     = my.ggplot.pruned,
+                dpi      = 300,
+                height   =  11,
+                width    =  10,
+                units    = 'in'
+                );
+
+            }
+
         }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    if ( file.exists("DF-impurity-alpha-AIC.RData") ) {
+
+        DF.impurity.alpha.AIC <- readRDS(
+            file = "DF-impurity-alpha-AIC.RData"
+            );
+
+        my.ggplot.impurity.alpha.AIC <- test.nppCART.AIC_do.one.simulation_plot.impurity.alpha.AIC(
+            DF.input = DF.impurity.alpha.AIC
+            );
+
+        PNG.output <- paste0("plot-impurity-alpha-AIC.png");
+        ggsave(
+            filename = PNG.output,
+            plot     = my.ggplot.impurity.alpha.AIC,
+            dpi      = 300,
+            height   =   5,
+            width    =  20,
+            units    = 'in'
+            );
+
+        }
+
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     setwd(original.directory);

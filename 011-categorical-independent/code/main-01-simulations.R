@@ -163,6 +163,7 @@ setwd(aggregate.directory);
 DF.population <- readRDS(file.path(population.directory,RData.population));
 test.nppCART.AIC_aggregate(
     simulations.directory = simulations.directory,
+    n.simulations         = n.simulations,
     DF.population         = DF.population,
     bin.width             = 3000,
     limits                = c(  0,6e6),    # c(  0,2e6),
