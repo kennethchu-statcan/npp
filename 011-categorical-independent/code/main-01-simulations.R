@@ -120,8 +120,7 @@ if ( !dir.exists(simulations.directory) ) {
     cat("\n\nParallel simulations: starts\n\n");
 
     dir.create(simulations.directory);
-    Sys.sleep(time = 2);
-    setwd(simulations.directory);
+    Sys.sleep(time = 5); setwd(simulations.directory); Sys.sleep(time = 5);
 
     n.cores <- parallel::detectCores();
     cat("\nn.cores\n");
