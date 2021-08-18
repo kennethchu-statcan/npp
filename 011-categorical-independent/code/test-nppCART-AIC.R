@@ -12,8 +12,9 @@ test.nppCART.AIC_do.one.simulation <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     original.directory <- normalizePath(getwd());
     temp.directory     <- file.path(original.directory,paste0('seed-',seed));
-    if ( !dir.exists(temp.directory) ) { dir.create(temp.directory); }
-    setwd(temp.directory);
+    Sys.sleep(time = 5); if ( !dir.exists(temp.directory) ) { dir.create(temp.directory); }
+    Sys.sleep(time = 5); setwd(temp.directory);
+    Sys.sleep(time = 5);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     file.output  <- file(description = "sink-output.txt",  open = "wt");
@@ -176,14 +177,18 @@ test.nppCART.AIC_do.one.simulation <- function(
     print( stop.proc.time - start.proc.time );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    sink(file = NULL, type = "output" );
-    sink(file = NULL, type = "message");
-    sink();
-    setwd(original.directory);
-
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
+
+    sink(file = NULL, type = "output" );
+    sink(file = NULL, type = "message");
+    sink();
+
+    Sys.sleep(time = 5);
+    setwd(original.directory);
+    Sys.sleep(time = 5);
+
     return( NULL );
 
     }
