@@ -49,9 +49,10 @@ for ( file.R in files.R ) {
 ##################################################
 ##################################################
 is.macOS        <- grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE);
-population.size <- ifelse(test = is.macOS, yes = 5000, no = 40000); # 1000 ==> error
-n.simulations   <- ifelse(test = is.macOS, yes =   16, no =   200);
-prob.selection  <- as.numeric(pi/20); # 0.1570796,
+#population.size<- ifelse(test = is.macOS, yes = 5000, no = 40000); # 1000 ==> error
+population.size <- ifelse(test = is.macOS, yes = 5e6, no = 5e6); # 1000 ==> error
+n.simulations   <- ifelse(test = is.macOS, yes =  16, no = 200);
+prob.selection  <- as.numeric(pi/200); # as.numeric(pi/20); # 0.1570796,
 n.replicates    <- 500;
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -152,8 +153,8 @@ DF.population <- readRDS(file.path(population.directory,RData.population));
 test.nppCART.AIC_graphics(
     simulations.directory      = simulations.directory,
     DF.population              = DF.population,
-    scale_fill_gradient_limits = c(  0,550),
-    scale_fill_gradient_breaks = seq(0,500,100)
+    scale_fill_gradient_limits = c(  0,5.5e4),
+    scale_fill_gradient_breaks = seq(0,5.0e4,1.0e4)
     );
 Sys.sleep(time = 5);
 
@@ -167,8 +168,8 @@ test.nppCART.AIC_aggregate(
     n.simulations         = n.simulations,
     DF.population         = DF.population,
     bin.width             = 3000,
-    limits                = c(  0,6e6),    # c(  0,2e6),
-    breaks                = seq(0,6e6,1e6) # seq(0,2e6,5e5)
+    limits                = c(  0,6e8),    # c(  0,6e6),    # c(  0,2e6),
+    breaks                = seq(0,6e8,2e8) # seq(0,6e6,1e6) # seq(0,2e6,5e5)
     );
 
 setwd(original.directory);
