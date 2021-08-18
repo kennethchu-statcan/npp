@@ -208,8 +208,10 @@ test.nppCART.AIC_graphics_hex <- function(
     my.ggplot <- my.ggplot + xlab("true.propensity");
     my.ggplot <- my.ggplot + ylab(ifelse(test = ("propensity" == propensity.variable), yes = "propensity.fully.grown", no = propensity.variable));
 
-    my.ggplot <- my.ggplot + scale_x_continuous(limits = c(0,1), breaks = seq(0,1,0.2));
-    my.ggplot <- my.ggplot + scale_y_continuous(limits = c(0,1), breaks = seq(0,1,0.2));
+    # my.ggplot <- my.ggplot + scale_x_continuous(limits = c(0,1), breaks = seq(0,1,0.2));
+    # my.ggplot <- my.ggplot + scale_y_continuous(limits = c(0,1), breaks = seq(0,1,0.2));
+    my.ggplot <- my.ggplot + scale_x_continuous(limits = 0.01 * c(0,1), breaks = 0.01 * seq(0,1,0.2));
+    my.ggplot <- my.ggplot + scale_y_continuous(limits = 0.01 * c(0,1), breaks = 0.01 * seq(0,1,0.2));
 
     # if ( population.flag %in% c("02","03") ) {
     #     scale_fill_gradient_limits <- 300 * c(  0,1);
@@ -240,8 +242,8 @@ test.nppCART.AIC_graphics_hex <- function(
 
     my.ggplot <- my.ggplot + geom_hex(
         data     = DF.input,
-        mapping  = aes(x = true.propensity, y = variable.to.plot),
-        binwidth = c(0.02,0.02)
+        mapping  = aes(x = true.propensity, y = variable.to.plot)
+        #,binwidth = c(0.02,0.02)
         );
 
     my.ggplot <- my.ggplot + geom_abline(
@@ -291,8 +293,8 @@ test.nppCART.AIC_graphics_scatter <- function(
         );
 
     my.ggplot <- my.ggplot + scale_colour_gradient(
-        limits = c(0,1),
-        breaks = c(0,0.25,0.5,0.75,1),
+        limits = 0.01 * c(0,1),               # c(0,1),
+        breaks = 0.01 * c(0,0.25,0.5,0.75,1), # c(0,0.25,0.5,0.75,1),
         low    = "black",
         high   = "red"
         );

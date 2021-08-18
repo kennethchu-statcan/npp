@@ -126,6 +126,8 @@ test.nppCART.AIC_aggregate_histograms <- function(
     ) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    print("A-1");
+
     my.histogram.current <- initializePlot(title = NULL, subtitle = NULL);
     my.histogram.current <- my.histogram.current + geom_vline(
         xintercept = vline.xintercept,
@@ -145,6 +147,8 @@ test.nppCART.AIC_aggregate_histograms <- function(
         breaks = breaks
         );
 
+    print("B-1");
+
     target.variable <- "estimate.current";
 
     MCRelBias <- NA;
@@ -152,23 +156,35 @@ test.nppCART.AIC_aggregate_histograms <- function(
     MCRelBias <- mean( MCRelBias, na.rm = TRUE );
     MCRelBias <- round(MCRelBias,3);
 
+    print("B-2");
+
     MCRelRMSE <- NA;
     temp.vect <- DF.simulations[!is.na(DF.simulations[,target.variable]),target.variable];
     MCRelRMSE <- ((temp.vect - vline.xintercept)^2) / (vline.xintercept^2) ;
     MCRelRMSE <- sqrt(mean( MCRelRMSE ));
     MCRelRMSE <- round(MCRelRMSE,3);
 
-    temp.xmax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['x']]$get_limits())
-    temp.ymax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['y']]$get_limits())
+    print("B-3");
+
+    temp.xmax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['x']]$get_limits());
+    temp.ymax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['y']]$get_limits());
+
+    print("C-1");
 
     temp.min  <- min(DF.simulations[,target.variable], na.rm = TRUE);
     temp.min  <- format(temp.min, digits = 3, scientific = TRUE);
 
+    print("C-2");
+
     temp.max  <- max(DF.simulations[,target.variable], na.rm = TRUE);
     temp.max  <- format(temp.max, digits = 3, scientific = TRUE);
 
+    print("C-3");
+
     temp.iter <- nrow( DF.simulations );
     temp.NA   <- sum(is.na( DF.simulations[,target.variable] ));
+
+    print("B-4");
 
     my.histogram.current <- my.histogram.current + annotate(
         geom  = "text",
@@ -187,7 +203,11 @@ test.nppCART.AIC_aggregate_histograms <- function(
         color = "black"
         );
 
+    print("B-5");
+
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    print("A-2");
+
     my.histogram.fully.grown <- initializePlot(title = NULL, subtitle = NULL);
     my.histogram.fully.grown <- my.histogram.fully.grown + geom_vline(
         xintercept = vline.xintercept,
@@ -250,6 +270,8 @@ test.nppCART.AIC_aggregate_histograms <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    print("A-3");
+
     my.histogram.pruned <- initializePlot(title = NULL, subtitle = NULL);
     my.histogram.pruned <- my.histogram.pruned + geom_vline(
         xintercept = vline.xintercept,
@@ -312,6 +334,8 @@ test.nppCART.AIC_aggregate_histograms <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    print("A-4");
+
     my.cowplot <- cowplot::plot_grid(
         my.histogram.current,
         my.histogram.fully.grown,
@@ -331,5 +355,6 @@ test.nppCART.AIC_aggregate_histograms <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    print("A-5");
 
     }
