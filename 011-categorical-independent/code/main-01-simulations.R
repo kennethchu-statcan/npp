@@ -117,7 +117,7 @@ if ( !dir.exists(population.directory) ) {
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 if ( !dir.exists(simulations.directory) ) {
 
-    cat("\n\nParallel simulations: starts\n\n");
+    cat("\n\n# Parallel simulations: starts\n\n");
 
     dir.create(simulations.directory);
     Sys.sleep(time = 5); setwd(simulations.directory); Sys.sleep(time = 5);
@@ -143,7 +143,7 @@ if ( !dir.exists(simulations.directory) ) {
     stopImplicitCluster();
 
     Sys.sleep(time = 5); setwd(original.directory); Sys.sleep(time = 5);
-    cat("\n\nParallel simulations: complete\n\n");
+    cat("\n\n# Parallel simulations: complete\n\n");
 
     }
 
