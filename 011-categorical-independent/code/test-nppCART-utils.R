@@ -189,10 +189,14 @@ test.nppCART_get.population.independent <- function(
     # epsilon <- rnorm(n = population.size, mean = 0, sd = 1.0)
     # y <- y0 + epsilon^2;
 
-    ####################
-    ###  Now, y is independent of the true self-selection propensity
+    ####################################
+    ###  Now, y now has a tri-modal distribution which is
+    ###  independent of the true self-selection propensity
     ###  as well as the predictor variables.
-    y <- rnorm(n = population.size, mean = 80, sd = 15);
+    fruits <- sample(x = c("apple","orange","banana"), size = population.size, prob = c(2,1,4), replace = TRUE);
+    y <- rnorm(n = population.size, mean = 80, sd = 5);
+    y[fruits == "apple"]  <- rnorm(n = sum(fruits == "apple"),  mean =  40, sd = 5);
+    y[fruits == "banana"] <- rnorm(n = sum(fruits == "banana"), mean = 120, sd = 5);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     n.subgroups <- 2;
