@@ -4,7 +4,11 @@ visualizePopulation <- function(
     textsize.title = 30,
     textsize.axis  = 20,
     addDiagonal    = FALSE,
-    inputIsNumeric = FALSE
+    inputIsNumeric = FALSE,
+    propensity_density_limits    = c(-0.05,1.05),
+    propensity_density_breaks    = seq(0,1,0.2),
+    scale_colour_gradient_limits = c(0,1),
+    scale_colour_gradient_breaks = c(0,0.25,0.5,0.75,1)
     ) {
 
     require(ggplot2);
@@ -69,7 +73,10 @@ visualizePopulation <- function(
 
     my.ggplot <- my.ggplot + xlab("true propensity");
 
-    my.ggplot <- my.ggplot + scale_x_continuous(limits=c(-0.05,1.05),breaks=seq(0,1,0.2));
+    my.ggplot <- my.ggplot + scale_x_continuous(
+        limits = propensity_density_limits,
+        breaks = propensity_density_breaks
+        );
 
     my.ggplot <- my.ggplot + geom_density(
         data    = population,
@@ -123,8 +130,8 @@ visualizePopulation <- function(
             my.ggplot <- my.ggplot + scale_y_continuous(limits = c(0,3), breaks = seq(0,3,0.5));
 
             my.ggplot <- my.ggplot + scale_colour_gradient(
-                limits = c(0,1),
-                breaks = c(0,0.25,0.5,0.75,1),
+                limits = scale_colour_gradient_limits,
+                breaks = scale_colour_gradient_breaks,
                 low    = "black",
                 high   = "red"
                 );
@@ -153,8 +160,8 @@ visualizePopulation <- function(
                 );
 
             my.ggplot <- my.ggplot + scale_colour_gradient(
-                limits = c(0,1),
-                breaks = c(0,0.25,0.5,0.75,1),
+                limits = scale_colour_gradient_limits,
+                breaks = scale_colour_gradient_breaks,
                 low    = "black",
                 high   = "red"
                 );

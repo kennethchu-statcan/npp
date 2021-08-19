@@ -81,39 +81,39 @@ simulations.directory <- file.path(normalizePath(original.directory),"output-02-
 RData.population <- "DF-population.RData";
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-if ( !dir.exists(population.directory) ) {
+if ( !dir.exists(population.directory) ) { dir.create(population.directory); }
+Sys.sleep(time = 5); setwd(population.directory); Sys.sleep(time = 5);
 
-    dir.create(population.directory);
-    Sys.sleep(time = 2);
-    setwd(population.directory);
+DF.population <- test.nppCART_get.population(
+    seed             = global.seed,
+    population.flag  = "independent", # "mixed",
+    population.size  = population.size,
+    ordered.x1       = FALSE,
+    ordered.x2       = TRUE,
+    RData.population = RData.population
+    );
 
-    DF.population    <- test.nppCART_get.population(
-        seed             = global.seed,
-        population.flag  = "independent", # "mixed",
-        population.size  = population.size,
-        ordered.x1       = FALSE,
-        ordered.x2       = TRUE,
-        RData.population = RData.population
-        );
+cat("\nstr(DF.population)\n");
+print( str(DF.population)   );
 
-    cat("\nstr(DF.population)\n");
-    print( str(DF.population)   );
+cat("\ntable(DF.population[,c('x1','x2','x3.hidden')])\n");
+print( table(DF.population[,c('x1','x2','x3.hidden')])   );
 
-    cat("\ntable(DF.population[,c('x1','x2','x3.hidden')])\n");
-    print( table(DF.population[,c('x1','x2','x3.hidden')])   );
+visualizePopulation(
+    population     = DF.population,
+    textsize.title = 30,
+    textsize.axis  = 20,
+    inputIsNumeric = FALSE,
+    propensity_density_limits    = 0.01 * c(-0.05,1.05),
+    propensity_density_breaks    = 0.01 * seq(0,1,0.2),
+    scale_colour_gradient_limits = 0.01 * c(0,1),
+    scale_colour_gradient_breaks = 0.01 * c(0,0.25,0.5,0.75,1)
+    );
 
-    visualizePopulation(
-        population     = DF.population,
-        textsize.title = 30,
-        textsize.axis  = 20,
-        inputIsNumeric = FALSE
-        );
-
-    setwd(original.directory);
-    remove(list = "DF.population");
-    Sys.sleep(time = 5);
-
-    }
+setwd(original.directory);
+Sys.sleep(time = 5);
+remove(list = "DF.population");
+Sys.sleep(time = 5);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 if ( !dir.exists(simulations.directory) ) {
@@ -151,10 +151,12 @@ if ( !dir.exists(simulations.directory) ) {
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 DF.population <- readRDS(file.path(population.directory,RData.population));
 test.nppCART.AIC_graphics(
-    simulations.directory      = simulations.directory,
-    DF.population              = DF.population,
-    scale_fill_gradient_limits = c(  0,5.5e2),
-    scale_fill_gradient_breaks = seq(0,5.0e2,1.0e2)
+    simulations.directory        = simulations.directory,
+    DF.population                = DF.population,
+    scale_fill_gradient_limits   = c(  0,5.5e2),
+    scale_fill_gradient_breaks   = seq(0,5.0e2,1.0e2),
+    scale_colour_gradient_limits = 0.01 * c(0,1),
+    scale_colour_gradient_breaks = 0.01 * c(0,0.25,0.5,0.75,1)
     );
 Sys.sleep(time = 5);
 

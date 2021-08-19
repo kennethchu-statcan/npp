@@ -1,9 +1,11 @@
 
 test.nppCART.AIC_graphics <- function(
-    simulations.directory      = NULL,
-    DF.population              = NULL,
-    scale_fill_gradient_limits = c(  0,2000),
-    scale_fill_gradient_breaks = seq(0,2000,500)
+    simulations.directory        = NULL,
+    DF.population                = NULL,
+    scale_fill_gradient_limits   = c(  0,2000),
+    scale_fill_gradient_breaks   = seq(0,2000,500),
+    scale_colour_gradient_limits = c(0,1),
+    scale_colour_gradient_breaks = c(0,0.25,0.5,0.75,1)
     ) {
 
     thisFunctionName <- "test.nppCART.AIC_graphics";
@@ -23,10 +25,12 @@ test.nppCART.AIC_graphics <- function(
     seed.directories <- list.files(path = simulations.directory, pattern = "seed-");
     for ( seed.directory in seed.directories ) {
         test.nppCART.AIC_graphics_inner(
-            seed.directory             = file.path(normalizePath(simulations.directory),seed.directory),
-            DF.population              = DF.population,
-            scale_fill_gradient_limits = scale_fill_gradient_limits,
-            scale_fill_gradient_breaks = scale_fill_gradient_breaks
+            seed.directory               = file.path(normalizePath(simulations.directory),seed.directory),
+            DF.population                = DF.population,
+            scale_fill_gradient_limits   = scale_fill_gradient_limits,
+            scale_fill_gradient_breaks   = scale_fill_gradient_breaks,
+            scale_colour_gradient_limits = scale_colour_gradient_limits,
+            scale_colour_gradient_breaks = scale_colour_gradient_breaks
             );
         }
 
@@ -57,10 +61,12 @@ test.nppCART.AIC_graphics <- function(
 
 ####################
 test.nppCART.AIC_graphics_inner <- function(
-    seed.directory             = NULL,
-    DF.population              = NULL,
-    scale_fill_gradient_limits = c(  0,2000),
-    scale_fill_gradient_breaks = seq(0,2000,500)
+    seed.directory               = NULL,
+    DF.population                = NULL,
+    scale_fill_gradient_limits   = c(  0,2000),
+    scale_fill_gradient_breaks   = seq(0,2000,500),
+    scale_colour_gradient_limits = c(0,1),
+    scale_colour_gradient_breaks = c(0,0.25,0.5,0.75,1)
     ) {
 
     original.directory <- normalizePath(getwd());
@@ -118,10 +124,12 @@ test.nppCART.AIC_graphics_inner <- function(
             DF.temp <- DF.npdata.with.propensity[DF.npdata.with.propensity[,'x3.hidden'] == temp.level.x3.hidden,];
 
             my.ggplot.fully.grown <- test.nppCART.AIC_graphics_scatter(
-                DF.input            = DF.temp, # DF.npdata.with.propensity,
-                DF.population       = DF.population,
-                subtitle            = paste0("Simulation (x3.hidden = ",temp.level.x3.hidden,")"),
-                propensity.variable = "propensity"
+                DF.input                     = DF.temp, # DF.npdata.with.propensity,
+                DF.population                = DF.population,
+                subtitle                     = paste0("Simulation (x3.hidden = ",temp.level.x3.hidden,")"),
+                propensity.variable          = "propensity",
+                scale_colour_gradient_limits = scale_colour_gradient_limits,
+                scale_colour_gradient_breaks = scale_colour_gradient_breaks
                 );
 
             PNG.output <- paste0("plot-propensity-scatter-fully-grown-x3-",temp.level.x3.hidden,".png");
@@ -136,10 +144,12 @@ test.nppCART.AIC_graphics_inner <- function(
 
             ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
             my.ggplot.pruned <- test.nppCART.AIC_graphics_scatter(
-                DF.input            = DF.temp, # DF.npdata.with.propensity,
-                DF.population       = DF.population,
-                subtitle            = paste0("Simulation (x3.hidden = ",temp.level.x3.hidden,")"),
-                propensity.variable = "propensity.pruned"
+                DF.input                     = DF.temp, # DF.npdata.with.propensity,
+                DF.population                = DF.population,
+                subtitle                     = paste0("Simulation (x3.hidden = ",temp.level.x3.hidden,")"),
+                propensity.variable          = "propensity.pruned",
+                scale_colour_gradient_limits = scale_colour_gradient_limits,
+                scale_colour_gradient_breaks = scale_colour_gradient_breaks
                 );
 
             PNG.output <- paste0("plot-propensity-scatter-pruned-x3-",temp.level.x3.hidden,".png");
@@ -258,11 +268,13 @@ test.nppCART.AIC_graphics_hex <- function(
     }
 
 test.nppCART.AIC_graphics_scatter <- function(
-    DF.input            = NULL,
-    DF.population       = NULL,
-    subtitle            = NULL,
-    propensity.variable = NULL,
-    textsize.axis       = 20
+    DF.input                     = NULL,
+    DF.population                = NULL,
+    subtitle                     = NULL,
+    propensity.variable          = NULL,
+    textsize.axis                = 20,
+    scale_colour_gradient_limits = c(0,1),
+    scale_colour_gradient_breaks = c(0,0.25,0.5,0.75,1)
     ) {
 
     my.ggplot <- initializePlot(title = NULL, subtitle = NULL);
@@ -293,8 +305,8 @@ test.nppCART.AIC_graphics_scatter <- function(
         );
 
     my.ggplot <- my.ggplot + scale_colour_gradient(
-        limits = 0.01 * c(0,1),               # c(0,1),
-        breaks = 0.01 * c(0,0.25,0.5,0.75,1), # c(0,0.25,0.5,0.75,1),
+        limits = scale_colour_gradient_limits, # 0.01 * c(0,1),               # c(0,1),
+        breaks = scale_colour_gradient_breaks, # 0.01 * c(0,0.25,0.5,0.75,1), # c(0,0.25,0.5,0.75,1),
         low    = "black",
         high   = "red"
         );
