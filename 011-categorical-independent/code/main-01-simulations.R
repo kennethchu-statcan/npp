@@ -148,8 +148,8 @@ DF.population <- readRDS(file.path(population.directory,RData.population));
 test.nppCART.AIC_graphics(
     simulations.directory        = simulations.directory,
     DF.population                = DF.population,
-    scale_fill_gradient_limits   = c(  0,5.5e2),
-    scale_fill_gradient_breaks   = seq(0,5.0e2,1.0e2),
+    scale_fill_gradient_limits   = c(  0,275),    # c(  0,5.5e2),
+    scale_fill_gradient_breaks   = seq(0,250,50), # seq(0,5.0e2,1.0e2),
     scale_colour_gradient_limits = 0.01 * c(0,1),
     scale_colour_gradient_breaks = 0.01 * c(0,0.25,0.5,0.75,1)
     );
