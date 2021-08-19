@@ -57,19 +57,14 @@ n.replicates    <- 500;
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 global.seed <- 1234567;
-cat("\nglobal.seed\n");
 print( global.seed   );
 
-cat("\npopulation.size\n");
 print( population.size   );
 
-cat("\nn.simulations\n");
 print( n.simulations   );
 
-cat("\nprob.selection\n");
 print( prob.selection   );
 
-cat("\nn.replicates\n");
 print( n.replicates   );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
