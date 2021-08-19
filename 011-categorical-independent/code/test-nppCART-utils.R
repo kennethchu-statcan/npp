@@ -185,20 +185,24 @@ test.nppCART_get.population.independent <- function(
     true.propensity                     <- rnorm(n = population.size,         mean = 1e-3, sd = 1.5e-4);
     true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 8e-3, sd = 1.5e-4);
 
-    # y0 <- rep(x = 30, times = population.size);
-    # y0[is.high.propensity] <- 110;
-    #
-    # epsilon <- rnorm(n = population.size, mean = 0, sd = 1.0)
-    # y <- y0 + epsilon^2;
+    ####################################
+    ###  Here, y is conditionally independent
+    ###  of the true selection propensity
+    ###  given the predictor variables.
+    y0 <- rep(x = 30, times = population.size);
+    y0[is.high.propensity] <- 110;
+
+    epsilon <- rnorm(n = population.size, mean = 0, sd = 1.0)
+    y <- y0 + epsilon^2;
 
     ####################################
     ###  Now, y now has a tri-modal distribution which is
     ###  independent of the true self-selection propensity
     ###  as well as the predictor variables.
-    fruits <- sample(x = c("apple","orange","banana"), size = population.size, prob = c(1,1,1), replace = TRUE);
-    y <- rnorm(n = population.size, mean = 80, sd = 5);
-    y[fruits == "apple"]  <- rnorm(n = sum(fruits == "apple"),  mean =  40, sd = 5);
-    y[fruits == "banana"] <- rnorm(n = sum(fruits == "banana"), mean = 120, sd = 5);
+    # fruits <- sample(x = c("apple","orange","banana"), size = population.size, prob = c(1,1,1), replace = TRUE);
+    # y <- rnorm(n = population.size, mean = 80, sd = 5);
+    # y[fruits == "apple"]  <- rnorm(n = sum(fruits == "apple"),  mean =  40, sd = 5);
+    # y[fruits == "banana"] <- rnorm(n = sum(fruits == "banana"), mean = 120, sd = 5);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     n.subgroups <- 2;
