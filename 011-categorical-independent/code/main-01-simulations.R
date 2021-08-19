@@ -50,7 +50,7 @@ for ( file.R in files.R ) {
 ##################################################
 is.macOS        <- grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE);
 #population.size<- ifelse(test = is.macOS, yes = 5000, no = 40000); # 1000 ==> error
-population.size <- ifelse(test = is.macOS, yes = 5e5, no = 5e6); # 1000 ==> error
+population.size <- ifelse(test = is.macOS, yes = 5e5, no = 5e5); # 1000 ==> error
 n.simulations   <- ifelse(test = is.macOS, yes =  16, no = 200);
 prob.selection  <- as.numeric(pi/200); # as.numeric(pi/20); # 0.1570796,
 n.replicates    <- 500;
