@@ -188,7 +188,8 @@ test.nppCART_get.population.independent <- function(
     ####################################
     ###  Here, y follows a uniform distribution
     ###  with a large range (hence large variance).
-    y <- runif(n = population.size, min = 0, max = 1e3);
+#   y <-         runif(n = population.size, min = 0, max = 1e3);
+    y <- rmutil::rlevy(n = population.size, m   = 0, s   =  10);
 
     ####################################
     ###  Now, y now has a tri-modal distribution which is
