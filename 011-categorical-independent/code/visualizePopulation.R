@@ -35,7 +35,8 @@ visualizePopulation <- function(
 
     my.ggplot <- my.ggplot + xlab("y (target variable)");
 
-    my.ggplot <- my.ggplot + scale_x_continuous(limits=c(-5,165),breaks=seq(0,160,20));
+#   my.ggplot <- my.ggplot + scale_x_continuous(limits=c(-5,165),breaks=seq(0,160,20));
+    my.ggplot <- my.ggplot + scale_x_continuous(limits=c(-45000,45000),breaks=seq(-40000,40000,20000));
 
     my.ggplot <- my.ggplot + geom_density(
         data    = population,
