@@ -186,20 +186,26 @@ test.nppCART_get.population.independent <- function(
     true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 8e-3, sd = 1.5e-4);
 
     ####################################
+    y <- rnorm(n = population.size, mean = 500, sd = 1e3);
+#   y <- runif(n = population.size, min = 0, max = 1e3);
+#   is.outlier <- (runif(n = population.size, min = 0, max = 1) < 0.005);
+#   y[is.outlier] <- runif(n = sum(is.outlier), min = 1e5, max = 1e6);
+
+    ####################################
     ###  Here, y follows a uniform distribution
     ###  with a large range (hence large variance).
 #   y <-         runif(n = population.size, min = 0, max = 1e3);
 #   y <- rmutil::rlevy(n = population.size, m   = 0, s   =  10);
-    y <- rmutil::rlevy(n = population.size, m   = 0, s   =   5);
+#   y <- rmutil::rlevy(n = population.size, m   = 0, s   =   5);
 
     ####################################
     ###  Now, y now has a tri-modal distribution which is
     ###  independent of the true self-selection propensity
     ###  as well as the predictor variables.
-    # fruits <- sample(x = c("apple","orange","banana"), size = population.size, prob = c(1,1,1), replace = TRUE);
-    # y <- rnorm(n = population.size, mean = 80, sd = 5);
-    # y[fruits == "apple"]  <- rnorm(n = sum(fruits == "apple"),  mean =  40, sd = 5);
-    # y[fruits == "banana"] <- rnorm(n = sum(fruits == "banana"), mean = 120, sd = 5);
+#   fruits <- sample(x = c("apple","orange","banana"), size = population.size, prob = c(1,1,1), replace = TRUE);
+#   y <- rnorm(n = population.size, mean = 80, sd = 5);
+#   y[fruits == "apple"]  <- rnorm(n = sum(fruits == "apple"),  mean =  40, sd = 5);
+#   y[fruits == "banana"] <- rnorm(n = sum(fruits == "banana"), mean = 120, sd = 5);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     n.subgroups <- 2;
