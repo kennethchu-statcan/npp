@@ -5,6 +5,8 @@ visualizePopulation <- function(
     textsize.axis  = 20,
     addDiagonal    = FALSE,
     inputIsNumeric = FALSE,
+    target_density_limits        = 1000 * c(  -4.5,4.5),
+    target_density_breaks        = 1000 * seq(-4.0,4.0,2),
     propensity_density_limits    = c(-0.05,1.05),
     propensity_density_breaks    = seq(0,1,0.2),
     scale_colour_gradient_limits = c(0,1),
@@ -35,8 +37,10 @@ visualizePopulation <- function(
 
     my.ggplot <- my.ggplot + xlab("y (target variable)");
 
-#   my.ggplot <- my.ggplot + scale_x_continuous(limits=c(-5,165),breaks=seq(0,160,20));
-    my.ggplot <- my.ggplot + scale_x_continuous(limits=c(-45000,45000),breaks=seq(-40000,40000,20000));
+    my.ggplot <- my.ggplot + scale_x_continuous(
+        limits = target_density_limits,
+        breaks = target_density_breaks
+        );
 
     my.ggplot <- my.ggplot + geom_density(
         data    = population,
