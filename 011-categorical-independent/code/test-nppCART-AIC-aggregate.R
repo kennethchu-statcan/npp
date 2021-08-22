@@ -27,11 +27,14 @@ test.nppCART.AIC_aggregate <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     n.simulations  <- length(seed.directories);
     DF.simulations <- data.frame(
-        simulation.index     = rep(NA,times=n.simulations),
-        seed.directory       = character(n.simulations),
-        estimate.current     = rep(NA,times=n.simulations),
-        estimate.fully.grown = rep(NA,times=n.simulations),
-        estimate.pruned      = rep(NA,times=n.simulations)
+        simulation.index         = rep(NA,times=n.simulations),
+        seed.directory           = character(n.simulations),
+        y51.estimate.current     = rep(NA,times=n.simulations),
+        y51.estimate.fully.grown = rep(NA,times=n.simulations),
+        y51.estimate.pruned      = rep(NA,times=n.simulations),
+        y52.estimate.current     = rep(NA,times=n.simulations),
+        y52.estimate.fully.grown = rep(NA,times=n.simulations),
+        y52.estimate.pruned      = rep(NA,times=n.simulations)
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -41,11 +44,14 @@ test.nppCART.AIC_aggregate <- function(
             seed.directory = file.path(normalizePath(simulations.directory),seed.directory)
             );
         if ( !is.null(DF.temp) ) {
-            DF.simulations[simulation.index,'simulation.index']     <- simulation.index;
-            DF.simulations[simulation.index,'seed.directory']       <- seed.directory;
-            DF.simulations[simulation.index,'estimate.current']     <- DF.temp[1,'estimate.current'];
-            DF.simulations[simulation.index,'estimate.fully.grown'] <- DF.temp[1,'estimate.fully.grown'];
-            DF.simulations[simulation.index,'estimate.pruned']      <- DF.temp[1,'estimate.pruned'];
+            DF.simulations[simulation.index,'simulation.index']         <- simulation.index;
+            DF.simulations[simulation.index,'seed.directory']           <- seed.directory;
+            DF.simulations[simulation.index,'y51.estimate.current']     <- DF.temp[1,'y51.estimate.current'];
+            DF.simulations[simulation.index,'y51.estimate.fully.grown'] <- DF.temp[1,'y51.estimate.fully.grown'];
+            DF.simulations[simulation.index,'y51.estimate.pruned']      <- DF.temp[1,'y51.estimate.pruned'];
+            DF.simulations[simulation.index,'y52.estimate.current']     <- DF.temp[1,'y52.estimate.current'];
+            DF.simulations[simulation.index,'y52.estimate.fully.grown'] <- DF.temp[1,'y52.estimate.fully.grown'];
+            DF.simulations[simulation.index,'y52.estimate.pruned']      <- DF.temp[1,'y52.estimate.pruned'];
             }
         }
 
@@ -60,13 +66,26 @@ test.nppCART.AIC_aggregate <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    target.variable <- 'y51';
     test.nppCART.AIC_aggregate_histograms(
         DF.simulations   = DF.simulations,
-        vline.xintercept = sum(DF.population[,'y']),
+        target.variable  = target.variable,
+        vline.xintercept = sum(DF.population[,target.variable]),
         bin.width        = bin.width,
         limits           = limits,
         breaks           = breaks,
-        PNG.output       = paste0("plot-simulation-histograms.png")
+        PNG.output       = paste0("plot-simulation-histograms-",target.variable,".png")
+        );
+
+    target.variable <- 'y52';
+    test.nppCART.AIC_aggregate_histograms(
+        DF.simulations   = DF.simulations,
+        target.variable  = target.variable,
+        vline.xintercept = sum(DF.population[,target.variable]),
+        bin.width        = bin.width,
+        limits           = limits,
+        breaks           = breaks,
+        PNG.output       = paste0("plot-simulation-histograms-",target.variable,".png")
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -105,9 +124,15 @@ test.nppCART.AIC_aggregate_inner <- function(
         );
 
     DF.temp <- data.frame(
-        estimate.current     = sum(               DF.current[,'y'] /                DF.current[,'propensity'       ]),
-        estimate.fully.grown = sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity'       ]),
-        estimate.pruned      = sum(DF.npdata.with.propensity[,'y'] / DF.npdata.with.propensity[,'propensity.pruned'])
+
+        y51.estimate.current     = sum(               DF.current[,'y51'] /                DF.current[,'propensity'       ]),
+        y51.estimate.fully.grown = sum(DF.npdata.with.propensity[,'y51'] / DF.npdata.with.propensity[,'propensity'       ]),
+        y51.estimate.pruned      = sum(DF.npdata.with.propensity[,'y51'] / DF.npdata.with.propensity[,'propensity.pruned']),
+
+        y52.estimate.current     = sum(               DF.current[,'y52'] /                DF.current[,'propensity'       ]),
+        y52.estimate.fully.grown = sum(DF.npdata.with.propensity[,'y52'] / DF.npdata.with.propensity[,'propensity'       ]),
+        y52.estimate.pruned      = sum(DF.npdata.with.propensity[,'y52'] / DF.npdata.with.propensity[,'propensity.pruned'])
+
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -118,6 +143,7 @@ test.nppCART.AIC_aggregate_inner <- function(
 
 test.nppCART.AIC_aggregate_histograms <- function(
     DF.simulations   = NULL,
+    target.variable  = NULL,
     vline.xintercept = NULL,
     bin.width        = 6000,
     limits           = c(  0,1e6),
@@ -126,8 +152,6 @@ test.nppCART.AIC_aggregate_histograms <- function(
     ) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    print("A-1");
-
     my.histogram.current <- initializePlot(title = NULL, subtitle = NULL);
     my.histogram.current <- my.histogram.current + geom_vline(
         xintercept = vline.xintercept,
@@ -147,44 +171,30 @@ test.nppCART.AIC_aggregate_histograms <- function(
         breaks = breaks
         );
 
-    print("B-1");
-
-    target.variable <- "estimate.current";
+    plot.variable <- paste0(target.variable,".estimate.current");
 
     MCRelBias <- NA;
-    MCRelBias <- (DF.simulations[,target.variable] - vline.xintercept) / vline.xintercept;
+    MCRelBias <- (DF.simulations[,plot.variable] - vline.xintercept) / vline.xintercept;
     MCRelBias <- mean( MCRelBias, na.rm = TRUE );
     MCRelBias <- round(MCRelBias,3);
 
-    print("B-2");
-
     MCRelRMSE <- NA;
-    temp.vect <- DF.simulations[!is.na(DF.simulations[,target.variable]),target.variable];
+    temp.vect <- DF.simulations[!is.na(DF.simulations[,plot.variable]),plot.variable];
     MCRelRMSE <- ((temp.vect - vline.xintercept)^2) / (vline.xintercept^2) ;
     MCRelRMSE <- sqrt(mean( MCRelRMSE ));
     MCRelRMSE <- round(MCRelRMSE,3);
 
-    print("B-3");
-
     temp.xmax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['x']]$get_limits());
     temp.ymax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['y']]$get_limits());
 
-    print("C-1");
-
-    temp.min  <- min(DF.simulations[,target.variable], na.rm = TRUE);
+    temp.min  <- min(DF.simulations[,plot.variable], na.rm = TRUE);
     temp.min  <- format(temp.min, digits = 3, scientific = TRUE);
 
-    print("C-2");
-
-    temp.max  <- max(DF.simulations[,target.variable], na.rm = TRUE);
+    temp.max  <- max(DF.simulations[,plot.variable], na.rm = TRUE);
     temp.max  <- format(temp.max, digits = 3, scientific = TRUE);
 
-    print("C-3");
-
     temp.iter <- nrow( DF.simulations );
-    temp.NA   <- sum(is.na( DF.simulations[,target.variable] ));
-
-    print("B-4");
+    temp.NA   <- sum(is.na( DF.simulations[,plot.variable] ));
 
     my.histogram.current <- my.histogram.current + annotate(
         geom  = "text",
@@ -203,11 +213,7 @@ test.nppCART.AIC_aggregate_histograms <- function(
         color = "black"
         );
 
-    print("B-5");
-
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    print("A-2");
-
     my.histogram.fully.grown <- initializePlot(title = NULL, subtitle = NULL);
     my.histogram.fully.grown <- my.histogram.fully.grown + geom_vline(
         xintercept = vline.xintercept,
@@ -227,15 +233,15 @@ test.nppCART.AIC_aggregate_histograms <- function(
         breaks = breaks
         );
 
-    target.variable <- "estimate.fully.grown";
+    plot.variable <- paste0(target.variable,".estimate.fully.grown");
 
     MCRelBias <- NA;
-    MCRelBias <- (DF.simulations[,target.variable] - vline.xintercept) / vline.xintercept;
+    MCRelBias <- (DF.simulations[,plot.variable] - vline.xintercept) / vline.xintercept;
     MCRelBias <- mean( MCRelBias, na.rm = TRUE );
     MCRelBias <- round(MCRelBias,3);
 
     MCRelRMSE <- NA;
-    temp.vect <- DF.simulations[!is.na(DF.simulations[,target.variable]),target.variable];
+    temp.vect <- DF.simulations[!is.na(DF.simulations[,plot.variable]),plot.variable];
     MCRelRMSE <- ((temp.vect - vline.xintercept)^2) / (vline.xintercept^2) ;
     MCRelRMSE <- sqrt(mean( MCRelRMSE ));
     MCRelRMSE <- round(MCRelRMSE,3);
@@ -243,14 +249,14 @@ test.nppCART.AIC_aggregate_histograms <- function(
     temp.xmax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['x']]$get_limits())
     temp.ymax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['y']]$get_limits())
 
-    temp.min  <- min(DF.simulations[,target.variable], na.rm = TRUE);
+    temp.min  <- min(DF.simulations[,plot.variable], na.rm = TRUE);
     temp.min  <- format(temp.min, digits = 3, scientific = TRUE);
 
-    temp.max  <- max(DF.simulations[,target.variable], na.rm = TRUE);
+    temp.max  <- max(DF.simulations[,plot.variable], na.rm = TRUE);
     temp.max  <- format(temp.max, digits = 3, scientific = TRUE);
 
     temp.iter <- nrow( DF.simulations );
-    temp.NA   <- sum(is.na( DF.simulations[,target.variable] ));
+    temp.NA   <- sum(is.na( DF.simulations[,plot.variable] ));
 
     my.histogram.fully.grown <- my.histogram.fully.grown + annotate(
         geom  = "text",
@@ -270,8 +276,6 @@ test.nppCART.AIC_aggregate_histograms <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    print("A-3");
-
     my.histogram.pruned <- initializePlot(title = NULL, subtitle = NULL);
     my.histogram.pruned <- my.histogram.pruned + geom_vline(
         xintercept = vline.xintercept,
@@ -291,15 +295,15 @@ test.nppCART.AIC_aggregate_histograms <- function(
         breaks = breaks
         );
 
-    target.variable <- "estimate.pruned";
+    plot.variable <- paste0(target.variable,".estimate.pruned");
 
     MCRelBias <- NA;
-    MCRelBias <- (DF.simulations[,target.variable] - vline.xintercept) / vline.xintercept;
+    MCRelBias <- (DF.simulations[,plot.variable] - vline.xintercept) / vline.xintercept;
     MCRelBias <- mean( MCRelBias, na.rm = TRUE );
     MCRelBias <- round(MCRelBias,3);
 
     MCRelRMSE <- NA;
-    temp.vect <- DF.simulations[!is.na(DF.simulations[,target.variable]),target.variable];
+    temp.vect <- DF.simulations[!is.na(DF.simulations[,plot.variable]),plot.variable];
     MCRelRMSE <- ((temp.vect - vline.xintercept)^2) / (vline.xintercept^2) ;
     MCRelRMSE <- sqrt(mean( MCRelRMSE ));
     MCRelRMSE <- round(MCRelRMSE,3);
@@ -307,14 +311,14 @@ test.nppCART.AIC_aggregate_histograms <- function(
     temp.xmax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['x']]$get_limits())
     temp.ymax <- max(layer_scales(my.histogram.current,i=1L,j=1L)[['y']]$get_limits())
 
-    temp.min  <- min(DF.simulations[,target.variable], na.rm = TRUE);
+    temp.min  <- min(DF.simulations[,plot.variable], na.rm = TRUE);
     temp.min  <- format(temp.min, digits = 3, scientific = TRUE);
 
-    temp.max  <- max(DF.simulations[,target.variable], na.rm = TRUE);
+    temp.max  <- max(DF.simulations[,plot.variable], na.rm = TRUE);
     temp.max  <- format(temp.max, digits = 3, scientific = TRUE);
 
     temp.iter <- nrow( DF.simulations );
-    temp.NA   <- sum(is.na( DF.simulations[,target.variable] ));
+    temp.NA   <- sum(is.na( DF.simulations[,plot.variable] ));
 
     my.histogram.pruned <- my.histogram.pruned + annotate(
         geom  = "text",
@@ -334,8 +338,6 @@ test.nppCART.AIC_aggregate_histograms <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    print("A-4");
-
     my.cowplot <- cowplot::plot_grid(
         my.histogram.current,
         my.histogram.fully.grown,
@@ -355,6 +357,5 @@ test.nppCART.AIC_aggregate_histograms <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    print("A-5");
 
     }

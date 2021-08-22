@@ -16,7 +16,7 @@ visualizePopulation <- function(
     require(ggplot2);
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-    FILE.output <- paste0('plot-population-y-density.png');
+    FILE.output <- paste0('plot-population-density-target-variables.png');
 
     my.ggplot <- ggplot(data = NULL) + theme_bw();
     my.ggplot <- my.ggplot + theme(
@@ -35,7 +35,7 @@ visualizePopulation <- function(
         subtitle = "Population"
         );
 
-    my.ggplot <- my.ggplot + xlab("y (target variable)");
+    my.ggplot <- my.ggplot + xlab("value of target variable");
 
     my.ggplot <- my.ggplot + scale_x_continuous(
         limits = target_density_limits,
@@ -43,8 +43,15 @@ visualizePopulation <- function(
         );
 
     my.ggplot <- my.ggplot + geom_density(
+        data     = population,
+        mapping  = aes(x = y51),
+        linetype = "solid"
+        );
+
+    my.ggplot <- my.ggplot + geom_density(
         data    = population,
-        mapping = aes(x = y)
+        mapping = aes(x = y52),
+        linetype = "dashed"
         );
 
     ggsave(
@@ -57,7 +64,7 @@ visualizePopulation <- function(
         );
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-    FILE.output <- paste0('plot-population-propensity-density.png');
+    FILE.output <- paste0('plot-population-density-true-propensity.png');
 
     my.ggplot <- ggplot(data = NULL) + theme_bw();
     my.ggplot <- my.ggplot + theme(

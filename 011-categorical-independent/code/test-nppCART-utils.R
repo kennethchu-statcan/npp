@@ -182,13 +182,17 @@ test.nppCART_get.population.independent <- function(
 
 #   true.propensity                     <- rnorm(n = population.size,         mean = 0.20, sd = 0.015);
 #   true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 0.80, sd = 0.015);
-#   true.propensity                     <- rnorm(n = population.size,         mean = 1e-3, sd = 1.5e-4);
-#   true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 8e-3, sd = 1.5e-4);
-    true.propensity                     <- rnorm(n = population.size,         mean = 4e-3, sd = 1.5e-4);
+    true.propensity                     <- rnorm(n = population.size,         mean = 1e-3, sd = 1.5e-4);
     true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 8e-3, sd = 1.5e-4);
+#   true.propensity                     <- rnorm(n = population.size,         mean = 4e-3, sd = 1.5e-4);
+#   true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 8e-3, sd = 1.5e-4);
 
     ####################################
-    y <- rnorm(n = population.size, mean = 500, sd = 2e3);
+    y51 <- rnorm(n = population.size, mean = 500, sd = 1e3);
+    y52 <- rnorm(n = population.size, mean = 500, sd = 2e3);
+
+    ####################################
+#   y <- rnorm(n = population.size, mean = 500, sd = 2e3);
 #   y <- runif(n = population.size, min = 0, max = 1e3);
 #   is.outlier <- (runif(n = population.size, min = 0, max = 1) < 0.005);
 #   y[is.outlier] <- runif(n = sum(is.outlier), min = 1e5, max = 1e6);
@@ -216,7 +220,8 @@ test.nppCART_get.population.independent <- function(
 
     DF.population <- data.frame(
         unit.ID         = seq(1,population.size),
-        y               = y,
+        y51             = y51,
+        y52             = y52,
         x1.hidden       = x1.hidden,
         x2.hidden       = x2.hidden,
         subgroup.1      = sample(x = 1:n.subgroups, size = population.size, replace = TRUE),
@@ -248,7 +253,7 @@ test.nppCART_get.population.independent <- function(
     DF.population[,"x3"] <- as.double(DF.population[,"x3"]) + sample(x = c(-0.1,0.1), size = nrow(DF.population), replace = TRUE);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.population <- DF.population[,c('unit.ID','y','x1','x2','x3','true.propensity','x1.jitter','x2.jitter','x3.hidden')];
+    DF.population <- DF.population[,c('unit.ID','y51','y52','x1','x2','x3','true.propensity','x1.jitter','x2.jitter','x3.hidden')];
     return( DF.population );
 
     }
