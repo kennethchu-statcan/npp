@@ -69,7 +69,7 @@ test.nppCART_get.samples <- function(
         );
     DF.non.probability <- DF.population;
     DF.non.probability[,"self.selected"] <- is.self.selected;
-    DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("unit.ID","y","x1","x2","x3","x1.jitter","x2.jitter","x3.hidden")];
+    DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("unit.ID","y51","y52","x1","x2","x3","x1.jitter","x2.jitter","x3.hidden")];
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     is.selected <- sample(
