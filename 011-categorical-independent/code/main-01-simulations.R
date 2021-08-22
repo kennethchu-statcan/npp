@@ -100,7 +100,7 @@ visualizePopulation(
     textsize.axis  = 20,
     inputIsNumeric = FALSE,
     target_density_limits        = 10000 * c(  -0.9,0.9),
-    target_density_breaks        = format(x = 10000 * seq(-0.8,0.8,0.4), digits = 2),
+    target_density_breaks        = 10000 * seq(-0.8,0.8,0.4),
     propensity_density_limits    = 0.01 * c(-0.05,1.05),
     propensity_density_breaks    = 0.01 * seq(0,1,0.2),
     scale_colour_gradient_limits = 0.01 * c(0,1),
