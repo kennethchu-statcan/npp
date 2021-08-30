@@ -307,8 +307,11 @@ test.nppCART_get.population.mixed <- function(
     y0 <- rep(x = 30, times = population.size);
     y0[is.high.propensity] <- 110;
 
-    epsilon <- rnorm(n = population.size, mean = 0, sd = 1.0)
-    y <- y0 + epsilon^2;
+    # epsilon <- rnorm(n = population.size, mean = 0, sd = 1.0)
+    # y <- y0 + epsilon^2;
+
+    y51 <- y0 + rnorm(n = population.size, mean = 0, sd = 1.0)^2;
+    y52 <- y0 + rnorm(n = population.size, mean = 0, sd = 1.0)^2;
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     n.subgroups <- 2;
@@ -317,7 +320,8 @@ test.nppCART_get.population.mixed <- function(
 
     DF.population <- data.frame(
         unit.ID         = seq(1,population.size),
-        y               = y,
+        y51             = y51,
+        y52             = y52,
         x1.hidden       = x1.hidden,
         x2.hidden       = x2.hidden,
         subgroup.1      = sample(x = 1:n.subgroups, size = population.size, replace = TRUE),
@@ -349,7 +353,7 @@ test.nppCART_get.population.mixed <- function(
     DF.population[,"x3"] <- as.double(DF.population[,"x3"]) + sample(x = c(-0.1,0.1), size = nrow(DF.population), replace = TRUE);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.population <- DF.population[,c('unit.ID','y','x1','x2','x3','true.propensity','x1.jitter','x2.jitter','x3.hidden')];
+    DF.population <- DF.population[,c('unit.ID','y51','y52','x1','x2','x3','true.propensity','x1.jitter','x2.jitter','x3.hidden')];
     return( DF.population );
 
     }
