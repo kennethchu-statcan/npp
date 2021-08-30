@@ -83,6 +83,7 @@ test.nppCART.AIC_do.one.simulation <- function(
             sampling.weight           = "design.weight",
             bootstrap.weights         = paste0("repweight",seq(1,n.replicates)),
             min.cell.size.np          = 1,
+            min.cell.size.p           = 1,
             min.impurity              = 1e-50,
             n.levels.approx.threshold = 4
             );
