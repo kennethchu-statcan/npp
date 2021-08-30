@@ -131,7 +131,8 @@
 #' @param sampling.weight This parameter corresponds to the column in the probability sample that contains the sampling weights. The input must be a string corresponding to a column name in p.data, such that there are only positive numbers in that column. A value must be specified here for initialization to be successful.
 #' @param bootstrap.weights This parameter corresponds to the columns in the probability sample that contains the bootstrap weights. The input must be a character vector corresponding to a subset of column names in p.data, such that there are only non-negative numbers in these columns.
 #' @param predictors This parameter corresponds to the auxillary variables on which the partitioning is performed. The input must be a string or vector of strings that contain column names shared by both np.data and p.data. If no value is specified, predictors will be set to all the column names in np.data.
-#' @param min.cell.size This parameter corresponds to the minimum number of rows remaining in the probability sample and non-probabilty sample to continue partitioning. The input must be a positive integer. If no value is specified, min.cell.size will be set to 10.
+#' @param min.cell.size.np This parameter corresponds to the minimum number of rows remaining in the non-probabilty sample to continue partitioning. The input must be a positive integer. If no value is specified, min.cell.size.np will be set to 10.
+#' @param min.cell.size.p This parameter corresponds to the minimum number of rows remaining in the probability sample to continue partitioning. The input must be a positive integer. If no value is specified, min.cell.size.p will be set to 10.
 #' @param min.impurity This parameter corresponds to the minimum impurity calculated in each leaf node to continue partitioning. The input must be a positive number. If no value is specified, min.impurity will be set to 0.095.
 #' @param max.levels This parameter corresponds to the maximum number of levels allowed by each factor in the predictor variables. The input must be a number that is greater than or equal to zero. If no value is specified, max.levels will be set to 10.
 #'
@@ -145,7 +146,7 @@
 #'
 #' @section Methods:
 #' \describe{
-#'  \item{\code{initialize(predictors, np.data, p.data, sampling.weight, bootstrap.weights, min.cell.size, min.impurity)}}{This method is called when the R6 class is created (i.e. when nppCART is called). The arguments passed into nppCART are passed into initialize. This method contains input integrity checks to ensure that the arguments meet the required specifications. In addition, the method does some preprocessing of the input data.}
+#'  \item{\code{initialize(predictors, np.data, p.data, sampling.weight, bootstrap.weights, min.cell.size.np, min.cell.size.p, min.impurity)}}{This method is called when the R6 class is created (i.e. when nppCART is called). The arguments passed into nppCART are passed into initialize. This method contains input integrity checks to ensure that the arguments meet the required specifications. In addition, the method does some preprocessing of the input data.}
 #'  \item{\code{get_instantiation_data()}}{This method is used to retrieve the instantiation data.}
 #'  \item{\code{grow()}}{This method is used to grow a classification tree through recursive binary partitioning of the predictors. It operates in the R6 class internally, and does not have parameters or a return value. This method should be called after the initialization of the class.}
 #'  \item{\code{get_npdata_with_propensity(nodes)}}{This method returns a dataframe that contains the non-probability sample, with the tree-calculated values. The tree-calculated values include: the unique identifier for each node (called nodeID); the self-selection propensity for each member in the non-probability sample (called propensity); the number of members in the non-probability sample, which belong to each node (called np.count); the sum of the members’ sampling weights in the probability sample, which belong to each node (called p.weight); and the tree impurity of each node (called impurity). There is one parameter, nodes, which is passed in a value internally by default, and should not be modified. This method should be used after calling grow.}
@@ -160,7 +161,8 @@ nppCART <- function(
     sampling.weight   = NULL,
     bootstrap.weights = NULL,
     predictors        = base::setdiff(base::colnames(p.data),c(weight,bootstrap.weights)),
-    min.cell.size     = 10,
+    min.cell.size.np  = 10,
+    min.cell.size.p   = 10,
     min.impurity      = 0.095,
     max.levels        = 10
     ) {
@@ -172,7 +174,8 @@ nppCART <- function(
             sampling.weight   = sampling.weight,
             bootstrap.weights = bootstrap.weights,
             predictors        = predictors,
-            min.cell.size     = min.cell.size,
+            min.cell.size.np  = min.cell.size.np,
+            min.cell.size.p   = min.cell.size.p,
             min.impurity      = min.impurity,
             max.levels        = max.levels
             )
@@ -190,7 +193,8 @@ R6_nppCART <- R6::R6Class(
             sampling.weight   = NULL,
             bootstrap.weights = NULL,
             predictors        = base::colnames(np.data),
-            min.cell.size     = 10,
+            min.cell.size.np  = 10,
+            min.cell.size.p   = 10,
             min.impurity      = 0.095,
             max.levels        = 10
             ) {
@@ -240,11 +244,18 @@ R6_nppCART <- R6::R6Class(
                 base::length(base::setdiff(predictors, base::colnames( p.data))) == 0  # must be contained in column names of  p.data
                 );
 
-            # test min.cell.size
+            # test min.cell.size.np
             base::stopifnot(
-                !base::is.null(min.cell.size), # must not be NULL
-                base::is.numeric(min.cell.size) & (base::length(min.cell.size) == 1), # must be single number
-                (min.cell.size %% 1 == 0) & (min.cell.size > 0) # must be a positive integer
+                !base::is.null(min.cell.size.np), # must not be NULL
+                base::is.numeric(min.cell.size.np) & (base::length(min.cell.size.np) == 1), # must be single number
+                (min.cell.size.np %% 1 == 0) & (min.cell.size.np > 0) # must be a positive integer
+                );
+
+            # test min.cell.size.p
+            base::stopifnot(
+                !base::is.null(min.cell.size.p), # must not be NULL
+                base::is.numeric(min.cell.size.p) & (base::length(min.cell.size.p) == 1), # must be single number
+                (min.cell.size.p %% 1 == 0) & (min.cell.size.p > 0) # must be a positive integer
                 );
 
             # test min.impurity
@@ -266,7 +277,8 @@ R6_nppCART <- R6::R6Class(
             private$p.data            <-  p.data;
             private$sampling.weight   <- sampling.weight;
             private$bootstrap.weights <- bootstrap.weights;
-            private$min.cell.size     <- min.cell.size;
+            private$min.cell.size.np  <- min.cell.size.np;
+            private$min.cell.size.p   <- min.cell.size.p;
             private$min.impurity      <- min.impurity;
             private$max.levels        <- max.levels;
 
@@ -324,7 +336,8 @@ R6_nppCART <- R6::R6Class(
                 p.data            = private$p.data,
                 sampling.weight   = private$sampling.weight,
                 bootstrap.weights = private$bootstrap.weights,
-                min.cell.size     = private$min.cell.size,
+                min.cell.size.np  = private$min.cell.size.np,
+                min.cell.size.p   = private$min.cell.size.p,
                 min.impurity      = private$min.impurity,
                 max.levels        = private$max.levels
                 ));
@@ -613,7 +626,8 @@ R6_nppCART <- R6::R6Class(
          p.data           = NULL,
         sampling.weight   = NULL,
         bootstrap.weights = NULL,
-        min.cell.size     = NULL,
+        min.cell.size.np  = NULL,
+        min.cell.size.p   = NULL,
         min.impurity      = NULL,
         max.levels        = NULL,
 
@@ -646,8 +660,12 @@ R6_nppCART <- R6::R6Class(
 
         stoppingCriterionSatisfied = function(np.rowIDs = NULL, p.rowIDs = NULL) {
 
-            if ( base::length(np.rowIDs) < private$min.cell.size ) {
-                #print("base::length(np.rowIDs) < private$min.cell.size")
+            if ( base::length(np.rowIDs) < private$min.cell.size.np ) {
+                #print("base::length(np.rowIDs) < private$min.cell.size.np")
+                return(TRUE);
+            }
+
+            if ( base::length(p.rowIDs) < private$min.cell.size.p ) {
                 return(TRUE);
             }
 
@@ -1024,8 +1042,8 @@ R6_nppCART <- R6::R6Class(
             np.subset <- private$np.data[private$np.data[,private$np.syntheticID] %in% np.rowIDs,];
              p.subset <-  private$p.data[ private$p.data[, private$p.syntheticID] %in%  p.rowIDs,];
 
-            if ( base::nrow(np.subset) < private$min.cell.size ) { return(Inf); }
-            if ( base::nrow( p.subset) < private$min.cell.size ) { return(Inf); }
+            if ( base::nrow(np.subset) < private$min.cell.size.np ) { return(Inf); }
+            if ( base::nrow( p.subset) < private$min.cell.size.p  ) { return(Inf); }
 
             estimatedPopulationSize <- base::sum(p.subset[,private$sampling.weight]);
             if ( 0 == estimatedPopulationSize ) { return( Inf ); }
