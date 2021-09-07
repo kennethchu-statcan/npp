@@ -105,7 +105,7 @@ test.nppCART.sanity <- function(
         predictors                = c("x1","x2","x3"),
         sampling.weight           = "design.weight",
       # bootstrap.weights         = paste0("repweight",seq(1,n.replicates)),
-        min.cell.size             = 1,
+        min.cell.size.np          = 1,
         min.impurity              = 1e-300, # 1e-9,
         n.levels.approx.threshold = 4
         );
