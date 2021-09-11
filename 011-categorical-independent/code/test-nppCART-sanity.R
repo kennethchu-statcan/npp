@@ -28,12 +28,6 @@ test.nppCART.sanity <- function(
     cat(paste0("\n# ",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # original.directory <- getwd();
-    # temp.directory     <- file.path(normalizePath(original.directory),'output-00-sanity');
-    # if ( !dir.exists(temp.directory) ) { dir.create(temp.directory); }
-    # setwd(temp.directory);
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     require(rpart);
     require(tree);
 
