@@ -11,10 +11,27 @@ test.nppCART.sanity <- function(
     cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    original.directory <- getwd();
+    original.directory <- normalizePath(getwd());
     temp.directory     <- file.path(normalizePath(original.directory),'output-00-sanity');
-    if ( !dir.exists(temp.directory) ) { dir.create(temp.directory); }
-    setwd(temp.directory);
+    Sys.sleep(time = 5); if ( !dir.exists(temp.directory) ) { dir.create(temp.directory); }
+    Sys.sleep(time = 5); setwd(temp.directory);
+    Sys.sleep(time = 5);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    file.output  <- file(description = "sink-output.txt",  open = "wt");
+    file.message <- file(description = "sink-message.txt", open = "wt");
+
+    sink(file = file.output,  type = "output" );
+    sink(file = file.message, type = "message");
+
+    cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
+    cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    # original.directory <- getwd();
+    # temp.directory     <- file.path(normalizePath(original.directory),'output-00-sanity');
+    # if ( !dir.exists(temp.directory) ) { dir.create(temp.directory); }
+    # setwd(temp.directory);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     require(rpart);
@@ -175,9 +192,36 @@ test.nppCART.sanity <- function(
         }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
+    # print warning messages to log
+    cat("\n##### warnings()\n")
+    print(warnings());
+
+    # print session info to log
+    cat("\n##### sessionInfo()\n")
+    print( sessionInfo() );
+
+    # print system time to log
+    cat(paste0("\n##### Sys.time(): ",Sys.time(),"\n"));
+
+    # print elapsed time to log
+    stop.proc.time <- proc.time();
+    cat("\n##### start.proc.time() - stop.proc.time()\n");
+    print( stop.proc.time - start.proc.time );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    sink(file = NULL, type = "output" );
+    sink(file = NULL, type = "message");
+    sink();
+
+    Sys.sleep(time = 5);
     setwd(original.directory);
+    Sys.sleep(time = 5);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
+
     return( NULL );
 
     }
