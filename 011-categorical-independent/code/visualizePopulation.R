@@ -119,6 +119,7 @@ visualizePopulation <- function(
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
     if ( 'x3.hidden' %in% colnames(population) ) {
 
+        levels.x3.hidden <- levels(population[,'x3.hidden']);
         for ( temp.level.x3.hidden in levels.x3.hidden ) {
             visualizePopulation_x1x2(
                 DF.input       = population[population[,'x3.hidden'] == temp.level.x3.hidden,],
