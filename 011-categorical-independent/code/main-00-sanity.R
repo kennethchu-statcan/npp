@@ -34,6 +34,7 @@ files.R <- c(
     'test-myCART-get-pruned-nodes.R',
     'test-nppCART-AIC.R',
     'test-nppCART-sanity-tree-growing.R',
+    'test-nppCART-sanity-tree-hierarchy.R',
     'test-nppCART-utils.R',
     'test-svyrepdesign.R',
     'visualizePopulation.R'
@@ -49,7 +50,12 @@ for ( file.R in files.R ) {
 # test.myCART.get.pruned.nodes();
 # test.myCART.categorical.predictors();
 
-test.nppCART.sanity.tree.growing(
+# test.nppCART.sanity.tree.growing(
+#     seed            = 1234567, # 7654321,
+#     population.size =   20000  # 10000 # 200
+#     );
+
+test.nppCART.sanity.tree.hierarchy(
     seed            = 1234567, # 7654321,
     population.size =   20000  # 10000 # 200
     );
