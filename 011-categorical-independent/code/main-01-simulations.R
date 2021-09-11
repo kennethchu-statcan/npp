@@ -36,7 +36,6 @@ files.R <- c(
     'test-nppCART-AIC.R',
     'test-nppCART-AIC-aggregate.R',
     'test-nppCART-AIC-graphics.R',
-    'test-nppCART-sanity.R',
     'test-nppCART-utils.R',
     'test-svyrepdesign.R',
     'visualizePopulation.R'
