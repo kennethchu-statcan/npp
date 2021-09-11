@@ -9,6 +9,9 @@ test.nppCART.AIC_do.one.simulation <- function(
 
     thisFunctionName <- "test.nppCART.AIC_do.one.simulation";
 
+    cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
+    cat(paste0("\n# ",thisFunctionName,"() starts.\n\n"));
+
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     original.directory <- normalizePath(getwd());
     temp.directory     <- file.path(original.directory,paste0('seed-',seed));
@@ -178,7 +181,6 @@ test.nppCART.AIC_do.one.simulation <- function(
     print( stop.proc.time - start.proc.time );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() quits."));
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
 
@@ -190,6 +192,9 @@ test.nppCART.AIC_do.one.simulation <- function(
     setwd(original.directory);
     Sys.sleep(time = 5);
 
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat(paste0("\n# ",thisFunctionName,"() quits."));
+    cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
     return( NULL );
 
     }
