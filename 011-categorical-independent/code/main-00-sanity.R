@@ -50,10 +50,10 @@ for ( file.R in files.R ) {
 # test.myCART.get.pruned.nodes();
 # test.myCART.categorical.predictors();
 
-# test.nppCART.sanity.tree.growing(
-#     seed            = 1234567, # 7654321,
-#     population.size =   20000  # 10000 # 200
-#     );
+test.nppCART.sanity.tree.growing(
+    seed            = 1234567, # 7654321,
+    population.size =   20000  # 10000 # 200
+    );
 
 test.nppCART.sanity.tree.hierarchy(
     seed            = 1234567, # 7654321,
