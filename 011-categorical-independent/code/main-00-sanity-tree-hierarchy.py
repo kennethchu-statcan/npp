@@ -63,7 +63,7 @@ my_TreeClassifier.fit(X = DF_population.loc[:,['x1','x2']], y = DF_population.lo
 text_my_TreeClassifier = export_text(my_TreeClassifier, feature_names = ['x1','x2'])
 print(text_my_TreeClassifier)
 
-outputFILE = 'plot-my-TreeClassifier.png'
+outputFILE = "plot-my-TreeClassifier.png"
 plot_my_TreeClassifier = plot_tree(my_TreeClassifier)
 plt.savefig(fname = outputFILE, dpi = 100)
 
@@ -77,7 +77,7 @@ print(impurities)
 temp = numpy.array([ccp_alphas, impurities])
 
 df2 = pandas.DataFrame(numpy.transpose(numpy.array([ccp_alphas, impurities])), columns = ['ccp_alpha','impurity'])
-df2.to_csv(path_or_buf = 'DF-sanity-sklearn-alpha-impurity.csv')
+df2.to_csv(path_or_buf = "DF-sanity-sklearn-alpha-impurity.csv")
 print(df2)
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -87,7 +87,7 @@ ax.set_xlabel("effective alpha")
 ax.set_ylabel("total impurity of leaves")
 ax.set_title("Total Impurity vs effective alpha for training set")
 
-outputFILE = 'plot-sanity-sklearn-impurity-vs-alpha.png'
+outputFILE = "plot-sanity-sklearn-impurity-vs-alpha.png"
 plt.savefig(fname = outputFILE, dpi = 100)
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
