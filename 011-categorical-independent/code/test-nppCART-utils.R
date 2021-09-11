@@ -53,6 +53,8 @@ test.nppCART_get.population <- function(
 
 test.nppCART_get.samples <- function(
     DF.population         = NULL,
+    colnames.np           = c("unit.ID","y51","y52","x1","x2","x3","x1.jitter","x2.jitter","x3.hidden"),
+    colnames.p            = c("unit.ID","x1","x2","x3"),
     prob.selection        = 0.1,
     n.replicates          = 500,
     RData.non.probability = NULL,
@@ -69,7 +71,7 @@ test.nppCART_get.samples <- function(
         );
     DF.non.probability <- DF.population;
     DF.non.probability[,"self.selected"] <- is.self.selected;
-    DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],c("unit.ID","y51","y52","x1","x2","x3","x1.jitter","x2.jitter","x3.hidden")];
+    DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],colnames.np];
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     is.selected <- sample(
@@ -79,7 +81,7 @@ test.nppCART_get.samples <- function(
         prob    = c(prob.selection, 1 - prob.selection)
         );
 
-    DF.probability <- DF.population[is.selected,c("unit.ID","x1","x2","x3")];
+    DF.probability <- DF.population[is.selected,colnames.p];
     DF.probability[,"sampling.fraction"] <- prob.selection;
     DF.probability[,"design.weight"    ] <- 1 / prob.selection;
 
