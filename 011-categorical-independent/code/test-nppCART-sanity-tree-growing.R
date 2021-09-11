@@ -1,18 +1,18 @@
 
-test.nppCART.sanity <- function(
+test.nppCART.sanity.tree.growing <- function(
     seed            = 1234567,
     population.size =   10000,
     n.replicates    =     500
     ) {
 
-    thisFunctionName <- "test.nppCART.sanity";
+    thisFunctionName <- "test.nppCART.sanity.tree.growing";
 
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
     cat(paste0("\n# ",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     original.directory <- normalizePath(getwd());
-    temp.directory     <- file.path(normalizePath(original.directory),'output-00-sanity');
+    temp.directory     <- file.path(normalizePath(original.directory),'output-00-sanity-tree-growing');
     Sys.sleep(time = 5); if ( !dir.exists(temp.directory) ) { dir.create(temp.directory); }
     Sys.sleep(time = 5); setwd(temp.directory);
     Sys.sleep(time = 5);
