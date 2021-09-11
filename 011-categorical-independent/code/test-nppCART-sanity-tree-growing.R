@@ -47,7 +47,9 @@ test.nppCART.sanity.tree.growing <- function(
         population     = DF.population,
         textsize.title = 30,
         textsize.axis  = 20,
-        inputIsNumeric = FALSE
+        inputIsNumeric = FALSE,
+        target_density_limits = c(-5,165),
+        target_density_breaks = seq(0,160,20)
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
