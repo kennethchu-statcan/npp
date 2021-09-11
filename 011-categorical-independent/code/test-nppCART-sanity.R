@@ -8,7 +8,7 @@ test.nppCART.sanity <- function(
     thisFunctionName <- "test.nppCART.sanity";
 
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
-    cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
+    cat(paste0("\n# ",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     original.directory <- normalizePath(getwd());
@@ -25,7 +25,7 @@ test.nppCART.sanity <- function(
     sink(file = file.message, type = "message");
 
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
-    cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
+    cat(paste0("\n# ",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     # original.directory <- getwd();
