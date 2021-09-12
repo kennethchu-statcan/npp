@@ -58,7 +58,7 @@ assemble.package <- function(
             rstudio = FALSE,
             open    = FALSE
             ),
-        check_not_nested = function(path, name) return(),
+        # check_not_nested = function(path, name) return(),
         .env = "usethis"
         );
 
@@ -66,7 +66,7 @@ assemble.package <- function(
     base::setwd( path.package );
 
     # ~~~~~~~~~~ #
-    usethis::use_mit_license(name = copyright.holder);
+    usethis::use_mit_license(copyright_holder = copyright.holder);
     usethis::use_testthat();
 
     # ~~~~~~~~~~ #
