@@ -184,10 +184,10 @@ test.nppCART_get.population.independent <- function(
 
 #   true.propensity                     <- rnorm(n = population.size,         mean = 0.20, sd = 0.015);
 #   true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 0.80, sd = 0.015);
-#   true.propensity                     <- rnorm(n = population.size,         mean = 1e-3, sd = 1.5e-4);
-#   true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 8e-3, sd = 1.5e-4);
-    true.propensity                     <- rnorm(n = population.size,         mean = 4e-3, sd = 1.5e-4);
+    true.propensity                     <- rnorm(n = population.size,         mean = 1e-3, sd = 1.5e-4);
     true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 8e-3, sd = 1.5e-4);
+#   true.propensity                     <- rnorm(n = population.size,         mean = 4e-3, sd = 1.5e-4);
+#   true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 8e-3, sd = 1.5e-4);
 
     ####################################
     y51 <- rnorm(n = population.size, mean = 500, sd = 1e3);
