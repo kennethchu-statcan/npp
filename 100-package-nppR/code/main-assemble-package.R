@@ -80,6 +80,7 @@ packages.suggest <- base::c(
     "ComplexHeatmap",
     "ggplot2",
     "png",
+    "rpart",
     "R.rsp",
     "testthat"
     # "fs",
@@ -95,13 +96,11 @@ files.R <- base::c(
     );
 files.R <- base::file.path( code.directory , files.R );
 
-tests.R <- base::c("test-inputIntegrity.R");
+tests.R <- base::c(
+    "test-inputIntegrity.R",
+    "test-correctness.R"
+    );
 tests.R <- base::file.path( code.directory , tests.R );
-
-# tests.R <- base::c(
-#     "test-correctness.R"
-#     );
-# tests.R <- base::file.path( code.directory , tests.R );
 
 list.vignettes.Rmd <- list(
     'nppCART-usage' = list(
