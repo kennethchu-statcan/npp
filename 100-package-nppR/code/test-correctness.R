@@ -28,6 +28,8 @@ test.correctness_tree.growing <- function(
 
     list.samples  <- test.correctness_get.samples(
         DF.population  = DF.population,
+        colnames.np    = c("unit.ID","y","x1","x2","x3"),
+        colnames.p     = c("unit.ID","x1","x2","x3"),
         prob.selection = 0.999999999,
         n.replicates   = n.replicates
         );
@@ -104,8 +106,113 @@ test.correctness_tree.growing <- function(
     }
 
 test.correctness_tree.hierarchy <- function(
+    seed         = 1234567,
     my.tolerance = 1e-3
     ) {
+
+    population.size <- 10000;
+    n.replicates    <-   200;
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.population <- test.correctness_get.population(
+        seed            = seed,
+        population.flag = "tree.hierarchy",
+        population.size = population.size,
+        ordered.x1      = TRUE,
+        ordered.x2      = TRUE
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    list.samples  <- test.correctness_get.samples(
+        DF.population  = DF.population,
+        colnames.np    = c("unit.ID","y","x1","x2"),
+        colnames.p     = c("unit.ID","x1","x2"),
+        prob.selection = 0.999999999,
+        n.replicates   = n.replicates
+        );
+
+    cat("\nstr(list.samples[['DF.probability']])\n");
+    print( str(list.samples[['DF.probability']])   );
+
+    cat("\nsummary(list.samples[['DF.probability']][,c('unit.ID','x1','x2','sampling.fraction','design.weight')])\n");
+    print( summary(list.samples[['DF.probability']][,c('unit.ID','x1','x2','sampling.fraction','design.weight')])   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.nppCART <- nppCART(
+        np.data                   = list.samples[['DF.non.probability']],
+        p.data                    = list.samples[['DF.probability'    ]],
+        predictors                = c("x1","x2"),
+        sampling.weight           = "design.weight",
+        bootstrap.weights         = paste0("repweight",seq(1,n.replicates)),
+        min.cell.size.np          = 1,
+        min.cell.size.p           = 3,
+        min.impurity              = 1e-300,
+        n.levels.approx.threshold = 4
+        );
+
+    my.nppCART$grow();
+    cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
+    my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
+
+    DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity();
+    cat("\nstr(DF.npdata.with.propensity)\n");
+    print( str(DF.npdata.with.propensity)   );
+
+    DF.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
+    cat("\nDF.impurity.alpha.AIC\n");
+    print( DF.impurity.alpha.AIC   );
+
+    write.csv(
+        x         = DF.impurity.alpha.AIC,
+        file      = "DF-hierarchy-impurity-alpha-AIC.csv",
+        row.names = FALSE
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    is.self.selected <- (DF.population[,'unit.ID'] %in% list.samples[['DF.non.probability']][,'unit.ID']);
+    DF.population[                ,'self.selected'] <- FALSE;
+    DF.population[is.self.selected,'self.selected'] <- TRUE;
+    cat("\nstr(DF.population)\n");
+    print( str(DF.population)   );
+
+    write.csv(
+        x         = DF.population,
+        file      = "DF-hierarchy-population-with-self-selection.csv",
+        row.names = FALSE
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    # testthat::test_that(
+    #     desc = "tree growing: correctness of number of leaves",
+    #     code = {
+    #         testthat::expect_equal(
+    #             object    = base::length(leaf.sizes.nppCART),
+    #             expected  = base::length(leaf.sizes.rpart  ),
+    #             tolerance = my.tolerance
+    #             );
+    #         }
+    #     );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    # if ( base::length(leaf.sizes.rpart) == base::length(leaf.sizes.nppCART) ) {
+    #     DF.leaf.sizes <- data.frame(leaf.sizes.rpart = leaf.sizes.rpart, leaf.sizes.nppCART = leaf.sizes.nppCART);
+    #     DF.leaf.sizes[,'abs.diff'] <- base::abs(DF.leaf.sizes[,'leaf.sizes.rpart'] - DF.leaf.sizes[,'leaf.sizes.nppCART']);
+    #     cat("\n# test.correctness_tree.growing(): DF.leaf.sizes\n");
+    #     print(DF.leaf.sizes);
+    #     cat("\n")
+    #     testthat::test_that(
+    #         desc = "tree growing: correctness of ordered sequence of leaf sizes",
+    #         code = {
+    #             testthat::expect_equal(
+    #                 object    = base::max(DF.leaf.sizes[,'abs.diff']),
+    #                 expected  = 0.0,
+    #                 tolerance = my.tolerance
+    #                 );
+    #             }
+    #         );
+    #     }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
     }
 
@@ -137,7 +244,7 @@ test.correctness_get.population <- function(
 
 test.correctness_get.samples <- function(
     DF.population  = NULL,
-    colnames.np    = c("unit.ID","y","x1","x2","x3","x1.jitter","x2.jitter","x3.hidden"),
+    colnames.np    = c("unit.ID","y","x1","x2","x3"),
     colnames.p     = c("unit.ID","x1","x2","x3"),
     prob.selection = 0.1,
     n.replicates   = 500
@@ -289,13 +396,94 @@ test.correctness_get.population_tree.growing <- function(
     DF.population[,'x1'] <- factor(x = DF.population[,'x1'], levels = levels.x1, ordered = ordered.x1);
     DF.population[,'x2'] <- factor(x = DF.population[,'x2'], levels = levels.x2, ordered = ordered.x2);
 
-    DF.population[,"x1.jitter"] <- base::as.double(DF.population[,"x1"]) + stats::runif(n = base::nrow(DF.population), min = -0.3, max = 0.3);
-    DF.population[,"x2.jitter"] <- base::as.double(DF.population[,"x2"]) + stats::runif(n = base::nrow(DF.population), min = -0.3, max = 0.3);
+    # DF.population[,"x1.jitter"] <- base::as.double(DF.population[,"x1"]) + stats::runif(n = base::nrow(DF.population), min = -0.3, max = 0.3);
+    # DF.population[,"x2.jitter"] <- base::as.double(DF.population[,"x2"]) + stats::runif(n = base::nrow(DF.population), min = -0.3, max = 0.3);
 
     DF.population[,"x3"] <- base::as.double(DF.population[,"x3"]) + base::sample(x = c(-0.1,0.1), size = base::nrow(DF.population), replace = TRUE);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.population <- DF.population[,base::c('unit.ID','y','x1','x2','x3','true.propensity','x1.jitter','x2.jitter','x3.hidden')];
+#   DF.population <- DF.population[,base::c('unit.ID','y','x1','x2','x3','true.propensity','x1.jitter','x2.jitter','x3.hidden')];
+    DF.population <- DF.population[,base::c('unit.ID','y','x1','x2','x3','true.propensity')];
+    return( DF.population );
+
+    }
+
+test.correctness_get.population_tree.hierarchy <- function(
+    seed            = 1234567,
+    population.size = NULL,
+    ordered.x1      = TRUE,
+    ordered.x2      = TRUE
+    ) {
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    base::set.seed(seed = seed);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    require(survey);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    if ( ordered.x1 ) {
+        levels.x1.hidden <- base::c("small","medium","large");
+    } else {
+        levels.x1.hidden <- base::c("apple","orange","banana");
+        }
+
+    if ( ordered.x2 ) {
+        levels.x2.hidden <- base::c("petit","moyen", "grand");
+    } else {
+        levels.x2.hidden <- base::c("pomme","orange","banane");
+        }
+
+    x1.hidden <- factor(x = base::sample(x = levels.x1.hidden, size = population.size, replace = TRUE), levels = levels.x1.hidden, ordered = ordered.x1);
+    x2.hidden <- factor(x = base::sample(x = levels.x2.hidden, size = population.size, replace = TRUE), levels = levels.x2.hidden, ordered = ordered.x2);
+
+    c1 <- base::as.double(x1.hidden) - 0.5;
+    c2 <- base::as.double(x2.hidden) - 0.5;
+    is.high.propensity <- (c2 - c1 == 1 | c2 - c1 == -1);
+
+    true.propensity                     <- stats::rnorm(n = population.size,               mean = 4e-2, sd = 1.5e-3);
+    true.propensity[is.high.propensity] <- stats::rnorm(n = base::sum(is.high.propensity), mean = 8e-2, sd = 1.5e-3);
+
+    y0 <- base::rep(x = 30, times = population.size);
+    y0[is.high.propensity] <- 110;
+
+    epsilon <- stats::rnorm(n = population.size, mean = 0, sd = 1.0)
+    y <- y0 + epsilon^2;
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    levels.x1 <- base::as.vector(base::sapply( X = levels.x1.hidden, FUN = function(x) {return(base::paste(x,1:3,sep="."))} ));
+    levels.x2 <- base::as.vector(base::sapply( X = levels.x2.hidden, FUN = function(x) {return(base::paste(x,1:3,sep="."))} ));
+
+    DF.population <- data.frame(
+        unit.ID         = base::seq(1,population.size),
+        y               = y,
+        x1.hidden       = x1.hidden,
+        x2.hidden       = x2.hidden,
+        subgroup.1      = base::sample(x = 1:3, size = population.size, replace = TRUE),
+        subgroup.2      = base::sample(x = 1:3, size = population.size, replace = TRUE),
+        true.propensity = true.propensity
+        );
+
+    DF.population[,'x1'] <- base::apply(
+        X      = DF.population[,base::c('x1.hidden','subgroup.1')],
+        MARGIN = 1,
+        FUN    = function(x) { return(base::paste(x,collapse=".")) }
+        );
+
+    DF.population[,'x2'] <- base::apply(
+        X      = DF.population[,base::c('x2.hidden','subgroup.2')],
+        MARGIN = 1,
+        FUN    = function(x) { return(base::paste(x,collapse=".")) }
+        );
+
+    DF.population[,'x1'] <- factor(x = DF.population[,'x1'], levels = levels.x1, ordered = ordered.x1);
+    DF.population[,'x2'] <- factor(x = DF.population[,'x2'], levels = levels.x2, ordered = ordered.x2);
+
+    # DF.population[,"x1.jitter"] <- base::as.double(DF.population[,"x1"]) + stats::runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+    # DF.population[,"x2.jitter"] <- base::as.double(DF.population[,"x2"]) + stats::runif(n = nrow(DF.population), min = -0.3, max = 0.3);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.population <- DF.population[,base::setdiff(base::colnames(DF.population),base::c('x1.hidden','x2.hidden','subgroup.1','subgroup.2'))];
     return( DF.population );
 
     }
