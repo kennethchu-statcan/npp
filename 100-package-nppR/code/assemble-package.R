@@ -39,15 +39,15 @@ assemble.package <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     devtools::reload(pkgload::inst("usethis"));
+    base::require(stats);
     base::require(devtools);
     base::require(roxygen2);
     base::require(rmarkdown);
     base::require(testthat);
     base::require(R6);
     base::require(dplyr);
-    base::require(ggplot2);
-    base::require(e1071);
-    base::require(stats);
+    # base::require(ggplot2);
+    # base::require(e1071);
 
     # ~~~~~~~~~~ #
     path.package <- base::file.path(write.to.directory,package.name);
