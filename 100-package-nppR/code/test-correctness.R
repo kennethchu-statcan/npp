@@ -5,7 +5,7 @@ testthat::context(desc = "correctness test suite");
 test.correctness <- function() {
     my.tolerance <- ifelse("windows" == base::.Platform[["OS.type"]],1e-3,1e-6);
     test.correctness_tree.growing(  my.tolerance = my.tolerance);
-    # test.correctness_tree.hierarchy(my.tolerance = my.tolerance);
+    test.correctness_tree.hierarchy(my.tolerance = my.tolerance);
     }
 
 ###################################################
@@ -110,6 +110,10 @@ test.correctness_tree.hierarchy <- function(
     my.tolerance = 1e-3
     ) {
 
+    base::cat("\n# test.correctness_tree.hierarchy(): getwd()\n");
+    base::print( base::getwd() );
+    base::cat("\n");
+
     population.size <- 10000;
     n.replicates    <-   200;
 
@@ -131,11 +135,11 @@ test.correctness_tree.hierarchy <- function(
         n.replicates   = n.replicates
         );
 
-    cat("\nstr(list.samples[['DF.probability']])\n");
-    print( str(list.samples[['DF.probability']])   );
+    base::cat(       "\nstr(list.samples[['DF.probability']])\n");
+    base::print( utils::str(list.samples[['DF.probability']])   );
 
-    cat("\nsummary(list.samples[['DF.probability']][,c('unit.ID','x1','x2','sampling.fraction','design.weight')])\n");
-    print( summary(list.samples[['DF.probability']][,c('unit.ID','x1','x2','sampling.fraction','design.weight')])   );
+    base::cat(      "\nsummary(list.samples[['DF.probability']][,c('unit.ID','x1','x2','sampling.fraction','design.weight')])\n");
+    base::print( base::summary(list.samples[['DF.probability']][,c('unit.ID','x1','x2','sampling.fraction','design.weight')])   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.nppCART <- nppCART(
@@ -151,18 +155,18 @@ test.correctness_tree.hierarchy <- function(
         );
 
     my.nppCART$grow();
-    cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
-    my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
+    base::cat("\nmy.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} )\n");
+    my.nppCART$print( FUN.format = function(x) {return(base::round(x,digits=3))} );
 
     DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity();
-    cat("\nstr(DF.npdata.with.propensity)\n");
-    print( str(DF.npdata.with.propensity)   );
+    base::cat(       "\nstr(DF.npdata.with.propensity)\n");
+    base::print( utils::str(DF.npdata.with.propensity)   );
 
     DF.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
-    cat("\nDF.impurity.alpha.AIC\n");
-    print( DF.impurity.alpha.AIC   );
+    base::cat("\nDF.impurity.alpha.AIC\n");
+    base::print( DF.impurity.alpha.AIC   );
 
-    write.csv(
+    utils::write.csv(
         x         = DF.impurity.alpha.AIC,
         file      = "DF-hierarchy-impurity-alpha-AIC.csv",
         row.names = FALSE
@@ -172,10 +176,10 @@ test.correctness_tree.hierarchy <- function(
     is.self.selected <- (DF.population[,'unit.ID'] %in% list.samples[['DF.non.probability']][,'unit.ID']);
     DF.population[                ,'self.selected'] <- FALSE;
     DF.population[is.self.selected,'self.selected'] <- TRUE;
-    cat("\nstr(DF.population)\n");
-    print( str(DF.population)   );
+    base::cat(       "\nstr(DF.population)\n");
+    base::print( utils::str(DF.population)   );
 
-    write.csv(
+    utils::write.csv(
         x         = DF.population,
         file      = "DF-hierarchy-population-with-self-selection.csv",
         row.names = FALSE
@@ -441,8 +445,8 @@ test.correctness_get.population_tree.hierarchy <- function(
     c2 <- base::as.double(x2.hidden) - 0.5;
     is.high.propensity <- (c2 - c1 == 1 | c2 - c1 == -1);
 
-    true.propensity                     <- stats::rnorm(n = population.size,               mean = 4e-2, sd = 1.5e-3);
-    true.propensity[is.high.propensity] <- stats::rnorm(n = base::sum(is.high.propensity), mean = 8e-2, sd = 1.5e-3);
+    true.propensity                     <- stats::rnorm(n = population.size,               mean = 1.2e-1, sd = 1.5e-2);
+    true.propensity[is.high.propensity] <- stats::rnorm(n = base::sum(is.high.propensity), mean = 4.8e-1, sd = 1.5e-2);
 
     y0 <- base::rep(x = 30, times = population.size);
     y0[is.high.propensity] <- 110;
