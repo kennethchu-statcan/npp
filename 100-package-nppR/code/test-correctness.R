@@ -168,7 +168,7 @@ test.correctness_tree.hierarchy <- function(
 
     utils::write.csv(
         x         = DF.impurity.alpha.AIC,
-        file      = "DF-hierarchy-impurity-alpha-AIC.csv",
+        file      = "DF-hierarchy-nppCART-impurity-alpha-AIC.csv",
         row.names = FALSE
         );
 
