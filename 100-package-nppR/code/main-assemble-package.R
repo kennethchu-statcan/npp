@@ -102,6 +102,11 @@ tests.R <- base::c(
     );
 tests.R <- base::file.path( code.directory , tests.R );
 
+scripts.py <- base::c(
+    "sklearn-impurity-alpha.py"
+    );
+scripts.py <- base::file.path( code.directory , scripts.py );
+
 list.vignettes.Rmd <- list(
     'nppCART-usage' = list(
         file  = base::file.path( code.directory , 'nppCART-usage.Rmd'       ),
@@ -140,7 +145,8 @@ package.path <- assemble.package(
     packages.import    = packages.import,
     packages.suggest   = packages.suggest,
     files.R            = files.R,
-    tests.R            = tests.R
+    tests.R            = tests.R,
+    scripts.py         = scripts.py
     );
 
 build.package(
@@ -190,6 +196,7 @@ if ( "windows" != base::.Platform[["OS.type"]] ) {
         packages.suggest   = packages.suggest,
         files.R            = files.R,
         tests.R            = tests.R,
+        scripts.py         = scripts.py,
         list.vignettes.Rmd = list.vignettes.Rmd,
         list.vignettes.pdf = list.vignettes.pdf
         );

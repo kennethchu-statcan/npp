@@ -162,12 +162,12 @@ test.correctness_tree.hierarchy <- function(
     base::cat(       "\nstr(DF.npdata.with.propensity)\n");
     base::print( utils::str(DF.npdata.with.propensity)   );
 
-    DF.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
-    base::cat("\nDF.impurity.alpha.AIC\n");
-    base::print( DF.impurity.alpha.AIC   );
+    DF.nppCART.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
+    base::cat("\nDF.nppCART.impurity.alpha.AIC\n");
+    base::print( DF.nppCART.impurity.alpha.AIC   );
 
     utils::write.csv(
-        x         = DF.impurity.alpha.AIC,
+        x         = DF.nppCART.impurity.alpha.AIC,
         file      = "DF-hierarchy-nppCART-impurity-alpha-AIC.csv",
         row.names = FALSE
         );
@@ -186,35 +186,95 @@ test.correctness_tree.hierarchy <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # testthat::test_that(
-    #     desc = "tree growing: correctness of number of leaves",
-    #     code = {
-    #         testthat::expect_equal(
-    #             object    = base::length(leaf.sizes.nppCART),
-    #             expected  = base::length(leaf.sizes.rpart  ),
-    #             tolerance = my.tolerance
-    #             );
-    #         }
-    #     );
+    DF.sklearn.impurity.alpha <- test.correctness_sklearn.impurity.alpha();
+    cat("\n# DF.sklearn.impurity.alpha\n");
+    print(   DF.sklearn.impurity.alpha   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # if ( base::length(leaf.sizes.rpart) == base::length(leaf.sizes.nppCART) ) {
-    #     DF.leaf.sizes <- data.frame(leaf.sizes.rpart = leaf.sizes.rpart, leaf.sizes.nppCART = leaf.sizes.nppCART);
-    #     DF.leaf.sizes[,'abs.diff'] <- base::abs(DF.leaf.sizes[,'leaf.sizes.rpart'] - DF.leaf.sizes[,'leaf.sizes.nppCART']);
-    #     cat("\n# test.correctness_tree.growing(): DF.leaf.sizes\n");
-    #     print(DF.leaf.sizes);
-    #     cat("\n")
-    #     testthat::test_that(
-    #         desc = "tree growing: correctness of ordered sequence of leaf sizes",
-    #         code = {
-    #             testthat::expect_equal(
-    #                 object    = base::max(DF.leaf.sizes[,'abs.diff']),
-    #                 expected  = 0.0,
-    #                 tolerance = my.tolerance
-    #                 );
-    #             }
-    #         );
-    #     }
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    # DF.nppCART <- utils::read.csv("DF-hierarchy-nppCART-impurity-alpha-AIC.csv");
+    base::colnames(DF.nppCART.impurity.alpha.AIC) <- base::gsub(
+        x           = base::colnames(DF.nppCART.impurity.alpha.AIC),
+        pattern     = "^tree\\.impurity$",
+        replacement = "impurity"
+        );
+
+    # DF.sklearn <- utils::read.csv("output-DF-sklearn-alpha-impurity.csv");
+    base::colnames(DF.sklearn.impurity.alpha) <- base::gsub(
+        x           = base::colnames(DF.sklearn.impurity.alpha),
+        pattern     = "^X$",
+        replacement = "index.subtree"
+        );
+    base::colnames(DF.sklearn.impurity.alpha) <- base::gsub(
+        x           = base::colnames(DF.sklearn.impurity.alpha),
+        pattern     = "^ccp_alpha$",
+        replacement = "alpha"
+        );
+    base::colnames(DF.sklearn.impurity.alpha) <- base::paste("sklearn", base::colnames(DF.sklearn.impurity.alpha), sep = "_");
+    DF.sklearn.impurity.alpha[,'sklearn_index.subtree'] <- DF.sklearn.impurity.alpha[,'sklearn_index.subtree'] + 1;
+
+    base::cat(    "\n# nrow(DF.nppCART.impurity.alpha.AIC)\n");
+    base::print( base::nrow(DF.nppCART.impurity.alpha.AIC)   );
+
+    base::cat(    "\n# nrow(DF.sklearn.impurity.alpha)\n");
+    base::print( base::nrow(DF.sklearn.impurity.alpha)       );
+
+    base::cat("\n# base::nrow(DF.nppCART.impurity.alpha.AIC) == base::nrow(DF.sklearn.impurity.alpha)\n");
+    base::print(   base::nrow(DF.nppCART.impurity.alpha.AIC) == base::nrow(DF.sklearn.impurity.alpha)   );
+    base::cat("\n");
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    testthat::test_that(
+        desc = "tree hierarchy: correctness of number of subtrees in subtree hierarchy",
+        code = {
+            testthat::expect_equal(
+                object    = base::nrow(DF.nppCART.impurity.alpha.AIC),
+                expected  = base::nrow(DF.sklearn.impurity.alpha),
+                tolerance = my.tolerance
+                );
+            }
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    if ( base::nrow(DF.nppCART.impurity.alpha.AIC) == base::nrow(DF.sklearn.impurity.alpha) ) {
+
+        DF.temp <- base::merge(
+            x    = DF.nppCART.impurity.alpha.AIC,
+            y    = DF.sklearn.impurity.alpha,
+            by.x = "index.subtree",
+            by.y = "sklearn_index.subtree"
+            );
+        print(DF.temp)
+
+        max.abs.diff.impurity <- base::max(base::abs(DF.temp[,'impurity'] - DF.temp[,'sklearn_impurity']));
+        max.abs.diff.alpha    <- base::max(base::abs(DF.temp[,'alpha'   ] - DF.temp[,'sklearn_alpha'   ]));
+
+        print( max.abs.diff.impurity );
+        print( max.abs.diff.alpha    );
+
+        testthat::test_that(
+            desc = "tree hierarchy: correctness of subtree impurities",
+            code = {
+                testthat::expect_equal(
+                    object    = max.abs.diff.impurity,
+                    expected  = 0.0,
+                    tolerance = my.tolerance
+                    );
+                }
+            );
+
+        testthat::test_that(
+            desc = "tree hierarchy: correctness of subtree alphas",
+            code = {
+                testthat::expect_equal(
+                    object    = max.abs.diff.alpha,
+                    expected  = 0.0,
+                    tolerance = my.tolerance
+                    );
+                }
+            );
+
+        }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
@@ -490,6 +550,21 @@ test.correctness_get.population_tree.hierarchy <- function(
     DF.population <- DF.population[,base::setdiff(base::colnames(DF.population),base::c('x1.hidden','x2.hidden','subgroup.1','subgroup.2'))];
     return( DF.population );
 
+    }
+
+###################################################
+test.correctness_sklearn.impurity.alpha <- function() {
+    temp.dir    <- base::system.file(package = "nppR");
+    base::cat("\n# temp.dir\n");
+    base::print(   temp.dir   );
+    py.script   <- base::file.path(temp.dir,"sklearn-impurity-alpha.py");
+    base::cat("\n# py.script\n");
+    base::print(   py.script   );
+    my.command  <- base::paste("python", py.script, sep = " ");
+    my.response <- base::system(command = my.command);
+    base::Sys.sleep(time = 5);
+    DF.output <- utils::read.csv("output-DF-sklearn-alpha-impurity.csv");
+    return(DF.output);
     }
 
 ###################################################

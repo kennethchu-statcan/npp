@@ -10,6 +10,7 @@ assemble.package <- function(
     packages.enhance   = base::c(),
     files.R            = base::c(),
     tests.R            = base::c(),
+    scripts.py         = base::c(),
     list.vignettes.Rmd = base::list(),
     list.vignettes.pdf = base::list(),
     images.png         = base::c(),
@@ -123,10 +124,10 @@ assemble.package <- function(
             );
         }
 
-    inst.doc.directory <- base::file.path(".","inst","doc");
-    if ( !dir.exists(doc.directory) ) {
+    inst.directory <- base::file.path(".","inst");
+    if ( !dir.exists(inst.directory) ) {
         dir.create(
-            path      = doc.directory,
+            path      = inst.directory,
             recursive = TRUE
             );
         }
@@ -162,12 +163,15 @@ assemble.package <- function(
             );
         }
 
-    # for ( temp.image.png in images.png ) {
-    #     base::file.copy(
-    #         from = temp.image.png,
-    #         to   = vignettes.directory
-    #         );
-    #     }
+    # ~~~~~~~~~~ #
+    for ( temp.python.script in scripts.py ) {
+        logger::log_info('{this.function.name}(): copying {temp.python.script} into inst/');
+        base::file.copy(
+            from      = temp.python.script,
+            to        = inst.directory,
+            overwrite = TRUE
+            );
+        }
 
     # ~~~~~~~~~~ #
     devtools::document();
