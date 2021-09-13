@@ -3,7 +3,7 @@ testthat::context(desc = "correctness test suite");
 
 ###################################################
 test.correctness <- function() {
-    my.seed      <- 7654321;
+    my.seed      <- 1111111; # 7654321;
     my.tolerance <- ifelse("windows" == base::.Platform[["OS.type"]],1e-3,1e-6);
     test.correctness_tree.growing(  seed = my.seed, my.tolerance = my.tolerance);
     test.correctness_tree.hierarchy(seed = my.seed, my.tolerance = my.tolerance);
