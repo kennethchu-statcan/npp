@@ -1,7 +1,7 @@
 #!/bin/bash
 
 currentDIR=`pwd`
-   codeDIR=../100-package-nppR/code
+   codeDIR=../100-nppR-package/code
  outputDIR=${currentDIR//github/gittmp}/output
 
 parentDIR=`dirname ${currentDIR}`
