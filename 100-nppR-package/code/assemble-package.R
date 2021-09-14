@@ -10,6 +10,7 @@ assemble.package <- function(
     packages.enhance   = base::c(),
     files.R            = base::c(),
     tests.R            = base::c(),
+    scripts.py         = base::c(),
     list.vignettes.Rmd = base::list(),
     list.vignettes.pdf = base::list(),
     images.png         = base::c(),
@@ -38,15 +39,15 @@ assemble.package <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     devtools::reload(pkgload::inst("usethis"));
+    base::require(stats);
     base::require(devtools);
     base::require(roxygen2);
     base::require(rmarkdown);
     base::require(testthat);
     base::require(R6);
     base::require(dplyr);
-    base::require(ggplot2);
-    base::require(e1071);
-    base::require(stats);
+    # base::require(ggplot2);
+    # base::require(e1071);
 
     # ~~~~~~~~~~ #
     path.package <- base::file.path(write.to.directory,package.name);
@@ -58,7 +59,7 @@ assemble.package <- function(
             rstudio = FALSE,
             open    = FALSE
             ),
-        check_not_nested = function(path, name) return(),
+        # check_not_nested = function(path, name) return(),
         .env = "usethis"
         );
 
@@ -66,7 +67,7 @@ assemble.package <- function(
     base::setwd( path.package );
 
     # ~~~~~~~~~~ #
-    usethis::use_mit_license(name = copyright.holder);
+    usethis::use_mit_license(copyright_holder = copyright.holder);
     usethis::use_testthat();
 
     # ~~~~~~~~~~ #
@@ -123,10 +124,10 @@ assemble.package <- function(
             );
         }
 
-    inst.doc.directory <- base::file.path(".","inst","doc");
-    if ( !dir.exists(doc.directory) ) {
+    inst.directory <- base::file.path(".","inst");
+    if ( !dir.exists(inst.directory) ) {
         dir.create(
-            path      = doc.directory,
+            path      = inst.directory,
             recursive = TRUE
             );
         }
@@ -162,12 +163,15 @@ assemble.package <- function(
             );
         }
 
-    # for ( temp.image.png in images.png ) {
-    #     base::file.copy(
-    #         from = temp.image.png,
-    #         to   = vignettes.directory
-    #         );
-    #     }
+    # ~~~~~~~~~~ #
+    for ( temp.python.script in scripts.py ) {
+        logger::log_info('{this.function.name}(): copying {temp.python.script} into inst/');
+        base::file.copy(
+            from      = temp.python.script,
+            to        = inst.directory,
+            overwrite = TRUE
+            );
+        }
 
     # ~~~~~~~~~~ #
     devtools::document();

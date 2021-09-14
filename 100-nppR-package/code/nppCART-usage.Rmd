@@ -294,10 +294,10 @@ with the two input data sets as follows:
 
 ```{r}
 my.nppCART <- nppR::nppCART(
-    np.data    = DF.non.probability,
-    p.data     = DF.probability,
-    predictors = c("x1","x2"),
-    weight     = "design.weight"
+    np.data         = DF.non.probability,
+    p.data          = DF.probability,
+    predictors      = c("x1","x2"),
+    sampling.weight = "design.weight"
     );
 ```
 

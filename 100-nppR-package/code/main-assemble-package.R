@@ -44,9 +44,11 @@ string.authors <- "base::c(
     )";
 base::Encoding(string.authors) <- "UTF-8";
 
+copyright.holder <- "Her Majesty the Queen in Right of Canada, as represented by the Minister of Statistics Canada";
+
 description.fields <- base::list(
     Title           = "Inference on non-probability sample data via integrating probabilty sample data",
-    Version         = "1.2.004",
+    Version         = "1.3.001",
     `Authors@R`     = string.authors,
     Description     = "This package provides a collection of tools for making inference based on non-probability sample data by integrating auxiliary probability sample data.",
     Language        = "fr",
@@ -55,17 +57,16 @@ description.fields <- base::list(
 
 packages.import <- base::c(
     "dplyr",
-    "R6"
+    "R6",
+    "survey"
     # "base",
     # "doParallel",
-    # "dplyr",
     # "foreach",
     # "ggplot2",
     # "jsonlite",
     # "logger",
     # "magrittr",
     # "rlang",
-    # "R6",
     # "stats",
     # "stringi",
     # "stringr",
@@ -75,16 +76,16 @@ packages.import <- base::c(
     );
 
 packages.suggest <- base::c(
-    "caret",
-    "ComplexHeatmap",
     "ggplot2",
-    "png",
+    "rmarkdown",
+    "rpart",
     "R.rsp",
     "testthat"
+    # "caret",
+    # "ComplexHeatmap",
+    # "png",
     # "fs",
-    # "knitr",
-    # "rmarkdown",
-    # "testthat"
+    # "knitr"
     );
 
 files.R <- base::c(
@@ -94,13 +95,16 @@ files.R <- base::c(
     );
 files.R <- base::file.path( code.directory , files.R );
 
-tests.R <- base::c("test-inputIntegrity.R");
+tests.R <- base::c(
+    "test-inputIntegrity.R",
+    "test-correctness.R"
+    );
 tests.R <- base::file.path( code.directory , tests.R );
 
-# tests.R <- base::c(
-#     "test-correctness.R"
-#     );
-# tests.R <- base::file.path( code.directory , tests.R );
+scripts.py <- base::c(
+    "sklearn-impurity-alpha.py"
+    );
+scripts.py <- base::file.path( code.directory , scripts.py );
 
 list.vignettes.Rmd <- list(
     'nppCART-usage' = list(
@@ -135,12 +139,13 @@ write.to.directory <- "build-no-vignettes";
 package.path <- assemble.package(
     write.to.directory = write.to.directory,
     package.name       = package.name,
-    copyright.holder   = "Kenneth Chu",
+    copyright.holder   = copyright.holder,
     description.fields = description.fields,
     packages.import    = packages.import,
     packages.suggest   = packages.suggest,
     files.R            = files.R,
-    tests.R            = tests.R
+    tests.R            = tests.R,
+    scripts.py         = scripts.py
     );
 
 build.package(
@@ -149,33 +154,33 @@ build.package(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# temp.RLib <- "temp-RLib";
-#
-# if ( !dir.exists(temp.RLib) ) {
-#     dir.create(path = temp.RLib, recursive = TRUE);
-#     }
-#
-# .libPaths(unique(c(temp.RLib,.libPaths())));
-#
-# package.directory <- base::dirname(package.path);
-# package.file      <- base::list.files(path = package.directory, pattern = "\\.tar\\.gz")[1];
-# package.file      <- file.path(package.directory,package.file);
-#
-# install.packages(
-#     pkgs  = package.file,
-#     lib   = temp.RLib,
-#     repos = NULL
-#     );
-#
-# cat("\ntemp.RLib\n");
-# print( temp.RLib   );
-#
-# cat("\nnormalizePath(temp.RLib)\n");
-# print( normalizePath(temp.RLib)   );
-#
-# cat("\nlist.files(temp.RLib)\n");
-# print( list.files(temp.RLib)   );
-#
+temp.RLib <- "temp-RLib";
+
+if ( !dir.exists(temp.RLib) ) {
+    dir.create(path = temp.RLib, recursive = TRUE);
+    }
+
+.libPaths(unique(c(temp.RLib,.libPaths())));
+
+package.directory <- base::dirname(package.path);
+package.file      <- base::list.files(path = package.directory, pattern = "\\.tar\\.gz")[1];
+package.file      <- file.path(package.directory,package.file);
+
+install.packages(
+    pkgs  = package.file,
+    lib   = temp.RLib,
+    repos = NULL
+    );
+
+cat("\ntemp.RLib\n");
+print( temp.RLib   );
+
+cat("\nnormalizePath(temp.RLib)\n");
+print( normalizePath(temp.RLib)   );
+
+cat("\nlist.files(temp.RLib)\n");
+print( list.files(temp.RLib)   );
+
 # ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 if ( "windows" != base::.Platform[["OS.type"]] ) {
 
@@ -184,12 +189,13 @@ if ( "windows" != base::.Platform[["OS.type"]] ) {
     package.path <- assemble.package(
         write.to.directory = write.to.directory,
         package.name       = package.name,
-        copyright.holder   = "Kenneth Chu",
+        copyright.holder   = copyright.holder,
         description.fields = description.fields,
         packages.import    = packages.import,
         packages.suggest   = packages.suggest,
         files.R            = files.R,
         tests.R            = tests.R,
+        scripts.py         = scripts.py,
         list.vignettes.Rmd = list.vignettes.Rmd,
         list.vignettes.pdf = list.vignettes.pdf
         );
