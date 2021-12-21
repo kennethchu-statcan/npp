@@ -1407,7 +1407,7 @@ R6_nppCART <- R6::R6Class(
                 design  = template.svrepdesign,
                 formula = as.formula("~ dummy.one"),
                 by      = as.formula("~ nodeID"),
-                FUN     = svytotal, # svymean # svyvar
+                FUN     = survey::svytotal, # survey::svymean # survey::svyvar
                 vartype = "var" # c("se","ci","ci","cv","cvpct","var")
                 );
             # base::cat("\nstr(template.results.svyby)\n");
