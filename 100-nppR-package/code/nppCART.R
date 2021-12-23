@@ -937,6 +937,7 @@ R6_nppCART <- R6::R6Class(
                             all.y = FALSE
                             );
                         DF.table[,'prob'] <- DF.table[,'freq'] / DF.table[,private$sampling.weight];
+                        DF.table          <- DF.table[!base::is.na(DF.table[,'prob']),];
                         DF.table          <- DF.table[DF.table[,'freq'] > 0,];
                         DF.table[DF.table[,'prob'] > 1,'prob'] <- 1;
                         DF.table    <- DF.table[base::order(DF.table[,'prob']),];
