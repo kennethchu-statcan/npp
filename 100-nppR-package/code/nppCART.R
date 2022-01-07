@@ -185,7 +185,7 @@ nppCART <- function(
 R6_nppCART <- R6::R6Class(
     classname = "R6_nppCART",
 
-    public = list(
+    public = base::list(
 
         initialize = function(
             np.data                   = NULL,
@@ -349,10 +349,10 @@ R6_nppCART <- R6::R6Class(
 
         grow = function() {
 
-            private$nodes <- list();
+            private$nodes <- base::list();
             lastNodeID <- 0;
 
-            workQueue <- list(
+            workQueue <- base::list(
                 private$node$new(
                     parentID  = -1,
                     nodeID    = lastNodeID,
@@ -614,6 +614,18 @@ R6_nppCART <- R6::R6Class(
                 AIC = base::as.numeric(base::sapply(
                     X   = private$subtree.hierarchy,
                     FUN = function(x) { return(x[['AIC']]) }
+                    )),
+                p.log.like = base::as.numeric(base::sapply(
+                    X   = private$subtree.hierarchy,
+                    FUN = function(x) { return(x[['p.log.like']]) }
+                    )),
+                n.leaves = base::as.numeric(base::sapply(
+                    X   = private$subtree.hierarchy,
+                    FUN = function(x) { return(x[['n.leaves']]) }
+                    )),
+                bsvar = base::as.numeric(base::sapply(
+                    X   = private$subtree.hierarchy,
+                    FUN = function(x) { return(x[['bsvar']]) }
                     ))
                 );
             return( DF.output );
@@ -629,7 +641,7 @@ R6_nppCART <- R6::R6Class(
 
         ),
 
-    private = list(
+    private = base::list(
 
         # instantiation data
         predictors                = NULL,
@@ -815,8 +827,8 @@ R6_nppCART <- R6::R6Class(
             },
 
         get_best_split = function(np.currentRowIDs,p.currentRowIDs,current.impurity) {
-            uniqueVarValuePairs_factor  <- list();
-            uniqueVarValuePairs_numeric <- list();
+            uniqueVarValuePairs_factor  <- base::list();
+            uniqueVarValuePairs_numeric <- base::list();
             if (base::length(private$predictors_factor) > 0) {
                 uniqueVarValuePairs_factor <- private$get_uniqueVarValuePairs_factor(
                     np.currentRowIDs = np.currentRowIDs,
@@ -1021,8 +1033,8 @@ R6_nppCART <- R6::R6Class(
         #  we only need to return 1 group, since we are checking if the factor belongs to the group or not)
         enumerate_set = function(set = NULL) {
 
-            combinationsA <- list()
-            #combinationsB <- list()
+            combinationsA <- base::list()
+            #combinationsB <- base::list()
             indexA <- 1
             #indexB <- 1
 
@@ -1072,7 +1084,7 @@ R6_nppCART <- R6::R6Class(
 
         get_var_value_pairs = function(x = NULL, comparison = NULL) {
             names_x  <- base::names(x);
-            templist <- list();
+            templist <- base::list();
             for (i in base::seq(1,base::length(names_x))) {
                 for (j in base::seq(1,base::length(x[[i]]))) {
                     templist <- private$push(
@@ -1136,7 +1148,7 @@ R6_nppCART <- R6::R6Class(
 
         splitCriterion = R6::R6Class(
             classname  = "splitCriterion",
-            public = list(
+            public = base::list(
                 varname    = NULL,
                 threshold  = NULL,
                 comparison = NULL,
@@ -1150,7 +1162,7 @@ R6_nppCART <- R6::R6Class(
 
         birthCriterion = R6::R6Class(
             classname  = "birthCriterion",
-            public = list(
+            public = base::list(
                 varname    = NULL,
                 threshold  = NULL,
                 comparison = NULL,
@@ -1210,7 +1222,7 @@ R6_nppCART <- R6::R6Class(
             DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
                 nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                 );
-            list.subtrees[[index.subtree]][['AIC']] <- private$compute_AIC(
+            results.compute_AIC <- private$compute_AIC(
                 DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],
                 DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']],
                 DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
@@ -1218,6 +1230,12 @@ R6_nppCART <- R6::R6Class(
                 replicate.weight.varnames = private$bootstrap.weights,
                 combined.weights          = FALSE # TRUE
                 );
+            list.subtrees[[index.subtree]][['AIC'       ]] <- results.compute_AIC[['AIC'       ]];
+            list.subtrees[[index.subtree]][['p.log.like']] <- results.compute_AIC[['p.log.like']];
+            list.subtrees[[index.subtree]][['n.leaves'  ]] <- results.compute_AIC[['n.leaves'  ]];
+            list.subtrees[[index.subtree]][['bsvar'     ]] <- results.compute_AIC[['bsvar'     ]];
+            base::remove(list = c('DF.pdata.with.nodeID','results.compute_AIC'));
+            base::gc();
             ##### ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #####
             for ( index.subtree in seq(2,length(list.subtrees)) ) {
                 list.subtrees[[index.subtree]][['pruned_nodes']] <- private$get_pruned_nodes(
@@ -1235,7 +1253,7 @@ R6_nppCART <- R6::R6Class(
                 DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
                     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                     );
-                list.subtrees[[index.subtree]][['AIC']] <- private$compute_AIC(
+                results.compute_AIC <- private$compute_AIC(
                     DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],
                     DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']],
                     DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
@@ -1243,12 +1261,18 @@ R6_nppCART <- R6::R6Class(
                     replicate.weight.varnames = private$bootstrap.weights,
                     combined.weights          = FALSE # TRUE
                     );
+                list.subtrees[[index.subtree]][['AIC'       ]] <- results.compute_AIC[['AIC'       ]];
+                list.subtrees[[index.subtree]][['p.log.like']] <- results.compute_AIC[['p.log.like']];
+                list.subtrees[[index.subtree]][['n.leaves'  ]] <- results.compute_AIC[['n.leaves'  ]];
+                list.subtrees[[index.subtree]][['bsvar'     ]] <- results.compute_AIC[['bsvar'     ]];
                 }
+            base::remove(list = c('DF.temp','DF.pdata.with.nodeID','results.compute_AIC'));
+            base::gc();
             return( list.subtrees );
             },
 
         duplicate_nodes = function(input.nodes = base::list()) {
-            output.nodes <- list();
+            output.nodes <- base::list();
             if ( base::length(input.nodes) > 0 ) {
                 for ( index.element in base::seq(1,base::length(input.nodes)) ) {
                     output.nodes[[index.element]] <- private$node$new(
@@ -1285,7 +1309,7 @@ R6_nppCART <- R6::R6Class(
             nodes_untouched <- pruning.info[['nodes_untouched']];
             nodes.pruned.at <- pruning.info[['nodes_pruned_at']];
             nodes_removed   <- pruning.info[['nodes_removed'  ]];
-            output.nodes <- list();
+            output.nodes <- base::list();
             for ( i in 1:length(input.nodes) ) {
                 temp.node <- input.nodes[[i]];
                 if ( temp.node[['nodeID']] %in% nodes_removed ) {
@@ -1359,6 +1383,110 @@ R6_nppCART <- R6::R6Class(
             },
 
         compute_AIC = function(
+            DF.retained.nodes         = NULL,
+            DF.npdata.with.propensity = NULL,
+            DF.pdata.with.nodeID      = NULL,
+            sampling.weight.varname   = NULL,
+            replicate.weight.varnames = NULL,
+            combined.weights          = FALSE
+            ) {
+
+            # thisFunctionName <- "compute_AIC";
+            
+            # base::cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
+            # base::cat(base::paste0("\n",thisFunctionName,"() starts.\n\n"));
+
+            ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+            DF.leaves <- DF.retained.nodes[base::is.na(DF.retained.nodes['satisfiedChildID']),];
+            DF.leaves[,'likelihood.summand'] <- base::apply(
+                X      = DF.leaves[,base::c('p.weight','propensity')],
+                MARGIN = 1,
+                FUN    = function(x) { return( x[1] * ( x[2]*base::log(x[2]) + (1-x[2]) * base::log(1-x[2]) ) ) }
+                );
+            # base::cat("\nDF.leaves\n");
+            # base::print( DF.leaves   );
+
+            ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+            DF.var_hat <- aggregate(
+                x   = DF.pdata.with.nodeID[,replicate.weight.varnames],
+                by  = list(DF.pdata.with.nodeID[,"nodeID"]),
+                FUN = sum
+                );
+            colnames(DF.var_hat) <- gsub(x = colnames(DF.var_hat), pattern = '^Group\\.1$', replacement = "nodeID");
+
+            DF.var_hat[,'var_hat'] <- apply(
+                X      = DF.var_hat[,replicate.weight.varnames],
+                MARGIN = 1,
+                FUN    = var
+                );
+
+            DF.var_hat <- DF.var_hat[,c("nodeID",'var_hat')];
+
+            # base::cat("\nstr(DF.var_hat)\n");
+            # base::print( str(DF.var_hat)   );
+
+            ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+            # base::cat("\nDF.leaves\n");
+            # base::print( DF.leaves   );
+
+            DF.leaves <- base::merge(
+                x     = DF.leaves,
+                # y   = template.results.svyby,
+                y     = DF.var_hat,
+                by    = "nodeID",
+                all.x = TRUE,
+                sort  = TRUE
+                );
+
+            # base::cat("\nDF.leaves\n");
+            # base::print( DF.leaves   );
+
+            DF.leaves[,'trace.summand'] <- base::apply(
+                X      = DF.leaves[,c('p.weight','propensity','var_hat')],
+                MARGIN = 1,
+                FUN    = function(x) { return( x[2] * x[3] / (x[1]*(1-x[2])) ) }
+                );
+
+            # base::cat("\nDF.leaves\n");
+            # base::print( DF.leaves   );
+
+            ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+            likelihood.estimate <- base::sum(DF.leaves[,'likelihood.summand']);
+            trace.term          <- base::sum(DF.leaves[,'trace.summand']);
+            output.AIC          <- 2 * (base::nrow(DF.leaves) + trace.term - likelihood.estimate);
+
+            # base::cat("\nlikelihood.estimate\n");
+            # base::print( likelihood.estimate   );
+
+            # base::cat("\ntrace.term\n");
+            # base::print( trace.term   );
+
+            # base::cat("\noutput.AIC\n");
+            # base::print( output.AIC   );
+
+            ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+            list.output <- base::list(
+                AIC        = output.AIC,
+                p.log.like = likelihood.estimate,
+                n.leaves   = base::nrow(DF.leaves),
+                bsvar      = trace.term
+                );
+
+            ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+            base::remove(list = c(
+                'DF.leaves','DF.var_hat',
+                'temp.colnames','bsw.colnames',
+                'likelihood.estimate','trace.term','output.AIC'
+                ));
+            base::gc();
+            ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+            # base::cat(base::paste0("\n# ",thisFunctionName,"() quits."));
+            # base::cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
+            base::return( list.output );
+
+            },
+
+        compute_AIC_OBSOLETE = function(
             DF.retained.nodes         = NULL,
             DF.npdata.with.propensity = NULL,
             DF.pdata.with.nodeID      = NULL,
@@ -1455,9 +1583,17 @@ R6_nppCART <- R6::R6Class(
             # base::print( output.AIC   );
 
             ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+            list.output <- base::list(
+                AIC        = output.AIC,
+                p.log.like = likelihood.estimate,
+                n.leaves   = base::nrow(DF.leaves),
+                bsvar      = trace.term
+                );
+
+            ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
             # base::cat(base::paste0("\n# ",thisFunctionName,"() quits."));
             # base::cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
-            base::return( output.AIC );
+            base::return( list.output );
 
             },
 
@@ -1541,7 +1677,7 @@ R6_nppCART <- R6::R6Class(
         node = R6::R6Class(
             classname = "node",
 
-            public = list(
+            public = base::list(
 
                 nodeID    = NULL,
                 parentID  = NULL,
