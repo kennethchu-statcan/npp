@@ -40,6 +40,8 @@ for ( file.R in files.R ) {
 is.macOS        <- grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE);
 population.size <- ifelse(test = is.macOS, yes = 5e5, no = 5e5); # 1000 ==> error
 n.simulations   <- ifelse(test = is.macOS, yes =  16, no = 200);
+n.cores         <- ifelse(test = is.macOS, yes =   2, no =   2);
+
 prob.selection  <- as.numeric(pi/200); # as.numeric(pi/20); # 0.1570796,
 n.replicates    <- 500;
 
@@ -108,10 +110,7 @@ if ( !dir.exists(simulations.directory) ) {
     dir.create(simulations.directory);
     Sys.sleep(time = 5); setwd(simulations.directory); Sys.sleep(time = 5);
 
-    n.cores <- parallel::detectCores();
-    cat("\nn.cores\n");
-    print( n.cores   );
-
+    cat("\nn.cores =",n.cores,"\n");
     doParallel::registerDoParallel(n.cores);
 
     foreach ( iteration.index = seq(1,n.simulations) ) %dopar% {
