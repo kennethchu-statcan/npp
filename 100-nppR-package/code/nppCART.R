@@ -1219,13 +1219,16 @@ R6_nppCART <- R6::R6Class(
             list.subtrees[[index.subtree]][['tree_impurity']] <- private$compute_tree_impurity(
                 DF.retained = list.subtrees[[index.subtree]][['DF_retained']]
                 );
-            DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
+            # DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
+            #     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
+            #     );
+            list.subtrees[[index.subtree]][['pdata_with_propensity']] <- private$private_get_pdata_with_nodeID(
                 nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                 );
             results.compute_AIC <- private$compute_AIC(
                 DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],
                 DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']],
-                DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
+                DF.pdata.with.nodeID      = list.subtrees[[index.subtree]][[ 'pdata_with_propensity']], # DF.pdata.with.nodeID,
                 sampling.weight.varname   = private$sampling.weight,
                 replicate.weight.varnames = private$bootstrap.weights,
                 combined.weights          = FALSE # TRUE
@@ -1234,7 +1237,7 @@ R6_nppCART <- R6::R6Class(
             list.subtrees[[index.subtree]][['p.log.like']] <- results.compute_AIC[['p.log.like']];
             list.subtrees[[index.subtree]][['n.leaves'  ]] <- results.compute_AIC[['n.leaves'  ]];
             list.subtrees[[index.subtree]][['bsvar'     ]] <- results.compute_AIC[['bsvar'     ]];
-            base::remove(list = c('DF.pdata.with.nodeID','results.compute_AIC'));
+            base::remove(list = c('results.compute_AIC'));
             base::gc();
             ##### ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #####
             for ( index.subtree in seq(2,length(list.subtrees)) ) {
@@ -1250,13 +1253,16 @@ R6_nppCART <- R6::R6Class(
                 list.subtrees[[index.subtree]][['tree_impurity']] <- private$compute_tree_impurity(
                     DF.retained = list.subtrees[[index.subtree]][['DF_retained']]
                     );
-                DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
+                # DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
+                #     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
+                #     );
+                list.subtrees[[index.subtree]][['pdata_with_propensity']] <- private$private_get_pdata_with_nodeID(
                     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                     );
                 results.compute_AIC <- private$compute_AIC(
                     DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],
                     DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']],
-                    DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
+                    DF.pdata.with.nodeID      = list.subtrees[[index.subtree]][[ 'pdata_with_propensity']], # DF.pdata.with.nodeID,
                     sampling.weight.varname   = private$sampling.weight,
                     replicate.weight.varnames = private$bootstrap.weights,
                     combined.weights          = FALSE # TRUE
@@ -1266,7 +1272,7 @@ R6_nppCART <- R6::R6Class(
                 list.subtrees[[index.subtree]][['n.leaves'  ]] <- results.compute_AIC[['n.leaves'  ]];
                 list.subtrees[[index.subtree]][['bsvar'     ]] <- results.compute_AIC[['bsvar'     ]];
                 }
-            base::remove(list = c('DF.temp','DF.pdata.with.nodeID','results.compute_AIC'));
+            base::remove(list = c('DF.temp','results.compute_AIC'));
             base::gc();
             return( list.subtrees );
             },
@@ -1392,7 +1398,7 @@ R6_nppCART <- R6::R6Class(
             ) {
 
             # thisFunctionName <- "compute_AIC";
-            
+
             # base::cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
             # base::cat(base::paste0("\n",thisFunctionName,"() starts.\n\n"));
 
