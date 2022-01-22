@@ -1222,13 +1222,13 @@ R6_nppCART <- R6::R6Class(
             # DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
             #     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
             #     );
-            list.subtrees[[index.subtree]][['pdata_with_propensity']] <- private$private_get_pdata_with_nodeID(
+            list.subtrees[[index.subtree]][['pdata_with_nodeID']] <- private$private_get_pdata_with_nodeID(
                 nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                 );
             results.compute_AIC <- private$compute_AIC(
                 DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],
                 DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']],
-                DF.pdata.with.nodeID      = list.subtrees[[index.subtree]][[ 'pdata_with_propensity']], # DF.pdata.with.nodeID,
+                DF.pdata.with.nodeID      = list.subtrees[[index.subtree]][[ 'pdata_with_nodeID'    ]], # DF.pdata.with.nodeID,
                 sampling.weight.varname   = private$sampling.weight,
                 replicate.weight.varnames = private$bootstrap.weights,
                 combined.weights          = FALSE # TRUE
@@ -1256,13 +1256,13 @@ R6_nppCART <- R6::R6Class(
                 # DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
                 #     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                 #     );
-                list.subtrees[[index.subtree]][['pdata_with_propensity']] <- private$private_get_pdata_with_nodeID(
+                list.subtrees[[index.subtree]][['pdata_with_nodeID']] <- private$private_get_pdata_with_nodeID(
                     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                     );
                 results.compute_AIC <- private$compute_AIC(
                     DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],
                     DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']],
-                    DF.pdata.with.nodeID      = list.subtrees[[index.subtree]][[ 'pdata_with_propensity']], # DF.pdata.with.nodeID,
+                    DF.pdata.with.nodeID      = list.subtrees[[index.subtree]][[ 'pdata_with_nodeID'    ]], # DF.pdata.with.nodeID,
                     sampling.weight.varname   = private$sampling.weight,
                     replicate.weight.varnames = private$bootstrap.weights,
                     combined.weights          = FALSE # TRUE
