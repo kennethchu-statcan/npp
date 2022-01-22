@@ -57,10 +57,10 @@ doSimulations <- function(
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         nppTree <- nppR::nppCART(
-            np.data    = LIST.samples[['non.probability.sample']],
-            p.data     = LIST.samples[['probability.sample']],
-            predictors = c("x1","x2"),
-            weight     = "weight"
+            np.data         = LIST.samples[['non.probability.sample']],
+            p.data          = LIST.samples[['probability.sample']],
+            predictors      = c("x1","x2"),
+            sampling.weight = "weight"
             );
 
         nppTree$grow();
