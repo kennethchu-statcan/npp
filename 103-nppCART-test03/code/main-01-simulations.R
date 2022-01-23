@@ -109,7 +109,7 @@ if ( !dir.exists(simulations.directory) ) {
     cat("\n\n# Parallel simulations: starts\n\n");
 
     dir.create(simulations.directory);
-    Sys.sleep(time = 5); setwd(simulations.directory); Sys.sleep(time = 5);
+    # Sys.sleep(time = 5); setwd(simulations.directory); Sys.sleep(time = 5);
 
     cat("\nn.cores =",n.cores,"\n");
     doParallel::registerDoParallel(n.cores);
@@ -118,11 +118,12 @@ if ( !dir.exists(simulations.directory) ) {
         iteration.seed <- global.seed + iteration.index;
         DF.population  <- readRDS(file.path(population.directory,RData.population));
         test.nppCART.AIC_do.one.simulation(
-            seed                 = iteration.seed,
-            DF.population        = DF.population,
-            prob.selection       = prob.selection,
-            n.replicates         = n.replicates,
-            save.trained.nppCART = TRUE
+            simulations.directory = simulations.directory,
+            seed                  = iteration.seed,
+            DF.population         = DF.population,
+            prob.selection        = prob.selection,
+            n.replicates          = n.replicates,
+            save.trained.nppCART  = TRUE
             );
         remove(list = "DF.population");
         }
