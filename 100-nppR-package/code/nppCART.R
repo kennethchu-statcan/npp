@@ -150,6 +150,7 @@
 #'  \item{\code{get_instantiation_data()}}{This method is used to retrieve the instantiation data.}
 #'  \item{\code{grow()}}{This method is used to grow a classification tree through recursive binary partitioning of the predictors. It operates in the R6 class internally, and does not have parameters or a return value. This method should be called after the initialization of the class.}
 #'  \item{\code{get_npdata_with_propensity(nodes)}}{This method returns a dataframe that contains the non-probability sample, with the tree-calculated values. The tree-calculated values include: the unique identifier for each node (called nodeID); the self-selection propensity for each member in the non-probability sample (called propensity); the number of members in the non-probability sample, which belong to each node (called np.count); the sum of the members’ sampling weights in the probability sample, which belong to each node (called p.weight); and the tree impurity of each node (called impurity). There is one parameter, nodes, which is passed in a value internally by default, and should not be modified. This method should be used after calling grow.}
+#'  \item{\code{get_pdata_with_nodeID(nodes)}}{This method returns a dataframe that contains the probability sample, with the tree-calculated values. The tree-calculated values include: the unique identifier (called nodeID) of the terminal node containing the probabiliy sample unit; the estimated self-selection propensity for non-probability sample units in the terminal node; the number of members in the non-probability sample, which belong to each node (called np.count); the sum of the members’ sampling weights in the probability sample, which belong to each node (called p.weight); and the tree impurity of each node (called impurity). There is one parameter, nodes, which is passed in a value internally by default, and should not be modified. This method should be used after calling grow.}
 #'  \item{\code{print()}}{This method is used to print the classification tree in a readable format (each node is on a separate line and indented appropriately). There is one parameter, FUN.format, which is a function that customizes the output format. This method should be used after calling grow.}
 #' }
 #'
@@ -298,8 +299,9 @@ R6_nppCART <- R6::R6Class(
             private$p.syntheticID <- base::paste0(base::sample(x=letters,size=10,replace=TRUE),collapse="");
             private$p.data[,private$p.syntheticID] <- base::seq(1,base::nrow(private$p.data));
 
-            # make replica of non-probability data frame (with synthetic ID)
+            # make replica of non-probability and probablity data frames (with synthetic ID)
             private$np.data.original <- private$np.data;
+            private$p.data.original  <- private$p.data;
 
             # convert character predictors to factors.
             for (temp.colname in private$predictors) {
@@ -560,7 +562,10 @@ R6_nppCART <- R6::R6Class(
                     }
                 temp.AICs <- base::sapply(X = private$subtree.hierarchy, FUN = function(x) return(x[['AIC']]));
                 index.optimal.subtree <- base::which( temp.AICs == base::min(temp.AICs) );
-                DF.output.pruned <- private$subtree.hierarchy[[index.optimal.subtree]][['npdata_with_propensity']];
+                # DF.output.pruned <- private$subtree.hierarchy[[index.optimal.subtree]][['npdata_with_propensity']];
+                DF.output.pruned <- private$private_get_npdata_with_propensity(
+                    nodes = private$subtree.hierarchy[[index.optimal.subtree]][['pruned_nodes']]
+                    );
                 DF.output.pruned <- DF.output.pruned[,base::c(private$np.syntheticID,'nodeID','propensity','np.count','p.weight','impurity')];
                 base::colnames(DF.output.pruned) <- base::sapply(
                     X   = base::colnames(DF.output.pruned),
@@ -581,6 +586,55 @@ R6_nppCART <- R6::R6Class(
             DF.output <- DF.output[,base::setdiff(base::colnames(DF.output),private$np.syntheticID)];
             return( DF.output );
             },
+
+        get_pdata_with_nodeID = function() {
+            if ( base::is.null(private$nodes) ) { self$grow() }
+            DF.output <- private$private_get_pdata_with_nodeID(nodes = private$nodes);
+            if ( base::nrow(DF.output) > 0 & !base::is.null(private$bootstrap.weights) ) {
+                if ( base::is.null(private$subtree.hierarchy) ) {
+                    private$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
+                    }
+                temp.AICs <- base::sapply(X = private$subtree.hierarchy, FUN = function(x) return(x[['AIC']]));
+                index.optimal.subtree <- base::which( temp.AICs == base::min(temp.AICs) );
+                DF.output.pruned <- private$private_get_pdata_with_nodeID(
+                    nodes = private$subtree.hierarchy[[index.optimal.subtree]][['pruned_nodes']]
+                    );
+                DF.output.pruned <- DF.output.pruned[,base::c(private$p.syntheticID,'nodeID','propensity','np.count','p.weight','impurity')];
+                base::colnames(DF.output.pruned) <- base::sapply(
+                    X   = base::colnames(DF.output.pruned),
+                    FUN = function(x) { base::return(base::ifelse(x == private$p.syntheticID,x,paste0(x,'.pruned'))) }
+                    );
+                DF.output <- base::merge(
+                    x  = DF.output,
+                    y  = DF.output.pruned,
+                    by = private$p.syntheticID
+                    );
+                }
+            retained.colnames <- base::c(private$p.syntheticID,base::setdiff(base::colnames(DF.output),base::colnames(private$p.data.original)));
+            DF.output <- base::merge(
+                x  = private$p.data.original,
+                y  = DF.output[,retained.colnames],
+                by = private$p.syntheticID
+                );
+            DF.output <- DF.output[,base::setdiff(base::colnames(DF.output),private$p.syntheticID)];
+            return( DF.output );
+            },
+
+        # get_pdata_with_nodeID = function(which.tree = c('fully.grown','optimal')) {
+        #     if ( base::is.null(private$subtree.hierarchy) ) {
+        #         private$subtree.hierarchy <- private$generate_subtree_hierarchy(DF.nodes = private$nodes_to_table());
+        #         }
+        #     if ( 'fully.grown' == which.tree ) {
+        #         return( private$private_get_pdata_with_nodeID(nodes = private$subtree.hierarchy[[1]][['pruned_nodes']]) );
+        #     } else if ( 'optimal' == which.tree ) {
+        #         temp.AICs <- base::sapply(X = private$subtree.hierarchy, FUN = function(x) return(x[['AIC']]));
+        #         index.optimal.subtree <- base::which( temp.AICs == base::min(temp.AICs) );
+        #         return( private$private_get_pdata_with_nodeID(nodes = private$subtree.hierarchy[[index.optimal.subtree]][['pruned_nodes']]) );
+        #     } else {
+        #         cat("\nInadmissible value for the parameter which.tree: ",which.tree,".\n")
+        #         return( NULL );
+        #         }
+        #     },
 
         get_subtree_hierarchy = function() {
             if ( base::is.null(private$bootstrap.weights) ) {
@@ -648,6 +702,7 @@ R6_nppCART <- R6::R6Class(
         np.data                   = NULL,
         np.data.original          = NULL,
          p.data                   = NULL,
+         p.data.original          = NULL,
         sampling.weight           = NULL,
         bootstrap.weights         = NULL,
         min.cell.size.np          = NULL,
@@ -1210,25 +1265,30 @@ R6_nppCART <- R6::R6Class(
                     DF_retained     = list.temp[['DF_retained']]
                     );
                 }
+            base::remove(list = c('DF.temp'));
+            base::gc();
             ##### ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #####
             index.subtree <- 1;
-            list.subtrees[[index.subtree]][['pruned_nodes']] <- private$duplicate_nodes(input.nodes = private$nodes);
-            list.subtrees[[index.subtree]][['npdata_with_propensity']] <- private$private_get_npdata_with_propensity(
-                nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
-                );
+            list.subtrees[[index.subtree]][['pruned_nodes' ]] <- private$duplicate_nodes(input.nodes = private$nodes);
             list.subtrees[[index.subtree]][['tree_impurity']] <- private$compute_tree_impurity(
                 DF.retained = list.subtrees[[index.subtree]][['DF_retained']]
                 );
-            # DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
+            # list.subtrees[[index.subtree]][['npdata_with_propensity']] <- private$private_get_npdata_with_propensity(
             #     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
             #     );
-            list.subtrees[[index.subtree]][['pdata_with_nodeID']] <- private$private_get_pdata_with_nodeID(
+            DF.npdata.with.propensity <- private$private_get_npdata_with_propensity(
+                nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
+                );
+            # list.subtrees[[index.subtree]][['pdata_with_nodeID']] <- private$private_get_pdata_with_nodeID(
+            #     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
+            #     );
+            DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
                 nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                 );
             results.compute_AIC <- private$compute_AIC(
                 DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],
-                DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']],
-                DF.pdata.with.nodeID      = list.subtrees[[index.subtree]][[ 'pdata_with_nodeID'    ]], # DF.pdata.with.nodeID,
+                DF.npdata.with.propensity = DF.npdata.with.propensity, # list.subtrees[[index.subtree]][['npdata_with_propensity']],
+                DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
                 sampling.weight.varname   = private$sampling.weight,
                 replicate.weight.varnames = private$bootstrap.weights,
                 combined.weights          = FALSE # TRUE
@@ -1237,7 +1297,7 @@ R6_nppCART <- R6::R6Class(
             list.subtrees[[index.subtree]][['p.log.like']] <- results.compute_AIC[['p.log.like']];
             list.subtrees[[index.subtree]][['n.leaves'  ]] <- results.compute_AIC[['n.leaves'  ]];
             list.subtrees[[index.subtree]][['bsvar'     ]] <- results.compute_AIC[['bsvar'     ]];
-            base::remove(list = c('results.compute_AIC'));
+            base::remove(list = c('DF.npdata.with.propensity','DF.pdata.with.nodeID','results.compute_AIC'));
             base::gc();
             ##### ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #####
             for ( index.subtree in seq(2,length(list.subtrees)) ) {
@@ -1247,22 +1307,25 @@ R6_nppCART <- R6::R6Class(
                     input.nodes  = private$duplicate_nodes(input.nodes = list.subtrees[[index.subtree - 1]][['pruned_nodes']]),
                     pruning.info = list.subtrees[[index.subtree]]
                     );
-                list.subtrees[[index.subtree]][['npdata_with_propensity']] <- private$private_get_npdata_with_propensity(
-                    nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
-                    );
                 list.subtrees[[index.subtree]][['tree_impurity']] <- private$compute_tree_impurity(
                     DF.retained = list.subtrees[[index.subtree]][['DF_retained']]
                     );
-                # DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
+                # list.subtrees[[index.subtree]][['npdata_with_propensity']] <- private$private_get_npdata_with_propensity(
                 #     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                 #     );
-                list.subtrees[[index.subtree]][['pdata_with_nodeID']] <- private$private_get_pdata_with_nodeID(
+                DF.npdata.with.propensity <- private$private_get_npdata_with_propensity(
+                    nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
+                    );
+                # list.subtrees[[index.subtree]][['pdata_with_nodeID']] <- private$private_get_pdata_with_nodeID(
+                #     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
+                #     );
+                DF.pdata.with.nodeID <- private$private_get_pdata_with_nodeID(
                     nodes = list.subtrees[[index.subtree]][['pruned_nodes']]
                     );
                 results.compute_AIC <- private$compute_AIC(
                     DF.retained.nodes         = list.subtrees[[index.subtree]][['DF_retained']],
-                    DF.npdata.with.propensity = list.subtrees[[index.subtree]][['npdata_with_propensity']],
-                    DF.pdata.with.nodeID      = list.subtrees[[index.subtree]][[ 'pdata_with_nodeID'    ]], # DF.pdata.with.nodeID,
+                    DF.npdata.with.propensity = DF.npdata.with.propensity, # list.subtrees[[index.subtree]][['npdata_with_propensity']],
+                    DF.pdata.with.nodeID      = DF.pdata.with.nodeID,
                     sampling.weight.varname   = private$sampling.weight,
                     replicate.weight.varnames = private$bootstrap.weights,
                     combined.weights          = FALSE # TRUE
@@ -1271,9 +1334,9 @@ R6_nppCART <- R6::R6Class(
                 list.subtrees[[index.subtree]][['p.log.like']] <- results.compute_AIC[['p.log.like']];
                 list.subtrees[[index.subtree]][['n.leaves'  ]] <- results.compute_AIC[['n.leaves'  ]];
                 list.subtrees[[index.subtree]][['bsvar'     ]] <- results.compute_AIC[['bsvar'     ]];
+                base::remove(list = c('DF.npdata.with.propensity','DF.pdata.with.nodeID','results.compute_AIC'));
+                base::gc();
                 }
-            base::remove(list = c('DF.temp','results.compute_AIC'));
-            base::gc();
             return( list.subtrees );
             },
 
