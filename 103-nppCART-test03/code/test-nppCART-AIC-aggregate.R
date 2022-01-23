@@ -107,7 +107,7 @@ test.nppCART.AIC_aggregate_inner <- function(
         }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.npdata.with.propensity <- arrow::parquet(
+    DF.npdata.with.propensity <- arrow::read_parquet(
         file = "DF-npdata-with-propensity.parquet"
         );
 
