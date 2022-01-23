@@ -1,5 +1,6 @@
 
 test.nppCART.AIC_do.one.simulation <- function(
+    simulations.directory = NULL,
     seed                  = NULL,
     DF.population         = NULL,
     prob.selection        = NULL,
@@ -14,8 +15,7 @@ test.nppCART.AIC_do.one.simulation <- function(
     cat(paste0("\n# ",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    original.directory <- normalizePath(getwd());
-    temp.directory     <- file.path(original.directory,paste0('seed-',seed));
+    temp.directory <- file.path(simulations.directory,paste0('seed-',seed));
     Sys.sleep(time = 5); if ( !dir.exists(temp.directory) ) { dir.create(temp.directory); }
     Sys.sleep(time = 5); setwd(temp.directory);
     Sys.sleep(time = 5);
@@ -104,6 +104,13 @@ test.nppCART.AIC_do.one.simulation <- function(
         cat("\nstr(DF.npdata.with.propensity)\n");
         print( str(DF.npdata.with.propensity)   );
 
+        if ( save.trained.nppCART ) {
+            saveRDS(
+                file   = RData.trained.nppCART,
+                object = my.nppCART
+                );
+            }
+
         DF.pdata.with.nodeID <- my.nppCART$get_pdata_with_nodeID();
         cat("\nstr(DF.pdata.with.nodeID)\n");
         print( str(DF.pdata.with.nodeID)   );
@@ -123,12 +130,12 @@ test.nppCART.AIC_do.one.simulation <- function(
             sink = "DF-pdata-with-nodeID.parquet"
             );
 
-        if ( save.trained.nppCART ) {
-            saveRDS(
-                file   = RData.trained.nppCART,
-                object = my.nppCART
-                );
-            }
+        # if ( save.trained.nppCART ) {
+        #     saveRDS(
+        #         file   = RData.trained.nppCART,
+        #         object = my.nppCART
+        #         );
+        #     }
 
         }
 
@@ -159,7 +166,7 @@ test.nppCART.AIC_do.one.simulation <- function(
     sink();
 
     Sys.sleep(time = 5);
-    setwd(original.directory);
+    setwd(simulations.directory);
     Sys.sleep(time = 5);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
