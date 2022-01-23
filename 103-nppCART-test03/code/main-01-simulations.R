@@ -10,6 +10,7 @@ setwd(output.directory);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 require(nppR);
+require(arrow);
 require(cowplot);
 require(foreach);
 require(ggplot2);
@@ -117,10 +118,11 @@ if ( !dir.exists(simulations.directory) ) {
         iteration.seed <- global.seed + iteration.index;
         DF.population  <- readRDS(file.path(population.directory,RData.population));
         test.nppCART.AIC_do.one.simulation(
-            seed           = iteration.seed,
-            DF.population  = DF.population,
-            prob.selection = prob.selection,
-            n.replicates   = n.replicates
+            seed                 = iteration.seed,
+            DF.population        = DF.population,
+            prob.selection       = prob.selection,
+            n.replicates         = n.replicates,
+            save.trained.nppCART = TRUE
             );
         remove(list = "DF.population");
         }

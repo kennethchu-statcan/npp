@@ -1,10 +1,11 @@
 
 test.nppCART.AIC_do.one.simulation <- function(
-    seed           = NULL,
-    DF.population  = NULL,
-    prob.selection = NULL,
-    n.replicates   = NULL,
-    save.nppCART   = FALSE
+    seed                  = NULL,
+    DF.population         = NULL,
+    prob.selection        = NULL,
+    n.replicates          = NULL,
+    RData.trained.nppCART = "trained-nppCART.RData",
+    save.trained.nppCART  = FALSE
     ) {
 
     thisFunctionName <- "test.nppCART.AIC_do.one.simulation";
@@ -30,6 +31,7 @@ test.nppCART.AIC_do.one.simulation <- function(
     cat(paste0("\n# ",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    require(arrow);
     require(ggplot2);
     require(R6);
     require(RColorBrewer);
@@ -49,14 +51,14 @@ test.nppCART.AIC_do.one.simulation <- function(
         n.replicates   = n.replicates
         );
 
-    saveRDS(
-        file   = "DF-non-probability.RData",
-        object = list.samples[['DF.non.probability']]
+    arrow::write_parquet(
+        x    = list.samples[['DF.non.probability']],
+        sink = "DF-non-probability.parquet"
         );
 
-    saveRDS(
-        file   = "DF-probability.RData",
-        object = list.samples[['DF.probability']]
+    arrow::write_parquet(
+        x    = list.samples[['DF.probability']],
+        sink = "DF-probability.parquet"
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -72,10 +74,9 @@ test.nppCART.AIC_do.one.simulation <- function(
     print( str(list.samples[['DF.probability']])   )
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    RData.my.nppCART <- "nppCART-my.RData";
-    if ( file.exists(RData.my.nppCART) ) {
+    if ( file.exists(RData.trained.nppCART) ) {
 
-        my.nppCART <- readRDS(file = RData.my.nppCART);
+        my.nppCART <- readRDS(file = RData.trained.nppCART);
 
     } else {
 
@@ -95,27 +96,36 @@ test.nppCART.AIC_do.one.simulation <- function(
         cat("\nmy.nppCART$print()\n");
         my.nppCART$print( FUN.format = function(x) { return(format(x = x, digits = 3)) } );
 
-        DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity();
-        cat("\nstr(DF.npdata.with.propensity)\n");
-        print( str(DF.npdata.with.propensity)   );
-
         DF.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
         cat("\nDF.impurity.alpha.AIC\n");
         print( DF.impurity.alpha.AIC   );
 
-        saveRDS(
-            file   = "DF-npdata-with-propensity.RData",
-            object = DF.npdata.with.propensity
+        DF.npdata.with.propensity <- my.nppCART$get_npdata_with_propensity();
+        cat("\nstr(DF.npdata.with.propensity)\n");
+        print( str(DF.npdata.with.propensity)   );
+
+        DF.pdata.with.nodeID <- my.nppCART$get_pdata_with_nodeID();
+        cat("\nstr(DF.pdata.with.nodeID)\n");
+        print( str(DF.pdata.with.nodeID)   );
+
+        arrow::write_parquet(
+            x    = DF.impurity.alpha.AIC,
+            sink = "DF-impurity-alpha-AIC.parquet"
             );
 
-        saveRDS(
-            file   = "DF-impurity-alpha-AIC.RData",
-            object = DF.impurity.alpha.AIC
+        arrow::write_parquet(
+            x    = DF.npdata.with.propensity,
+            sink = "DF-npdata-with-propensity.parquet"
             );
 
-        if ( save.nppCART ) {
+        arrow::write_parquet(
+            x    = DF.pdata.with.nodeID,
+            sink = "DF-pdata-with-nodeID.parquet"
+            );
+
+        if ( save.trained.nppCART ) {
             saveRDS(
-                file   = RData.my.nppCART,
+                file   = RData.trained.nppCART,
                 object = my.nppCART
                 );
             }
