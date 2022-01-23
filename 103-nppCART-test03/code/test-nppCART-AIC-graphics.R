@@ -73,10 +73,10 @@ test.nppCART.AIC_graphics_inner <- function(
     setwd(seed.directory);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    if ( file.exists("DF-npdata-with-propensity.RData") ) {
+    if ( file.exists("DF-npdata-with-propensity.parquet") ) {
 
-        DF.npdata.with.propensity <- readRDS(
-            file = "DF-npdata-with-propensity.RData"
+        DF.npdata.with.propensity <- arrow::read_parquet(
+            file = "DF-npdata-with-propensity.parquet"
             );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -167,10 +167,10 @@ test.nppCART.AIC_graphics_inner <- function(
         }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    if ( file.exists("DF-impurity-alpha-AIC.RData") ) {
+    if ( file.exists("DF-impurity-alpha-AIC.parquet") ) {
 
-        DF.impurity.alpha.AIC <- readRDS(
-            file = "DF-impurity-alpha-AIC.RData"
+        DF.impurity.alpha.AIC <- arrow::read_parquet(
+            file = "DF-impurity-alpha-AIC.parquet"
             );
 
         my.ggplot.impurity.alpha.AIC <- test.nppCART.AIC_do.one.simulation_plot.impurity.alpha.AIC(

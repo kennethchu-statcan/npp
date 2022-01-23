@@ -14,6 +14,7 @@ test.nppCART.AIC_aggregate <- function(
     cat(paste0("\n# ",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    require(arrow);
     require(foreach);
     require(parallel);
     require(doParallel);
@@ -100,14 +101,14 @@ test.nppCART.AIC_aggregate_inner <- function(
     setwd(seed.directory);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    if ( !file.exists("DF-npdata-with-propensity.RData") ) {
+    if ( !file.exists("DF-npdata-with-propensity.parquet") ) {
         setwd(original.directory);
         return(NULL);
         }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.npdata.with.propensity <- readRDS(
-        file = "DF-npdata-with-propensity.RData"
+    DF.npdata.with.propensity <- arrow::parquet(
+        file = "DF-npdata-with-propensity.parquet"
         );
 
     DF.temp <- data.frame(

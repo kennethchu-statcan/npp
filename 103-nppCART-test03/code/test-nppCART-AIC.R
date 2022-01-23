@@ -76,7 +76,8 @@ test.nppCART.AIC_do.one.simulation <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     if ( file.exists(RData.trained.nppCART) ) {
 
-        my.nppCART <- readRDS(file = RData.trained.nppCART);
+        cat("\nThe file ",RData.trained.nppCART," already exists; skipping computations ...\n");
+        # my.nppCART <- readRDS(file = RData.trained.nppCART);
 
     } else {
 
@@ -129,13 +130,6 @@ test.nppCART.AIC_do.one.simulation <- function(
             x    = DF.pdata.with.nodeID,
             sink = "DF-pdata-with-nodeID.parquet"
             );
-
-        # if ( save.trained.nppCART ) {
-        #     saveRDS(
-        #         file   = RData.trained.nppCART,
-        #         object = my.nppCART
-        #         );
-        #     }
 
         }
 
