@@ -131,6 +131,7 @@
 #' @param sampling.weight This parameter corresponds to the column in the probability sample that contains the sampling weights. The input must be a string corresponding to a column name in p.data, such that there are only positive numbers in that column. A value must be specified here for initialization to be successful.
 #' @param bootstrap.weights This parameter corresponds to the columns in the probability sample that contains the bootstrap weights. The input must be a character vector corresponding to a subset of column names in p.data, such that there are only non-negative numbers in these columns.
 #' @param predictors This parameter corresponds to the auxillary variables on which the partitioning is performed. The input must be a string or vector of strings that contain column names shared by both np.data and p.data. If no value is specified, predictors will be set to all the column names in np.data.
+#' @param impurity character vector of length 1 specifying which impurity function to use. Must be one of 'gini' or 'entropy'. Default is 'entropy'.
 #' @param min.cell.size.np This parameter specifies the minimum number of non-probability samnple units in a node for partitioning to continue for that node. The input must be a positive integer. If no value is specified, min.cell.size.np will be set to 10.
 #' @param min.cell.size.p This parameter specifies the minimum number of probability samnple units in a node for partitioning to continue for that node. The input must be a positive integer. If no value is specified, min.cell.size.p will be set to 10.
 #' @param min.impurity This parameter corresponds to the minimum impurity calculated in each leaf node to continue partitioning. The input must be a positive number. If no value is specified, min.impurity will be set to 0.095.
@@ -162,6 +163,7 @@ nppCART <- function(
     sampling.weight           = NULL,
     bootstrap.weights         = NULL,
     predictors                = base::setdiff(base::colnames(p.data),c(sampling.weight,bootstrap.weights)),
+    impurity                  = 'entropy',
     min.cell.size.np          = 10,
     min.cell.size.p           = 10,
     min.impurity              = 0.095,
@@ -175,6 +177,7 @@ nppCART <- function(
             sampling.weight           = sampling.weight,
             bootstrap.weights         = bootstrap.weights,
             predictors                = predictors,
+            impurity                  = base::tolower(impurity),
             min.cell.size.np          = min.cell.size.np,
             min.cell.size.p           = min.cell.size.p,
             min.impurity              = min.impurity,
@@ -194,6 +197,7 @@ R6_nppCART <- R6::R6Class(
             sampling.weight           = NULL,
             bootstrap.weights         = NULL,
             predictors                = base::colnames(np.data),
+            impurity                  = NULL,
             min.cell.size.np          = 10,
             min.cell.size.p           = 10,
             min.impurity              = 0.095,
@@ -247,6 +251,14 @@ R6_nppCART <- R6::R6Class(
                 base::length(base::setdiff(predictors, base::colnames( p.data))) == 0  # must be contained in column names of  p.data
                 );
 
+            # test impurity
+            base::stopifnot(
+                !base::is.null(impurity), # must not be NULL
+                base::is.character(impurity), # must be a character vector
+                (base::length(impurity) == 1), # must be of length 1
+                (impurity %in% base::c('gini','entropy')) # must be either 'gini' or 'entropy'
+                );
+
             # test min.cell.size.np
             base::stopifnot(
                 !base::is.null(min.cell.size.np), # must not be NULL
@@ -287,6 +299,8 @@ R6_nppCART <- R6::R6Class(
             private$p.data                    <-  p.data;
             private$sampling.weight           <- sampling.weight;
             private$bootstrap.weights         <- bootstrap.weights;
+            private$impurity.name             <- impurity;
+            private$impurity.function         <- base::ifelse(test = 'gini' == impurity, yes = private$gini, no = private$entropy);
             private$min.cell.size.np          <- min.cell.size.np;
             private$min.cell.size.p           <- min.cell.size.p;
             private$min.impurity              <- min.impurity;
@@ -342,6 +356,7 @@ R6_nppCART <- R6::R6Class(
                 p.data                    = private$p.data,
                 sampling.weight           = private$sampling.weight,
                 bootstrap.weights         = private$bootstrap.weights,
+                impurity                  = private$impurity.name,
                 min.cell.size.np          = private$min.cell.size.np,
                 min.cell.size.p           = private$min.cell.size.p,
                 min.impurity              = private$min.impurity,
@@ -714,6 +729,9 @@ R6_nppCART <- R6::R6Class(
         predictors_factor         = NULL,
         predictors_ordered_factor = NULL,
         predictors_numeric        = NULL,
+
+        impurity.name     = NULL,
+        impurity.function = NULL,
 
         nodes = NULL,
         subtree.hierarchy = NULL,
@@ -1178,11 +1196,14 @@ R6_nppCART <- R6::R6Class(
             return(base::unlist(ret));
             },
 
-        impurity = function(x) {
-            # Gini impurity
-            p <- base::as.double(base::table(x) / base::length(x));
-            return( base::sum(p * (1 - p)) );
-            },
+        # impurity = function(x) {
+        #     # Gini impurity
+        #     p <- base::as.double(base::table(x) / base::length(x));
+        #     return( base::sum(p * (1 - p)) );
+        #     },
+
+        gini    = function(p = 0.5) { return( 2 * p * (1 - p)                                 ) },
+        entropy = function(p = 0.5) { return( - p * base::log(p) - (1 - p) * base::log(1 - p) ) },
 
         npp_impurity = function(np.rowIDs,p.rowIDs) {
             np.subset <- private$np.data[private$np.data[,private$np.syntheticID] %in% np.rowIDs,];
@@ -1195,9 +1216,14 @@ R6_nppCART <- R6::R6Class(
             if ( 0 == estimatedPopulationSize ) { return( Inf ); }
 
             p <- base::nrow(np.subset) / estimatedPopulationSize;
-            if ( 1 < p ) { return(Inf); }
+            if ( p < 1e-199 ) {
+                return(0);
+            } else if ( 1 < p ) {
+                return(Inf);
+                }
 
-            impurity <- 2 * p * (1 - p);
+            # impurity <- 2 * p * (1 - p);
+            impurity <- private$impurity.function(p = p);
             return( impurity );
             },
 
