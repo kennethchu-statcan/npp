@@ -76,6 +76,7 @@ test.nppCART.sanity.tree.hierarchy <- function(
         predictors                = c("x1","x2"),
         sampling.weight           = "design.weight",
         bootstrap.weights         = paste0("repweight",seq(1,n.replicates)),
+        impurity                  = 'gini',
         min.cell.size.np          = 1,
         min.impurity              = 1e-300,
         n.levels.approx.threshold = 4

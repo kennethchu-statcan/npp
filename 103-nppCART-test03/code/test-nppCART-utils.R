@@ -1,11 +1,12 @@
 
 test.nppCART_get.population <- function(
-    seed             = 1234567,
-    population.flag  = NULL,
-    population.size  = NULL,
-    ordered.x1       = TRUE,
-    ordered.x2       = TRUE,
-    RData.population = paste0("DF-",population.flag,"-population.RData")
+    seed                  = 1234567,
+    population.flag       = NULL,
+    population.size       = NULL,
+    ordered.x1            = TRUE,
+    ordered.x2            = TRUE,
+    small.mean.propensity = 1e-3,
+    RData.population      = paste0("DF-",population.flag,"-population.RData")
     ) {
     if ( file.exists(RData.population) ) {
         DF.population <- readRDS(file = RData.population);
@@ -20,10 +21,11 @@ test.nppCART_get.population <- function(
             );
     } else if ( "independent" == population.flag ) {
         DF.population <- test.nppCART_get.population.independent(
-            seed            = seed,
-            population.size = population.size,
-            ordered.x1      = ordered.x1,
-            ordered.x2      = ordered.x2
+            seed                  = seed,
+            population.size       = population.size,
+            ordered.x1            = ordered.x1,
+            ordered.x2            = ordered.x2,
+            small.mean.propensity = small.mean.propensity
             );
     } else if ( "mixed" == population.flag ) {
         DF.population <- test.nppCART_get.population.mixed(
@@ -140,10 +142,11 @@ test.nppCART_get.samples <- function(
 
 ##################################################
 test.nppCART_get.population.independent <- function(
-    seed            = 1234567,
-    population.size = NULL,
-    ordered.x1      = TRUE,
-    ordered.x2      = TRUE
+    seed                  = 1234567,
+    population.size       = NULL,
+    ordered.x1            = TRUE,
+    ordered.x2            = TRUE,
+    small.mean.propensity = 1e-3
     ) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -186,8 +189,11 @@ test.nppCART_get.population.independent <- function(
 #   true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 0.80, sd = 0.015);
 #   true.propensity                     <- rnorm(n = population.size,         mean = 1e-3, sd = 1.5e-4);
 #   true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 8e-3, sd = 1.5e-4);
-    true.propensity                     <- rnorm(n = population.size,         mean = 4e-3, sd = 1.5e-4);
-    true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 8e-3, sd = 1.5e-4);
+#   true.propensity                     <- rnorm(n = population.size,         mean = 4e-3, sd = 1.5e-4);
+#   true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 8e-3, sd = 1.5e-4);
+
+    true.propensity                     <- rnorm(n = population.size,         mean = small.mean.propensity, sd = 1.5e-4);
+    true.propensity[is.high.propensity] <- rnorm(n = sum(is.high.propensity), mean = 8e-3,                  sd = 1.5e-4);
 
     ####################################
     y51 <- rnorm(n = population.size, mean = 500, sd = 1e3);

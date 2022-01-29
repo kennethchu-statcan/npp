@@ -43,20 +43,21 @@ population.size <- ifelse(test = is.macOS, yes = 5e5, no = 5e5); # 1000 ==> erro
 n.simulations   <- ifelse(test = is.macOS, yes =  16, no = 200);
 n.cores         <- ifelse(test = is.macOS, yes =   2, no =   2);
 
-prob.selection  <- as.numeric(pi/200); # as.numeric(pi/20); # 0.1570796,
-n.replicates    <- 500;
+small.mean.propensity <- 1e-3; # 4e-3;
+prob.selection        <- as.numeric(pi/200); # as.numeric(pi/20); # 0.1570796,
+n.replicates          <- 500;
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 global.seed <- 1234567;
-print( global.seed   );
+print( global.seed );
 
-print( population.size   );
+print( population.size );
 
-print( n.simulations   );
+print( n.simulations );
 
-print( prob.selection   );
+print( prob.selection );
 
-print( n.replicates   );
+print( n.replicates );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
    original.directory <- getwd();
@@ -71,12 +72,13 @@ if ( !dir.exists(population.directory) ) { dir.create(population.directory); }
 Sys.sleep(time = 5); setwd(population.directory); Sys.sleep(time = 5);
 
 DF.population <- test.nppCART_get.population(
-    seed             = global.seed,
-    population.flag  = "independent", # "mixed",
-    population.size  = population.size,
-    ordered.x1       = FALSE,
-    ordered.x2       = TRUE,
-    RData.population = RData.population
+    seed                  = global.seed,
+    population.flag       = "independent", # "mixed",
+    population.size       = population.size,
+    ordered.x1            = FALSE,
+    ordered.x2            = TRUE,
+    small.mean.propensity = small.mean.propensity,
+    RData.population      = RData.population
     );
 
 cat("\nstr(DF.population)\n");
