@@ -28,23 +28,42 @@ for ( file.R in files.R ) {
 is.macOS <- grepl(x = sessionInfo()[['platform']], pattern = 'apple', ignore.case = TRUE);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-DF.impurity.alpha.AIC <- arrow::read_parquet(
-    file = "crowd-LFS-DF-impurities-alphas-AICs.parquet"
+iteration.data <- list(
+    list(file.stem = 'nppCART-alone',       breaks.impurity = seq(0,600,50)),
+    list(file.stem = 'Model3-homog-groups', breaks.impurity = seq(0,300,20))
     );
 
-my.ggplot.impurity.alpha.AIC <- plot.impurity.alpha.AIC(
-    DF.input = DF.impurity.alpha.AIC
-    );
+for ( index in seq(1,length(iteration.data)) ) {
 
-PNG.output <- paste0("plot-impurity-alpha-AIC.png");
-ggsave(
-    filename = PNG.output,
-    plot     = my.ggplot.impurity.alpha.AIC,
-    dpi      = 300,
-    height   =   5,
-    width    =  20,
-    units    = 'in'
-    );
+    file.stem       <- iteration.data[[index]][['file.stem']];
+    breaks.impurity <- iteration.data[[index]][['breaks.impurity']];
+
+    DF.impurity.alpha.AIC <- arrow::read_parquet(
+        file = paste0("crowd-LFS-DF-impurities-alphas-AICs-",file.stem,".parquet")
+        );
+
+    write.csv(
+        file      = paste0("DF-impurities-alphas-AICs-",file.stem,".csv"),
+        x         = DF.impurity.alpha.AIC,
+        row.names = FALSE
+        );
+
+    my.ggplot.impurity.alpha.AIC <- plot.impurity.alpha.AIC(
+        DF.input        = DF.impurity.alpha.AIC,
+        breaks.impurity = breaks.impurity
+        );
+
+    PNG.output <- paste0("plot-impurity-alpha-AIC-",file.stem,".png");
+    ggsave(
+        filename = PNG.output,
+        plot     = my.ggplot.impurity.alpha.AIC,
+        dpi      = 300,
+        height   =   5,
+        width    =  20,
+        units    = 'in'
+        );
+
+    }
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 

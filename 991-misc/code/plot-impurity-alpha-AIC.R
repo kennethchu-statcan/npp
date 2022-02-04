@@ -1,10 +1,11 @@
 
 plot.impurity.alpha.AIC <- function(
-    DF.input = NULL
+    DF.input        = NULL,
+    breaks.impurity = seq(0,600,50)
     ) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.breaks     <- seq(0,300,20);
+    my.breaks     <- breaks.impurity;
     my.size.line  <- 0.5;
     my.size.point <- 1.3;
 
