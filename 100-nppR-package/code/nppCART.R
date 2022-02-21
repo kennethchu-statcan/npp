@@ -1029,8 +1029,6 @@ R6_nppCART <- R6::R6Class(
                         temp.labels <- DF.table[,temp.colname];
                         if ( length(temp.labels) > 0 ) {
                             for ( temp.length in base::seq(1,base::max(1,base::length(temp.labels)-1)) ) {
-                                cat("\ntemp.labels, temp.length = ",temp.length,"\n");
-                                print( temp.labels   );
                                 uniqueVarValuePairs_factor <- private$push(
                                     list = uniqueVarValuePairs_factor,
                                     x    = private$splitCriterion$new(
