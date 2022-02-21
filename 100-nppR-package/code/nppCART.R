@@ -1027,15 +1027,19 @@ R6_nppCART <- R6::R6Class(
                         DF.table[DF.table[,'prob'] > 1,'prob'] <- 1;
                         DF.table    <- DF.table[base::order(DF.table[,'prob']),];
                         temp.labels <- DF.table[,temp.colname];
-                        for ( temp.length in base::seq(1,base::length(temp.labels)-1) ) {
-                            uniqueVarValuePairs_factor <- private$push(
-                                list = uniqueVarValuePairs_factor,
-                                x    = private$splitCriterion$new(
-                                    varname    = temp.colname,
-                                    threshold  = temp.labels[base::seq(1,temp.length)],
-                                    comparison = private$is_element_of
-                                    )
-                                );
+                        if ( length(temp.labels) > 0 ) {
+                            for ( temp.length in base::seq(1,base::max(1,base::length(temp.labels)-1)) ) {
+                                cat("\ntemp.labels, temp.length = ",temp.length,"\n");
+                                print( temp.labels   );
+                                uniqueVarValuePairs_factor <- private$push(
+                                    list = uniqueVarValuePairs_factor,
+                                    x    = private$splitCriterion$new(
+                                        varname    = temp.colname,
+                                        threshold  = temp.labels[base::seq(1,temp.length)],
+                                        comparison = private$is_element_of
+                                        )
+                                    );
+                                }
                             }
                     } else { # if ( sum(as.integer(DF.table.np) > 0) > private$n.levels.approx.threshold )
                         # cat("\nget_uniqueVarValuePairs_factor_DEV0(): exact\n");
