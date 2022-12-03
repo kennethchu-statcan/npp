@@ -48,7 +48,7 @@ copyright.holder <- "Her Majesty the Queen in Right of Canada, as represented by
 
 description.fields <- base::list(
     Title           = "Inference on non-probability sample data via integrating probabilty sample data",
-    Version         = "1.11.001",
+    Version         = "1.11.002",
     `Authors@R`     = string.authors,
     Description     = "This package provides a collection of tools for making inference based on non-probability sample data by integrating auxiliary probability sample data.",
     Language        = "fr",
