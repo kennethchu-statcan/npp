@@ -12,8 +12,6 @@
 #' @docType class
 #'
 #' @import R6
-#' @import dplyr
-#' @import survey
 #'
 #' @return The nppCART function returns an instance of a R6 class instantiated with the input parameters.
 #'

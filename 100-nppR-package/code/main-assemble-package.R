@@ -56,11 +56,10 @@ description.fields <- base::list(
     );
 
 packages.import <- base::c(
-    "dplyr",
-    "R6",
-    "survey"
+    "R6"
     # "base",
     # "doParallel",
+    # "dplyr",
     # "foreach",
     # "ggplot2",
     # "jsonlite",
@@ -70,6 +69,7 @@ packages.import <- base::c(
     # "stats",
     # "stringi",
     # "stringr",
+    # "survey",
     # "tools",
     # "utils",
     # "xgboost"
