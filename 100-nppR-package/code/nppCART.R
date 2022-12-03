@@ -1010,9 +1010,9 @@ R6_nppCART <- R6::R6Class(
                         DF.table.np <- base::as.data.frame(DF.table.np);
                         base::colnames(DF.table.np) <- base::c(temp.colname,"freq");
                         DF.table.p <- stats::aggregate(
-                            formula = stats::as.formula(base::paste0(private$sampling.weight," ~ ",temp.colname)),
-                            data    = private$p.data[private$p.data[,private$p.syntheticID] %in% p.currentRowIDs,base::c(temp.colname,private$sampling.weight)],
-                            FUN     = base::sum
+                            x    = stats::as.formula(base::paste0(private$sampling.weight," ~ ",temp.colname)),
+                            data = private$p.data[private$p.data[,private$p.syntheticID] %in% p.currentRowIDs,base::c(temp.colname,private$sampling.weight)],
+                            FUN  = base::sum
                             );
                         DF.table <- base::merge(
                             x     = DF.table.np,
