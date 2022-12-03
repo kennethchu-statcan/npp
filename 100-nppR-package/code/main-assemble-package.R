@@ -51,6 +51,7 @@ description.fields <- base::list(
     Version         = "1.11.002",
     `Authors@R`     = string.authors,
     Description     = "This package provides a collection of tools for making inference based on non-probability sample data by integrating auxiliary probability sample data.",
+    License         = 'MIT + file LICENCE',
     Language        = "fr",
     VignetteBuilder = "R.rsp"
     );
