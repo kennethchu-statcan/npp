@@ -286,7 +286,7 @@ test.correctness_tree.hierarchy <- function(
 ###################################################
 test.correctness_get.population <- function(
     seed            = 1234567,
-    population.flag = NULL,
+    population.flag = "tree.hierarchy",
     population.size = NULL,
     ordered.x1      = TRUE,
     ordered.x2      = TRUE
