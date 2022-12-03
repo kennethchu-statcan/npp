@@ -1,0 +1,209 @@
+---
+title: "nppCART -- usage (with pruning)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{nppCART-usage}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+    )
+```
+
+This vignette demonstrates how to use the R6 class **nppCART**
+implemented in the R package **nppR**
+in order to estimate unit-level self-selection propensities
+for units in a non-probability sample,
+by incorporating information from a compatible auxiliary probability sample.
+
+The __nppCART__ method is non-parametric and is designed
+to handle scenarios possibly with strong non-linearities or interactions
+among the variables involved.
+
+The __nppCART__ methodology was presented
+at the 2019 Annual Meeting (in Calgary)
+of the Statistical Society of Canada:
+
+*  __Chu K., Beaumont J-F. (2019).__
+   The use of classification trees to reduce selection bias for a non-probability sample with help from a probability sample
+
+The proceedings can be downloaded from: https://ssc.ca/en/2019-annual-meeting-calgary
+
+The article is also included as a vignette in the __nppR__ package.
+
+Outline of this vignette:
+
+*  Section 1: create data for a synthetic population,
+
+*  Section 2: take a non-probability sample from the synthetic population
+   (self-selection propensities unknown in practice), and
+   separately, take a probability sample from the synthetic population
+   (with known design selection probabilities),
+
+*  Section 3: estimate the self-selection propensities for the units in the non-probability sample using __nppCART__.
+
+### Section 1. Generate the synthetic population data frame.
+
+For reproducibility, we start by setting globally the randomization seed:
+```{r}
+base::set.seed(7654321);
+```
+
+Next, we load the required R packages.
+```{r}
+library(nppR);
+```
+
+The following code segment generates data for the synthetic population
+and store the data in the data frame __DF.population__:
+
+```{r}
+# DF.population <- nppR::get.synthetic.population();
+DF.population <- get.synthetic.population(
+    population.size = 10000
+    );
+```
+
+The first few rows of **DF.population**:
+
+```{r}
+knitr::kable(head(DF.population), align = "c", row.names = FALSE);
+```
+
+We remark that _y_ is intended to be the target variable,
+while _x~1~_ and _x~2~_ are the predictor variables.
+__nppCART__ requires only _x~1~_ and _x~2~_
+(and design weights, to be generated later when we select the auxiliary
+probability sample).
+The columns __x1.jitter__ and __x2.jitter__ are derived respectively from
+_x~1~_ and _x~2~_, purely for visualization purposes (see plots below);
+in particular, the columns __x1.jitter__ and __x2.jitter__ are not required,
+and will be ignored, by __nppCART__.
+
+Here are the structure and summary statistics of __DF.population__:
+
+```{r}
+str(DF.population);
+summary(DF.population);
+```
+
+The following plot illustrates the strong interaction between
+the true propensity and the predictor variables _x~1~_ and _x~2~_
+in __DF.population__:
+
+### Section 2. Generate data frames for the non-probability and probability samples.
+
+We now form the non-probability sample,
+a Poisson sample from the synthetic population each of whose units is selected
+-- independently from all other units --
+according to its own unit-specific (true) self-selection propensity.
+We store data for the non-probability sample in the data frame
+__DF.non.probability__.
+
+```{r}
+n.replicates   <- 200;
+prob.selection <- 0.2;
+
+# list.samples  <- nppR::get.npp.samples(
+list.samples  <- get.npp.samples(
+    DF.population  = DF.population,
+    prob.selection = prob.selection,
+    n.replicates   = n.replicates
+    );
+DF.non.probability <- list.samples[['DF.non.probability']];
+DF.probability     <- list.samples[['DF.probability'    ]];
+```
+
+The first few rows of __DF.non.probability__:
+
+```{r}
+knitr::kable(head(DF.non.probability), align = "c", row.names = FALSE);
+```
+
+The first few rows of __DF.probability__:
+
+```{r}
+knitr::kable(head(DF.probability), align = "c", row.names = FALSE);
+```
+
+### Section 3. Compute estimated propensities via __nppCART__.
+
+Now that we have the two input data sets ready
+(i.e., the data frames __DF.non.probability__ and __DF.probability__),
+we are ready to use __nppCART__ to estimate the self-selection propensities
+for the units in the non-probability sample, using the auxiliary information
+fournished by the probability sample.
+
+We start by instantiating an __nppCART__ object,
+with the two input data sets as follows:
+
+```{r}
+my.nppCART <- nppCART(
+    np.data                   = DF.non.probability,
+    p.data                    = DF.probability,
+    predictors                = c("x1","x2","x3"),
+    sampling.weight           = "design.weight",
+    bootstrap.weights         = paste0("repweight",seq(1,n.replicates)),
+    impurity                  = 'entropy',
+    min.cell.size.np          = 30,
+    min.cell.size.p           = 30,
+    min.impurity              = 1e-10,
+    n.levels.approx.threshold = 4
+    );
+```
+
+Next, we call the __nppCART$grow( )__ method to grow the classification tree
+according to the algorithm __nppCART__.
+
+```{r}
+my.nppCART$grow();
+```
+
+Once the tree growing is complete, we can examine the fully grown tree
+with the __nppCART$print( )__ method:
+
+```{r}
+my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
+```
+
+We next extract the estimated propensities, as a data frame,
+using the __nppCART$get_npdata_with_propensity( )__ method:
+
+```{r}
+DF.npdata.estimated.propensity <- my.nppCART$get_npdata_with_propensity();
+```
+
+Here are the first few rows of the data frame returned by
+ __nppCART$get_npdata_with_propensity( )__:
+
+```{r}
+knitr::kable(head(DF.npdata.estimated.propensity), align = "c", row.names = FALSE);
+```
+
+We next extract the estimated propensities, as a data frame,
+using the __nppCART$get_npdata_with_propensity( )__ method:
+
+```{r}
+DF.nppCART.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
+```
+
+Here are the first few rows of the data frame returned by
+ __nppCART$get_impurities_alphas_AICs( )__:
+
+```{r}
+knitr::kable(head(DF.nppCART.impurity.alpha.AIC), align = "c", row.names = FALSE);
+```
+
+Note that the returned data frame __DF.npdata.estimated.propensity__
+is in fact the original input data frame __DF.non.probability__
+(passed in to __nppCART__ via the input parameter __np.data__)
+with a few additional columns augmented at the right.
+Please refer to help pages of the package for full details.
+
+In particular, the desired unit-specific
+(more precisely, specific to terminal nodes of the fully grown tree)
+estimated self-selection propensities are under the __propensity__ column.
