@@ -1564,7 +1564,7 @@ R6_nppCART <- R6::R6Class(
             ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
             base::remove(list = c(
                 'DF.leaves','DF.var_hat',
-                'temp.colnames','bsw.colnames',
+                # 'temp.colnames','bsw.colnames',
                 'likelihood.estimate','trace.term','output.AIC'
                 ));
             base::gc();
