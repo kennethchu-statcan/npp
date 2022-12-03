@@ -48,7 +48,7 @@ copyright.holder <- "His Majesty the King in Right of Canada, as represented by 
 
 description.fields <- base::list(
     Title           = "Inference on non-probability sample data via integrating probabilty sample data",
-    Version         = "1.11.002",
+    Version         = "1.12.001",
     `Authors@R`     = string.authors,
     Description     = "This package provides a collection of tools for making inference based on non-probability sample data by integrating auxiliary probability sample data.",
     License         = 'MIT + file LICENCE',
@@ -57,7 +57,9 @@ description.fields <- base::list(
     );
 
 packages.import <- base::c(
-    "R6"
+    "R6",
+    "survey",
+    "tibble"
     # "base",
     # "doParallel",
     # "dplyr",
@@ -70,7 +72,6 @@ packages.import <- base::c(
     # "stats",
     # "stringi",
     # "stringr",
-    # "survey",
     # "tools",
     # "utils",
     # "xgboost"
@@ -93,6 +94,8 @@ packages.suggest <- base::c(
 FILE.licence <- base::file.path( code.directory , "LICENCE" );
 
 files.R <- base::c(
+    "get-npp-samples.R",
+    "get-synthetic-population.R",
     "getChenLiWuEstimate.R",
     "nppCART.R",
     "package-init.R"
@@ -111,9 +114,13 @@ scripts.py <- base::c(
 scripts.py <- base::file.path( code.directory , scripts.py );
 
 list.vignettes.Rmd <- list(
-    'nppCART-usage' = list(
-        file  = base::file.path( code.directory , 'nppCART-usage.Rmd'       ),
-        asis  = base::file.path( code.directory , 'nppCART-usage.html.asis' )
+    'nppCART-usage-no-pruning' = list(
+        file  = base::file.path( code.directory , 'nppCART-usage-no-pruning.Rmd'       ),
+        asis  = base::file.path( code.directory , 'nppCART-usage-no-pruning.html.asis' )
+        ),
+    'nppCART-usage-with-pruning' = list(
+        file  = base::file.path( code.directory , 'nppCART-usage-with-pruning.Rmd'       ),
+        asis  = base::file.path( code.directory , 'nppCART-usage-with-pruning.html.asis' )
         )
     );
 

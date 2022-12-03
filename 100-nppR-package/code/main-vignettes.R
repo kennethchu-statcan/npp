@@ -17,8 +17,19 @@ cat("\n##################################################\n");
 require(rmarkdown);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+code.files <- c(
+    "get-npp-samples.R",
+    "get-synthetic-population.R"
+    );
+
+for ( code.file in code.files ) {
+    source(file.path(dir.code,code.file));
+    }
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 vignette.files <- c(
-    "nppCART-usage"
+    "nppCART-usage-no-pruning",
+    "nppCART-usage-with-pruning"
     );
 
 for ( vignette.file in vignette.files ) {
