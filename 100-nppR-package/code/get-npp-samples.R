@@ -66,28 +66,25 @@ get.npp.samples <- function(
     base::set.seed(seed = seed);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-  # colnames.np <- c("unit.ID","y","x1","x2","x3","x1.jitter","x2.jitter","x3.hidden");
-    colnames.np <- c("unit.ID","y","x1","x2","x3");
-    colnames.p  <- c("unit.ID","x1","x2","x3");
+  # colnames.np <- base::c("unit.ID","y","x1","x2","x3","x1.jitter","x2.jitter","x3.hidden");
+    colnames.np <- base::c("unit.ID","y","x1","x2","x3");
+    colnames.p  <- base::c("unit.ID","x1","x2","x3");
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    require(survey);
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    is.self.selected   <- sapply(
+    is.self.selected   <- base::sapply(
         X   = DF.population[,"true.propensity"],
-        FUN = function(x) { sample(x = c(FALSE,TRUE), size = 1, prob = c(1-x,x)) }
+        FUN = function(x) { base::sample(x = c(FALSE,TRUE), size = 1, prob = c(1-x,x)) }
         );
     DF.non.probability <- DF.population;
     DF.non.probability[,"self.selected"] <- is.self.selected;
     DF.non.probability <- DF.non.probability[DF.non.probability[,"self.selected"],colnames.np];
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    is.selected <- sample(
-        x       = c(TRUE,FALSE),
-        size    = nrow(DF.population),
+    is.selected <- base::sample(
+        x       = base::c(TRUE,FALSE),
+        size    = base::nrow(DF.population),
         replace = TRUE,
-        prob    = c(prob.selection, 1 - prob.selection)
+        prob    = base::c(prob.selection, 1 - prob.selection)
         );
 
     DF.probability <- DF.population[is.selected,colnames.p];
@@ -108,10 +105,10 @@ get.npp.samples <- function(
         );
 
     DF.repweights <- my.svrepdesign.object[['repweights']][['weights']];
-    DF.repweights <- as.data.frame(DF.repweights);
-    colnames(DF.repweights) <- paste0("repweight",seq(1,ncol(DF.repweights)));
+    DF.repweights <- base::as.data.frame(DF.repweights);
+    base::colnames(DF.repweights) <- base::paste0("repweight",base::seq(1,base::ncol(DF.repweights)));
 
-    DF.probability <- cbind(
+    DF.probability <- base::cbind(
         my.svrepdesign.object[['variables']],
         DF.repweights
         );
