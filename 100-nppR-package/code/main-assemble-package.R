@@ -44,7 +44,7 @@ string.authors <- "base::c(
     )";
 base::Encoding(string.authors) <- "UTF-8";
 
-copyright.holder <- "Her Majesty the Queen in Right of Canada, as represented by the Minister of Statistics Canada";
+copyright.holder <- "His Majesty the King in Right of Canada, as represented by the Minister of Statistics Canada";
 
 description.fields <- base::list(
     Title           = "Inference on non-probability sample data via integrating probabilty sample data",
@@ -87,6 +87,9 @@ packages.suggest <- base::c(
     # "fs",
     # "knitr"
     );
+
+
+FILE.licence <- base::file.path( code.directory , "LICENCE" );
 
 files.R <- base::c(
     "getChenLiWuEstimate.R",
@@ -140,6 +143,7 @@ package.path <- assemble.package(
     write.to.directory = write.to.directory,
     package.name       = package.name,
     copyright.holder   = copyright.holder,
+    FILE.licence       = FILE.licence,
     description.fields = description.fields,
     packages.import    = packages.import,
     packages.suggest   = packages.suggest,
@@ -190,6 +194,7 @@ if ( "windows" != base::.Platform[["OS.type"]] ) {
         write.to.directory = write.to.directory,
         package.name       = package.name,
         copyright.holder   = copyright.holder,
+        FILE.licence       = FILE.licence,
         description.fields = description.fields,
         packages.import    = packages.import,
         packages.suggest   = packages.suggest,

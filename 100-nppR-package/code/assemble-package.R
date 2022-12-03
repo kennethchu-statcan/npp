@@ -3,6 +3,7 @@ assemble.package <- function(
     write.to.directory = NULL,
     package.name       = NULL,
     copyright.holder   = "Kenneth Chu",
+    FILE.licence       = NULL,
     description.fields = base::list(),
     packages.import    = base::c(),
     packages.depend    = base::c(),
@@ -67,7 +68,13 @@ assemble.package <- function(
     base::setwd( path.package );
 
     # ~~~~~~~~~~ #
-    usethis::use_mit_license(copyright_holder = copyright.holder);
+    # usethis::use_mit_license(copyright_holder = copyright.holder);
+    base::file.copy(
+        from = FILE.licence,
+        to   = "."
+        );
+
+    # ~~~~~~~~~~ #
     usethis::use_testthat();
 
     # ~~~~~~~~~~ #
