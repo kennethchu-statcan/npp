@@ -1504,14 +1504,14 @@ R6_nppCART <- R6::R6Class(
             # base::print( DF.leaves   );
 
             ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-            DF.var_hat <- aggregate(
+            DF.var_hat <- stats::aggregate(
                 x   = DF.pdata.with.nodeID[,replicate.weight.varnames],
                 by  = list(DF.pdata.with.nodeID[,"nodeID"]),
                 FUN = sum
                 );
-            colnames(DF.var_hat) <- gsub(x = colnames(DF.var_hat), pattern = '^Group\\.1$', replacement = "nodeID");
+            base::colnames(DF.var_hat) <- base::gsub(x = base::colnames(DF.var_hat), pattern = '^Group\\.1$', replacement = "nodeID");
 
-            DF.var_hat[,'var_hat'] <- apply(
+            DF.var_hat[,'var_hat'] <- base::apply(
                 X      = DF.var_hat[,replicate.weight.varnames],
                 MARGIN = 1,
                 FUN    = var
@@ -1582,117 +1582,6 @@ R6_nppCART <- R6::R6Class(
             base::return( list.output );
 
             },
-
-        # compute_AIC_OBSOLETE = function(
-        #     DF.retained.nodes         = NULL,
-        #     DF.npdata.with.propensity = NULL,
-        #     DF.pdata.with.nodeID      = NULL,
-        #     sampling.weight.varname   = NULL,
-        #     replicate.weight.varnames = NULL,
-        #     combined.weights          = FALSE
-        #     ) {
-        #
-        #     # thisFunctionName <- "compute_AIC";
-        #     #
-        #     # base::cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
-        #     # base::cat(base::paste0("\n",thisFunctionName,"() starts.\n\n"));
-        #
-        #     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        #     base::require(survey);
-        #
-        #     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        #     DF.leaves <- DF.retained.nodes[base::is.na(DF.retained.nodes['satisfiedChildID']),];
-        #     DF.leaves[,'likelihood.summand'] <- base::apply(
-        #         X      = DF.leaves[,base::c('p.weight','propensity')],
-        #         MARGIN = 1,
-        #         FUN    = function(x) { return( x[1] * ( x[2]*base::log(x[2]) + (1-x[2]) * base::log(1-x[2]) ) ) }
-        #         );
-        #     # base::cat("\nDF.leaves\n");
-        #     # base::print( DF.leaves   );
-        #
-        #     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        #     DF.template <- DF.pdata.with.nodeID;
-        #
-        #     temp.colnames <- base::colnames(DF.template);
-        #     temp.colnames[temp.colnames %in% replicate.weight.varnames] <- base::paste0("internal.repweight",base::seq(1,base::sum(temp.colnames %in% replicate.weight.varnames)))
-        #     base::colnames(DF.template) <- temp.colnames;
-        #
-        #     DF.template[,'dummy.one'] <- 1;
-        #
-        #     template.svrepdesign <- survey::svrepdesign(
-        #         data             = DF.template,
-        #         weights          = stats::as.formula(base::paste0("~ ",sampling.weight.varname)),
-        #         type             = "bootstrap",
-        #         repweights       = "internal.repweight[0-9]+",
-        #         combined.weights = combined.weights
-        #         );
-        #     # base::cat("\nstr(template.svrepdesign)\n");
-        #     # base::print( str(template.svrepdesign)   );
-        #
-        #     template.results.svyby <- survey::svyby(
-        #         design  = template.svrepdesign,
-        #         formula = as.formula("~ dummy.one"),
-        #         by      = as.formula("~ nodeID"),
-        #         FUN     = survey::svytotal, # survey::svymean # survey::svyvar
-        #         vartype = "var" # c("se","ci","ci","cv","cvpct","var")
-        #         );
-        #     # base::cat("\nstr(template.results.svyby)\n");
-        #     # base::print( str(template.results.svyby)   );
-        #
-        #     # base::cat("\ntemplate.results.svyby\n");
-        #     # base::print( template.results.svyby   );
-        #
-        #     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        #     # base::cat("\nDF.leaves\n");
-        #     # base::print( DF.leaves   );
-        #
-        #     DF.leaves <- base::merge(
-        #         x     = DF.leaves,
-        #         y     = template.results.svyby,
-        #         by    = "nodeID",
-        #         all.x = TRUE,
-        #         sort  = TRUE
-        #         );
-        #
-        #     # base::cat("\nDF.leaves\n");
-        #     # base::print( DF.leaves   );
-        #
-        #     DF.leaves[,'trace.summand'] <- base::apply(
-        #         X      = DF.leaves[,c('p.weight','propensity','var')],
-        #         MARGIN = 1,
-        #         FUN    = function(x) { return( x[2] * x[3] / (x[1]*(1-x[2])) ) }
-        #         );
-        #
-        #     # base::cat("\nDF.leaves\n");
-        #     # base::print( DF.leaves   );
-        #
-        #     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        #     likelihood.estimate <- base::sum(DF.leaves[,'likelihood.summand']);
-        #     # base::cat("\nlikelihood.estimate\n");
-        #     # base::print( likelihood.estimate   );
-        #
-        #     trace.term <- base::sum(DF.leaves[,'trace.summand']);
-        #     # base::cat("\ntrace.term\n");
-        #     # base::print( trace.term   );
-        #
-        #     output.AIC <- 2 * (base::nrow(DF.leaves) + trace.term - likelihood.estimate);
-        #     # base::cat("\noutput.AIC\n");
-        #     # base::print( output.AIC   );
-        #
-        #     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        #     list.output <- base::list(
-        #         AIC        = output.AIC,
-        #         p.log.like = likelihood.estimate,
-        #         n.leaves   = base::nrow(DF.leaves),
-        #         bsvar      = trace.term
-        #         );
-        #
-        #     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        #     # base::cat(base::paste0("\n# ",thisFunctionName,"() quits."));
-        #     # base::cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
-        #     base::return( list.output );
-        #
-        #     },
 
         get_descendant_nodeIDs = function(
             DF.input = NULL,
