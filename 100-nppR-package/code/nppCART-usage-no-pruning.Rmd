@@ -142,13 +142,13 @@ knitr::kable(head(DF.population), align = "c", row.names = FALSE);
 
 We remark that _y_ is intended to be the target variable, while
 _x~1~_ and _x~2~_ are the predictor variables.
-__nppCART__ requires only _x~1~_ and _x~2~_
-(and design weights, to be generated later when we select the auxiliary
-probability sample).
+Note that the tree-growing algorithm of __nppCART__ does not require
+the target variable _y_ (nor the pruning algorithm of nppCART).
 The columns __x1.jitter__ and __x2.jitter__ are derived respectively from
 _x~1~_ and _x~2~_, purely for visualization purposes (see plots below);
 in particular, the columns __x1.jitter__ and __x2.jitter__ are not required,
-and will be ignored, by __nppCART__.
+and will be ignored, by __nppCART__ (by excluding them in the __predictors__
+input parameter; see call to __nppCART__ below).
 
 Here are the structure and summary statistics of __DF.population__:
 
