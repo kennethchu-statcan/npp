@@ -14,47 +14,36 @@ knitr::opts_chunk$set(
     )
 ```
 
-This vignette demonstrates how to use the R6 class **nppCART**
-implemented in the R package **nppR**
-in order to estimate unit-level self-selection propensities
-for units in a non-probability sample,
-by incorporating information from a compatible auxiliary probability sample.
-
-The __nppCART__ method is non-parametric and is designed
-to handle scenarios possibly with strong non-linearities or interactions
-among the variables involved.
-
-The __nppCART__ methodology was presented
-at the 2019 Annual Meeting (in Calgary)
-of the Statistical Society of Canada:
-
-*  __Chu K., Beaumont J-F. (2019).__
-   The use of classification trees to reduce selection bias for a non-probability sample with help from a probability sample
-
-The proceedings can be downloaded from: https://ssc.ca/en/2019-annual-meeting-calgary
-
-The article is also included as a vignette in the __nppR__ package.
+This vignette demonstrates how to use the pruning functionality of __nppCART__,
+which can be invoked if the probability sample is equipped
+with bootstrap weights.
 
 Outline of this vignette:
 
 *  Section 1: create data for a synthetic population,
 
-*  Section 2: take a non-probability sample from the synthetic population
-   (self-selection propensities unknown in practice), and
-   separately, take a probability sample from the synthetic population
-   (with known design selection probabilities),
+*  Section 2: generate a pair of non-probability sample and probability sampe
+   from the synthetic population,
 
-*  Section 3: estimate the self-selection propensities for the units in the non-probability sample using __nppCART__.
+*  Section 3: estimate the self-selection propensities
+   -- according to the unpruned and pruned trees, respectively --
+   for the units in the non-probability sample using __nppCART__.
 
 ### Section 1. Generate the synthetic population data frame.
 
-Next, we load the required R packages.
+First, we load the required R packages.
 ```{r}
 library(nppR);
 ```
 
-The following code segment generates data for the synthetic population
-and store the data in the data frame __DF.population__:
+The following code segment uses the function
+__nppR::get.synthetic.population( )__
+in order to generate data for a synthetic population
+and store the data in the data frame __DF.population__.
+This synthetic population is designed so that
+the unpruned tree will over-fit, which can then serve
+to showcases the utility of pruning in such scenarios.
+
 For reproducibility, we supply a randomization seed.
 
 ```{r}
@@ -64,41 +53,41 @@ DF.population <- nppR::get.synthetic.population(
     );
 ```
 
-The first few rows of **DF.population**:
+Here are the first few rows of **DF.population**:
 
 ```{r}
 knitr::kable(head(DF.population), align = "c", row.names = FALSE);
 ```
 
 We remark that _y_ is intended to be the target variable,
-while _x~1~_ and _x~2~_ are the predictor variables.
-__nppCART__ requires only _x~1~_ and _x~2~_
-(and design weights, to be generated later when we select the auxiliary
-probability sample).
-The columns __x1.jitter__ and __x2.jitter__ are derived respectively from
-_x~1~_ and _x~2~_, purely for visualization purposes (see plots below);
-in particular, the columns __x1.jitter__ and __x2.jitter__ are not required,
-and will be ignored, by __nppCART__.
-
+while _x~1~_, _x~2~_, and _x~3~_ are the predictor variables.
+The **true.propensity** is, of course, unknown in practice.
 Here are the structure and summary statistics of __DF.population__:
 
 ```{r}
-str(DF.population);
-summary(DF.population);
+utils::str(DF.population);
+base::summary(DF.population);
 ```
-
-The following plot illustrates the strong interaction between
-the true propensity and the predictor variables _x~1~_ and _x~2~_
-in __DF.population__:
 
 ### Section 2. Generate data frames for the non-probability and probability samples.
 
-We now form the non-probability sample,
-a Poisson sample from the synthetic population each of whose units is selected
--- independently from all other units --
+We now generate a pair of non-probability and probablity samples
+using the function __nppR::get.npp.samples()__.
+
+The non-probability sample is a Poisson sample from the synthetic population
+each of whose units is selected -- independently from all other units --
 according to its own unit-specific (true) self-selection propensity.
-We store data for the non-probability sample in the data frame
-__DF.non.probability__.
+
+The probablity sample is a simple random sample (SRS)
+from the synthetic population.
+
+The function __nppR::get.npp.samples()__ allows the specification of the
+selection probablity of the SRS through the input parameter __prob.selection__,
+and the number of sets of bootstrap weights through __n.replicates__.
+
+We store data for the non-probability sample
+in the data frame __DF.non.probability__,
+and that of the probability sample in __DF.probability__.
 
 ```{r}
 n.replicates   <- 200;
@@ -114,19 +103,19 @@ DF.non.probability <- list.samples[['DF.non.probability']];
 DF.probability     <- list.samples[['DF.probability'    ]];
 ```
 
-The first few rows of __DF.non.probability__:
+Here are the first few rows of __DF.non.probability__:
 
 ```{r}
 knitr::kable(head(DF.non.probability), align = "c", row.names = FALSE);
 ```
 
-The first few rows of __DF.probability__:
+And, the first few rows of __DF.probability__:
 
 ```{r}
 knitr::kable(head(DF.probability), align = "c", row.names = FALSE);
 ```
 
-### Section 3. Compute estimated propensities via __nppCART__.
+### Section 3. Compute estimated propensities via __nppCART__, with an without pruning.
 
 Now that we have the two input data sets ready
 (i.e., the data frames __DF.non.probability__ and __DF.probability__),
@@ -152,15 +141,19 @@ my.nppCART <- nppR::nppCART(
     );
 ```
 
+Pruning is automatically triggered by a non-NULL value of __bootstrap.weights__.
+On the other hand, if __bootstrap.weights__ is NULL or omitted
+in the call to __nppCART__, then no pruning is done.
+
 Next, we call the __nppCART$grow( )__ method to grow the classification tree
-according to the algorithm __nppCART__.
+according to the tree-growing algorithm of __nppCART__.
 
 ```{r}
 my.nppCART$grow();
 ```
 
-Once the tree growing is complete, we can examine the fully grown tree
-with the __nppCART$print( )__ method:
+Once the tree growing is complete, we can examine the fully grown (unpruned)
+tree with the __nppCART$print( )__ method:
 
 ```{r}
 my.nppCART$print( FUN.format = function(x) {return(round(x,digits=3))} );
@@ -180,8 +173,30 @@ Here are the first few rows of the data frame returned by
 knitr::kable(head(DF.npdata.estimated.propensity), align = "c", row.names = FALSE);
 ```
 
-We next extract the estimated propensities, as a data frame,
-using the __nppCART$get_npdata_with_propensity( )__ method:
+The first five columns (unit.ID, y, x1, x2, x3) is just
+the input data frame __DF.non.probability__.
+The rest of the columns are results of __nppCART__
+
+The columns __nodeID__, __propensity__, __np.count__, __p.weight__, and	__impurity__
+refer to the unpruned tree.
+
+*  __nodeID__ indicates the ID of the terminal node (leaf) of the unpruned tree
+   containing the non-probability sample unit of each given row,
+*  __propensity__ is the self-selection propensity estimate of the terminal node,
+*  __np.count__ is the number of non-probability sample units belonging
+   to the terminal node,
+*  __p.weight__ is the sum of the design sampling weights
+   of the probablity sample units belonging to the terminal node, and
+*  __impurity__ is the impurity of the termimal node.
+
+The columns
+__nodeID.pruned__, __propensity.pruned__, __np.count.pruned__,
+__p.weight.pruned__, and	__impurity.pruned__
+contain the counterpart nppCART results corresponding
+to the optimally pruned tree.
+
+We next extract the pruning sub-tree hierarchy in tabular format,
+using the __nppCART$get_impurities_alphas_AICs( )__ method:
 
 ```{r}
 DF.nppCART.impurity.alpha.AIC <- my.nppCART$get_impurities_alphas_AICs();
@@ -362,6 +377,11 @@ plot.impurity.alpha.AIC <- function(
     }
 ```
 
+As a diagnostics of the pruning, we plot
+the tree impurity, alpha (complex penality weight) and AIC
+against the sub-tree index for the sub-trees
+in the pruning sub-tree hierarchy.
+
 ```{r, echo = FALSE, fig.height = 3, fig.width = 12}
 my.cowplot <- plot.impurity.alpha.AIC(
     DF.input = DF.nppCART.impurity.alpha.AIC
@@ -369,12 +389,12 @@ my.cowplot <- plot.impurity.alpha.AIC(
 my.cowplot;
 ```
 
-Note that the returned data frame __DF.npdata.estimated.propensity__
-is in fact the original input data frame __DF.non.probability__
-(passed in to __nppCART__ via the input parameter __np.data__)
-with a few additional columns augmented at the right.
-Please refer to help pages of the package for full details.
-
-In particular, the desired unit-specific
-(more precisely, specific to terminal nodes of the fully grown tree)
-estimated self-selection propensities are under the __propensity__ column.
+Note the expected monotonicity of tree impurity and alpha as functions
+of the sub-tree index.
+Note also that, as expected, as the sub-tree index increases,
+the AIC first descreases and then increases.
+The horizontal red line indicates the sub-tree index at which the AIC
+is minimized; the corresponding sub-tree is the optimally pruned tree.
+The estimates of the optimally pruned tree are reported in the output
+data frame of __nppR::get_npdata_with_propensity( )__
+under the columns whose names have the suffix ".pruned".
