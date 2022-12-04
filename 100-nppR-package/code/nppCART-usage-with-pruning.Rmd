@@ -48,11 +48,6 @@ Outline of this vignette:
 
 ### Section 1. Generate the synthetic population data frame.
 
-For reproducibility, we start by setting globally the randomization seed:
-```{r}
-base::set.seed(7654321);
-```
-
 Next, we load the required R packages.
 ```{r}
 library(nppR);
@@ -60,10 +55,12 @@ library(nppR);
 
 The following code segment generates data for the synthetic population
 and store the data in the data frame __DF.population__:
+For reproducibility, we supply a randomization seed.
 
 ```{r}
 DF.population <- nppR::get.synthetic.population(
-    population.size = 10000
+    population.size = 10000,
+    seed            = 7654321
     );
 ```
 
@@ -110,7 +107,8 @@ prob.selection <- 0.2;
 list.samples  <- nppR::get.npp.samples(
     DF.population  = DF.population,
     prob.selection = prob.selection,
-    n.replicates   = n.replicates
+    n.replicates   = n.replicates,
+    seed           = 7654321
     );
 DF.non.probability <- list.samples[['DF.non.probability']];
 DF.probability     <- list.samples[['DF.probability'    ]];
@@ -147,8 +145,8 @@ my.nppCART <- nppR::nppCART(
     sampling.weight           = "design.weight",
     bootstrap.weights         = paste0("repweight",seq(1,n.replicates)),
     impurity                  = 'entropy',
-    min.cell.size.np          = 30,
-    min.cell.size.p           = 30,
+    min.cell.size.np          = 1,
+    min.cell.size.p           = 1,
     min.impurity              = 1e-10,
     n.levels.approx.threshold = 4
     );
@@ -194,6 +192,175 @@ Here are the first few rows of the data frame returned by
 
 ```{r}
 knitr::kable(head(DF.nppCART.impurity.alpha.AIC), align = "c", row.names = FALSE);
+```
+
+```{r, echo = FALSE}
+plot.impurity.alpha.AIC <- function(
+    DF.input = NULL
+    ) {
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.breaks     <- seq(0,200,20);
+    my.size.line  <- 0.5;
+    my.size.point <- 1.3;
+    textsize.axis <- 13;
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    index.min.subtree <- DF.input[which( DF.input[,'AIC'] == min(DF.input[,'AIC']) ),'index.subtree'];
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.ggplot.impurity <- ggplot(data = NULL) + theme_bw();
+    my.ggplot.impurity <- my.ggplot.impurity + theme(
+        axis.title.x     = element_text(size = textsize.axis,  face = "bold"),
+        axis.title.y     = element_text(size = textsize.axis,  face = "bold"),
+        axis.text.x      = element_text(size = textsize.axis,  face = "bold"),
+        axis.text.y      = element_text(size = textsize.axis,  face = "bold"),
+        panel.grid.major = element_line(colour="gray", linetype=2, size=0.25),
+        panel.grid.minor = element_line(colour="gray", linetype=2, size=0.25)
+        );
+
+    my.ggplot.impurity <- my.ggplot.impurity + labs(
+        title    = NULL,
+        subtitle = NULL
+        );
+
+    my.ggplot.impurity <- my.ggplot.impurity + xlab(
+        label = "tree impurity"
+        );
+
+    my.ggplot.impurity <- my.ggplot.impurity + ylab(
+        label = "sub-tree index"
+        );
+
+    my.ggplot.impurity <- my.ggplot.impurity + geom_point(
+        data    = DF.input,
+        mapping = aes(x = tree.impurity, y = index.subtree),
+        alpha   = 0.9,
+        size    = my.size.point,
+        colour  = "black"
+        );
+
+    my.ggplot.impurity <- my.ggplot.impurity + geom_line(
+        data        = DF.input,
+        mapping     = aes(x = tree.impurity, y = index.subtree),
+        orientation = "y",
+        alpha       = 0.5,
+        size        = my.size.line,
+        colour      = "black"
+        );
+
+    my.ggplot.impurity <- my.ggplot.impurity + geom_hline(
+        yintercept = index.min.subtree,
+        colour     = "red"
+        );
+
+    my.ggplot.impurity <- my.ggplot.impurity + scale_y_continuous(
+        limits = NULL,
+        breaks = my.breaks
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.ggplot.alpha <- ggplot(data = NULL) + theme_bw();
+    my.ggplot.alpha <- my.ggplot.alpha + theme(
+        axis.title.x     = element_text(size = textsize.axis,  face = "bold"),
+        axis.text.x      = element_text(size = textsize.axis,  face = "bold"),
+        axis.title.y     = element_blank(),
+        axis.text.y      = element_blank(),
+        panel.grid.major = element_line(colour="gray", linetype=2, size=0.25),
+        panel.grid.minor = element_line(colour="gray", linetype=2, size=0.25)
+        );
+
+    my.ggplot.alpha <- my.ggplot.alpha + labs(
+        title    = NULL,
+        subtitle = NULL
+        );
+
+    my.ggplot.alpha <- my.ggplot.alpha + xlab(
+        label = "alpha (complex penalty weight)"
+        );
+
+    my.ggplot.alpha <- my.ggplot.alpha + geom_step(
+        data    = DF.input,
+        mapping = aes(x = alpha, y = index.subtree),
+        alpha   = 0.9,
+        size    = my.size.point,
+        colour  = "black"
+        );
+
+    my.ggplot.alpha <- my.ggplot.alpha + geom_hline(
+        yintercept = index.min.subtree,
+        colour     = "red"
+        );
+
+    my.ggplot.alpha <- my.ggplot.alpha + scale_y_continuous(
+        limits = NULL,
+        breaks = my.breaks
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.ggplot.AIC <- ggplot(data = NULL) + theme_bw();
+    my.ggplot.AIC <- my.ggplot.AIC + theme(
+        axis.title.x     = element_text(size = textsize.axis,  face = "bold"),
+        axis.text.x      = element_text(size = textsize.axis,  face = "bold"),
+        axis.title.y     = element_blank(),
+        axis.text.y      = element_blank(),
+        panel.grid.major = element_line(colour="gray", linetype=2, size=0.25),
+        panel.grid.minor = element_line(colour="gray", linetype=2, size=0.25)
+        );
+
+    my.ggplot.AIC <- my.ggplot.AIC + labs(
+        title    = NULL,
+        subtitle = NULL
+        );
+
+    my.ggplot.AIC <- my.ggplot.AIC + geom_point(
+        data    = DF.input,
+        mapping = aes(x = AIC, y = index.subtree),
+        alpha   = 0.9,
+        size    = my.size.point,
+        colour  = "black"
+        );
+
+    my.ggplot.AIC <- my.ggplot.AIC + geom_line(
+        data        = DF.input,
+        mapping     = aes(x = AIC, y = index.subtree),
+        orientation = "y",
+        alpha       = 0.5,
+        size        = my.size.line,
+        colour      = "black"
+        );
+
+    my.ggplot.AIC <- my.ggplot.AIC + geom_hline(
+        yintercept = index.min.subtree,
+        colour     = "red"
+        );
+
+    my.ggplot.AIC <- my.ggplot.AIC + scale_y_continuous(
+        limits = NULL,
+        breaks = my.breaks
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.cowplot <- cowplot::plot_grid(
+        my.ggplot.impurity,
+        my.ggplot.alpha,
+        my.ggplot.AIC,
+        nrow       = 1,
+        align      = "h",
+        rel_widths = c(2,3,2)
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    return( my.cowplot );
+
+    }
+```
+
+```{r, echo = FALSE, fig.height = 3, fig.width = 12}
+my.cowplot <- plot.impurity.alpha.AIC(
+    DF.input = DF.nppCART.impurity.alpha.AIC
+    );
+my.cowplot;
 ```
 
 Note that the returned data frame __DF.npdata.estimated.propensity__
