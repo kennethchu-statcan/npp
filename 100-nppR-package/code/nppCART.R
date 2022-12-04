@@ -954,15 +954,30 @@ R6_nppCART <- R6::R6Class(
                     }
                 );
 
+            # if ( -Inf == base::max(base::unique(base::as.double(impurity.reductions[!base::is.na(impurity.reductions)]))) ) {
+            #     cat("\nstr(uniqueVarValuePairs)\n");
+            #     print( str(uniqueVarValuePairs)   );
+            #     cat("\nstr(impurity.reductions)\n");
+            #     print( str(impurity.reductions)   );
+            #     cat("\nimpurity.reductions\n");
+            #     print( impurity.reductions   );
+            #     }
+
             # checks for first 3 NULL cases (no best split):
             #   -   uniqueVarValuePairs is empty (no available splits)
             #   -   all impurity.reductions are NA/NaN (no meaningful splits)
             #   -   minimum impurity is Inf (no meaningful splits)
-            if (
-                base::length(uniqueVarValuePairs) < 1 |
-                base::length(impurity.reductions[!base::is.na(impurity.reductions)]) == 0 |
-                -Inf == base::max(base::unique(base::as.double(impurity.reductions[!base::is.na(impurity.reductions)])))
-                ) { return(NULL); }
+            # if (base::length(uniqueVarValuePairs) < 1 |
+            #     base::length(impurity.reductions[!base::is.na(impurity.reductions)]) == 0 |
+            #     -Inf == base::max(base::unique(base::as.double(impurity.reductions[!base::is.na(impurity.reductions)])))
+            #     ) { return(NULL); }
+            if ( 1 > base::length(uniqueVarValuePairs) ) {
+                return( NULL );
+            } else if ( 0 == base::length(impurity.reductions[!base::is.na(impurity.reductions)]) ) {
+                return( NULL );
+            } else if ( -Inf == base::max(base::unique(base::as.double(impurity.reductions[!base::is.na(impurity.reductions)]))) ) {
+                return( NULL );
+                }
 
             # returns split that corresponds to the maximum impurity reduction (exluding NA values)
             output <- uniqueVarValuePairs[[ base::which.max(impurity.reductions[!base::is.na(impurity.reductions)]) ]];
