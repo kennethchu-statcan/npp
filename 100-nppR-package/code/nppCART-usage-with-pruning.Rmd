@@ -62,7 +62,7 @@ The following code segment generates data for the synthetic population
 and store the data in the data frame __DF.population__:
 
 ```{r}
-DF.population <- nppR::get.synthetic.population();
+DF.population <- nppR::get.synthetic.population(
     population.size = 10000
     );
 ```
