@@ -569,6 +569,10 @@ R6_nppCART <- R6::R6Class(
                     }
                 temp.AICs <- base::sapply(X = private$subtree.hierarchy, FUN = function(x) return(x[['AIC']]));
                 index.optimal.subtree <- base::which( temp.AICs == base::min(temp.AICs) );
+                # cat("\nget_npdata_with_propensity\n");
+                # cat("\nstr(temp.AICs)\n");
+                # print( str(temp.AICs)   );
+                # cat("\nindex.optimal.subtree = ",index.optimal.subtree,"\n");
                 # DF.output.pruned <- private$subtree.hierarchy[[index.optimal.subtree]][['npdata_with_propensity']];
                 DF.output.pruned <- private$private_get_npdata_with_propensity(
                     nodes = private$subtree.hierarchy[[index.optimal.subtree]][['pruned_nodes']]
@@ -603,6 +607,10 @@ R6_nppCART <- R6::R6Class(
                     }
                 temp.AICs <- base::sapply(X = private$subtree.hierarchy, FUN = function(x) return(x[['AIC']]));
                 index.optimal.subtree <- base::which( temp.AICs == base::min(temp.AICs) );
+                # cat("\nget_pdata_with_nodeID\n");
+                # cat("\nstr(temp.AICs)\n");
+                # print( str(temp.AICs)   );
+                # cat("\nindex.optimal.subtree = ",index.optimal.subtree,"\n");
                 DF.output.pruned <- private$private_get_pdata_with_nodeID(
                     nodes = private$subtree.hierarchy[[index.optimal.subtree]][['pruned_nodes']]
                     );
@@ -1492,7 +1500,13 @@ R6_nppCART <- R6::R6Class(
             DF.leaves[,'likelihood.summand'] <- base::apply(
                 X      = DF.leaves[,base::c('p.weight','propensity')],
                 MARGIN = 1,
-                FUN    = function(x) { return( x[1] * ( x[2]*base::log(x[2]) + (1-x[2]) * base::log(1-x[2]) ) ) }
+                FUN    = function(x) {
+                    if ( (1e-15 > x[2]) | ((1 - 1e-15) < x[2]) ) {
+                        return( 0.0 );
+                    } else {
+                        return( x[1] * ( x[2] * base::log(x[2]) + (1-x[2]) * base::log(1-x[2]) ) )
+                        }
+                    }
                 );
             # base::cat("\nDF.leaves\n");
             # base::print( DF.leaves   );
@@ -1548,10 +1562,10 @@ R6_nppCART <- R6::R6Class(
 
             # base::cat("\nlikelihood.estimate\n");
             # base::print( likelihood.estimate   );
-
+            #
             # base::cat("\ntrace.term\n");
             # base::print( trace.term   );
-
+            #
             # base::cat("\noutput.AIC\n");
             # base::print( output.AIC   );
 
