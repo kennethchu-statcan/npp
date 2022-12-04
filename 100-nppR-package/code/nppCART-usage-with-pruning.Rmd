@@ -62,8 +62,7 @@ The following code segment generates data for the synthetic population
 and store the data in the data frame __DF.population__:
 
 ```{r}
-# DF.population <- nppR::get.synthetic.population();
-DF.population <- get.synthetic.population(
+DF.population <- nppR::get.synthetic.population();
     population.size = 10000
     );
 ```
@@ -108,8 +107,7 @@ __DF.non.probability__.
 n.replicates   <- 200;
 prob.selection <- 0.2;
 
-# list.samples  <- nppR::get.npp.samples(
-list.samples  <- get.npp.samples(
+list.samples  <- nppR::get.npp.samples(
     DF.population  = DF.population,
     prob.selection = prob.selection,
     n.replicates   = n.replicates
@@ -142,7 +140,7 @@ We start by instantiating an __nppCART__ object,
 with the two input data sets as follows:
 
 ```{r}
-my.nppCART <- nppCART(
+my.nppCART <- nppR::nppCART(
     np.data                   = DF.non.probability,
     p.data                    = DF.probability,
     predictors                = c("x1","x2","x3"),
