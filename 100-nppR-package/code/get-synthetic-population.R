@@ -73,12 +73,12 @@ get.synthetic.population <- function(
     is.high.propensity.C <- ( (x3.hidden == "C") &   is.off.diagonals  );
     is.high.propensity   <- ( is.high.propensity.A | is.high.propensity.B | is.high.propensity.C );
 
-    true.propensity                     <- stats::rnorm(n = population.size,         mean = 0.20, sd = 0.015);
-    true.propensity[is.high.propensity] <- stats::rnorm(n = base::sum(is.high.propensity), mean = 0.80, sd = 0.015);
+    true.propensity                     <- stats::rnorm(n = population.size,               mean = 4e-3, sd = 1.5e-4);
+    true.propensity[is.high.propensity] <- stats::rnorm(n = base::sum(is.high.propensity), mean = 8e-3, sd = 1.5e-4);
 
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     y0 <- base::rep(x = 30, times = population.size);
     y0[is.high.propensity] <- 110;
-
     y <- y0 + stats::rnorm(n = population.size, mean = 0, sd = 1.0)^2;
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -87,7 +87,7 @@ get.synthetic.population <- function(
     levels.x2   <- base::as.vector(base::sapply( X = levels.x2.hidden, FUN = function(x) {return(base::paste(x,1:n.subgroups,sep="."))} ));
 
     DF.population <- base::data.frame(
-        unit.ID         = seq(1,population.size),
+        unit.ID         = base::seq(1,population.size),
         y               = y,
         x1.hidden       = x1.hidden,
         x2.hidden       = x2.hidden,
@@ -117,7 +117,7 @@ get.synthetic.population <- function(
     DF.population[,"x2.jitter"] <- base::as.double(DF.population[,"x2"]) + stats::runif(n = base::nrow(DF.population), min = -0.3, max = 0.3);
 
   # DF.population[,"x3"] <- base::as.double(DF.population[,"x3"]) + stats::runif(n = base::nrow(DF.population), min = -0.3, max = 0.3);
-    DF.population[,"x3"] <- base::as.double(DF.population[,"x3"]) + base::sample(x = c(-0.1,0.1), size = base::nrow(DF.population), replace = TRUE);
+    DF.population[,"x3"] <- base::as.double(DF.population[,"x3"]) + base::sample(x = base::c(-0.1,0.1), size = base::nrow(DF.population), replace = TRUE);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
   # DF.population <- DF.population[,base::c('unit.ID','y','x1','x2','x3','true.propensity','x1.jitter','x2.jitter','x3.hidden')];
