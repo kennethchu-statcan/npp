@@ -79,6 +79,7 @@ packages.import <- base::c(
 
 packages.suggest <- base::c(
     "ggplot2",
+    "knitr",
     "rmarkdown",
     "rpart",
     "R.rsp",
@@ -86,8 +87,7 @@ packages.suggest <- base::c(
     # "caret",
     # "ComplexHeatmap",
     # "png",
-    # "fs",
-    # "knitr"
+    # "fs"
     );
 
 
