@@ -302,7 +302,7 @@ my.nppCART <- nppR::nppCART(
 ```
 
 Next, we call the __nppCART$grow( )__ method to grow the classification tree
-according to the algorithm __nppCART__.
+according to the tree-growing algorithm of __nppCART__.
 
 ```{r}
 my.nppCART$grow();
