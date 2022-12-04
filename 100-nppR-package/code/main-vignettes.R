@@ -18,9 +18,9 @@ require(rmarkdown);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 code.files <- c(
-    "nppCART.R",
-    "get-npp-samples.R",
-    "get-synthetic-population.R"
+    # "nppCART.R",
+    # "get-npp-samples.R",
+    # "get-synthetic-population.R"
     );
 
 for ( code.file in code.files ) {
