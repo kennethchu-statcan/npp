@@ -66,9 +66,8 @@ get.npp.samples <- function(
     base::set.seed(seed = seed);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-  # colnames.np <- base::c("unit.ID","y","x1","x2","x3","x1.jitter","x2.jitter","x3.hidden");
     colnames.np <- base::c("unit.ID","y","x1","x2","x3");
-    colnames.p  <- base::c("unit.ID","x1","x2","x3");
+    colnames.p  <- base::c("unit.ID",    "x1","x2","x3");
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     is.self.selected   <- base::sapply(
